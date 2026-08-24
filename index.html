@@ -327,6 +327,15 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 #gameArea .g5-skill-card .sk-name{font-weight:bold;color:var(--gold-light);font-size:12px;margin-bottom:3px}
 #gameArea .g5-skill-card .sk-desc{color:var(--text-dim);font-size:10px}
 @media(max-width:640px){#gameArea .g5-map{grid-template-columns:repeat(5,1fr);gap:2px}#gameArea .g5-cell{min-height:50px;padding:2px}#gameArea .g5-pdot{width:16px;height:16px}#gameArea .g5-players{grid-template-columns:1fr}}
+
+/* 规则面板 */
+.rules-panel{background:rgba(26,15,8,.92);border:2px solid var(--gold-dark);border-radius:12px;padding:16px;margin:12px 0;font-size:13px;line-height:1.7;max-height:50vh;overflow-y:auto}
+.rules-panel h3{color:var(--gold-light);font-size:16px;margin-bottom:8px;text-align:center}
+.rules-panel h4{color:var(--gold);font-size:13px;margin:10px 0 4px}
+.rules-panel p{margin:4px 0;color:var(--text-dim)}
+.rules-panel .rule-section{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(74,53,32,.3)}
+.rules-panel .rule-section:last-child{border-bottom:none}
+.game-topbar{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -385,10 +394,12 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
   <div class="game-topbar">
     <div class="title" id="gameTitle">游戏</div>
     <div class="info" id="gameInfo"></div>
+    <button class="btn btn-small btn-gray" onclick="toggleRules()" id="rulesBtn" style="margin-left:8px">📜 规则</button>
   </div>
   <div class="game-progress" id="gameProgress"></div>
   <div class="host-controls hidden" id="hostControls"></div>
   <div id="gameArea"></div>
+  <div id="rulesPanel" class="rules-panel hidden"></div>
 </div>
 
 </div>
@@ -407,9 +418,46 @@ const GAMES=[
   {id:1,name:'小蛇机',icon:'🐍',teamGold:true},
   {id:2,name:'拍词酒杯',icon:'🍺',teamGold:true},
   {id:3,name:'酒馆争夺战',icon:'⚔️',teamGold:false},
-  {id:4,name:'冒险王之投了个骰',icon:'🎯',teamGold:false},
+  {id:4,name:'冒险王之投了个骰',icon:'🎯',teamGold:true},
   {id:5,name:'逃生机制',icon:'🏰',teamGold:false},
 ];
+const GAME_RULES={
+  1:`<h3>🐍 小蛇机规则</h3>
+  <div class="rule-section"><h4>卡牌配置（共42张）</h4><p>🐍蛇头×8、🏆金牌×4（5金币）、🐍蛇身0×8、🧣围脖1×8（1金币）、🧣围脖2×8（2金币）、🧣围脖3×6（3金币）</p></div>
+  <div class="rule-section"><h4>玩法</h4><p>• 每回合投骰子决定翻牌张数（1-6点对应1-6张）</p><p>• 前3回合蛇头保底无效（安全回合）</p><p>• 第4回合起，翻到蛇头即出局</p><p>• 第一个翻到蛇头出局的玩家获"一发入魂"奖励+5金币</p><p>• 8轮结束或全员出局后游戏结束</p></div>
+  <div class="rule-section"><h4>金币结算</h4><p>• 队伍金币制：所有玩家的金币计入队伍总分</p><p>• 总分高的队伍获胜，结束后队伍金币平分</p></div>`,
+  2:`<h3>🍺 拍词酒杯规则</h3>
+  <div class="rule-section"><h4>基本设定</h4><p>• 酒杯初始15，上限31</p><p>• 每回合投3颗骰子，选择1颗生效</p></div>
+  <div class="rule-section"><h4>骰子效果</h4><p>• ⚀(1)：酒杯+1</p><p>• ⚁(2)：酒杯+2</p><p>• ⚂(3)：酒杯+3</p><p>• ⚃(4)：酒杯-4</p><p>• ⚄(5)：跳过（不加不减）</p><p>• ⚅(6)：反转方向</p></div>
+  <div class="rule-section"><h4>胜负</h4><p>• 酒杯≥31时，当前玩家所在队伍输</p><p>• 赢队每人10金币，输队每人6金币</p></div>`,
+  3:`<h3>⚔️ 酒馆争夺战规则</h3>
+  <div class="rule-section"><h4>基本设定</h4><p>• 6个酒馆，上层金币5/7/9/12/15/20，下层2/3/4/5/6/8</p><p>• 每人8个击破指示物</p><p>• 开局比大小决定先手</p></div>
+  <div class="rule-section"><h4>玩法</h4><p>• 每回合投N颗骰子（N=剩余指示物数，最多6颗）</p><p>• 选择一个数字，将指示物放到对应酒馆</p><p>• 并列作废：同一酒馆某数字有≥2人选择，全部视为0</p><p>• 1-3号酒馆有守护者小游戏</p></div>
+  <div class="rule-section"><h4>守护者</h4><p>• 1号🏠猞猁：猜左右手，猜对+2金币</p><p>• 2号🏠乌鸦：选1-3金币，守护者猜，猜错返还1指示物，猜对得对应金币</p><p>• 3号🏠老虎：3局赌大小，赢几局得几金币</p></div>
+  <div class="rule-section"><h4>结算</h4><p>• 指示物用完后，每个酒馆击破数最多者得上层金币，第二多得下层金币</p><p>• 个人金币制</p></div>`,
+  4:`<h3>🎯 冒险王之投了个骰规则</h3>
+  <div class="rule-section"><h4>基本设定</h4><p>• 龙蛋50血，开局比大小决定先手</p><p>• 玩家轮流投掷攻击龙蛋</p></div>
+  <div class="rule-section"><h4>投掷玩法</h4><p>• 力度条来回移动，点击锁定力度</p><p>• 0-10：脱靶（0伤害）</p><p>• 10-18：黑洞（0伤害）</p><p>• 18-100：对应1-10环伤害（力度越高伤害越高）</p><p>• 随机偏移±6</p></div>
+  <div class="rule-section"><h4>胜负</h4><p>• 击败龙蛋的队伍获胜</p><p>• 赢队每人10金币，输队每人5金币</p></div>`,
+  5:`<h3>🏰 逃生机制规则</h3>
+  <div class="rule-section"><h4>基本设定</h4><p>• 24格地图，初始9血，先到终点获胜</p><p>• 0/8/16格为技能更换点（各8张技能卡，先到先得）</p><p>• 开局比大小决定先手，然后依次选择初始技能</p></div>
+  <div class="rule-section"><h4>移动</h4><p>• 投骰子：1-2走1格，3-4走2格，5-6走3格</p><p>• 第一阶段（0-7格）：每轮末尾玩家-1血（巨龙吐息）</p><p>• 第二阶段（8-15格）：9/12/15格落石-1血</p><p>• 第三阶段（16-24格）：非队友同格必须决斗</p></div>
+  <div class="rule-section"><h4>决斗</h4><p>• 双方各投1颗骰子比大小</p><p>• 胜者+1格，败者-1血</p><p>• 平局无事发生</p></div>
+  <div class="rule-section"><h4>血量与复活</h4><p>• 血量归零可用1金币抵1血复活</p><p>• 金币不足则淘汰</p></div>
+  <div class="rule-section"><h4>名次金币</h4><p>• 按到达终点顺序：第1名6金币、第2名5、第3名4、第4名3、第5名2、第6名1</p><p>• 个人金币制</p></div>`
+};
+function toggleRules(){
+  const panel=document.getElementById('rulesPanel');
+  if(!panel)return;
+  if(panel.classList.contains('hidden')){
+    const gi=state.currentGame||window.G.gameId||1;
+    panel.innerHTML=GAME_RULES[gi]||'<p>暂无规则</p>';
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }else{
+    panel.classList.add('hidden');
+  }
+}
 const CODE_CHARS='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const STORAGE_KEY='dungeon_night_reconnect';
 
@@ -711,7 +759,7 @@ function handlePlayerMsg(msg){
     if(msg.name)myName=msg.name;if(msg.team)myTeam=msg.team;if(msg.charId)myCharId=msg.charId;
     const roomId=document.getElementById('joinRoomInput').value.trim().toUpperCase();
     saveReconnectCode(roomId,msg.reconnectCode,myName,myCharId);
-    if(msg.reconnected&&msg.state){state=msg.state;enterGameScreen();if(window.G&&window.G.render)window.G.render();return}
+    if(msg.reconnected&&msg.state){state=msg.state;enterGameScreen();if(state.phase==='playing'){window.G.gameId=state.currentGame;if(window.G.render)window.G.render()}else if(state.phase==='gameOver'){renderGameSummary()}return}
     document.getElementById('waitName').textContent=myName;
     const tb=document.getElementById('waitTeam');tb.textContent=myTeam==='blue'?'🔵 蓝队':'🔴 红队';tb.className='team-badge-display '+myTeam;
     document.getElementById('waitRoom').textContent=roomId;
@@ -728,8 +776,9 @@ function handlePlayerMsg(msg){
       renderGameSummary();
     }
     if(state.phase==='lobby'&&!document.getElementById('playerWait').classList.contains('hidden'))renderWaitScreen();
-    if(state.phase==='playing'&&window.G&&window.G.render)window.G.render();
     if(state.phase==='playing'){
+      window.G.gameId=state.currentGame;
+      if(window.G.render)window.G.render();
       renderProgress('gameProgress');
       document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
     }
