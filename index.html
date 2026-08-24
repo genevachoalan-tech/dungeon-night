@@ -336,6 +336,13 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .rules-panel .rule-section{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(74,53,32,.3)}
 .rules-panel .rule-section:last-child{border-bottom:none}
 .game-topbar{flex-wrap:wrap}
+.host-skip-bar{text-align:center;margin:6px 0}
+.gold-confirm-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:16px}
+.gold-confirm-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:14px;padding:20px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto}
+.gold-confirm-box h3{color:var(--gold-light);text-align:center;margin-bottom:12px}
+.gold-confirm-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(74,53,32,.3);font-size:13px}
+.gold-confirm-row input{width:60px;padding:4px 8px;font-size:13px;background:#1a0f08;color:var(--text);border:1px solid #4a3520;border-radius:4px;text-align:center}
+.gold-confirm-actions{text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center}
 </style>
 </head>
 <body>
@@ -398,6 +405,9 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
   </div>
   <div class="game-progress" id="gameProgress"></div>
   <div class="host-controls hidden" id="hostControls"></div>
+  <div class="host-skip-bar hidden" id="hostSkipBar">
+    <button class="btn btn-small btn-gray" onclick="hostSkipGame()">⏭️ 跳过本局（不结算金币）</button>
+  </div>
   <div id="gameArea"></div>
   <div id="rulesPanel" class="rules-panel hidden"></div>
 </div>
@@ -615,19 +625,59 @@ function fallbackCopy(text,cb){
 
 function hostStartNextGame(){
   if(state.currentGame>=5)return;
+  // 金币确认弹窗
+  showGoldConfirm(()=>{
+    const nextGame=state.currentGame+1;
+    state.currentGame=nextGame;
+    state.phase='playing';
+    state.gameSummary=null;
+    if(window.G && window.G.init)window.G.init(nextGame);
+    broadcastState();
+    showScreen('gameScreen');
+    document.getElementById('myRoleLabel').textContent='🎩 主持人';
+    document.getElementById('hostControls').classList.remove('hidden');
+    document.getElementById('hostSkipBar').classList.remove('hidden');
+    setConn('online','已连接');
+    if(window.G && window.G.render)window.G.render();
+  });
+}
+
+function showGoldConfirm(onConfirm){
   const nextGame=state.currentGame+1;
-  state.currentGame=nextGame;
-  state.phase='playing';
-  state.gameSummary=null;
-  // 初始化游戏模块
-  if(window.G && window.G.init)window.G.init(nextGame);
+  const gi=GAMES[nextGame-1];
+  let html='<div class="gold-confirm-modal" id="goldConfirmModal"><div class="gold-confirm-box">';
+  html+='<h3>💰 确认金币 — 第'+nextGame+'局：'+gi.icon+' '+gi.name+'</h3>';
+  html+='<p style="font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:10px">开始前可修改每位玩家的金币数量</p>';
+  const all=Object.entries(state.players);
+  all.forEach(([id,p])=>{
+    const c=CHARACTERS.find(ch=>ch.id===p.character);
+    html+='<div class="gold-confirm-row"><span>'+(c?'<img src="'+c.img+'" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:4px">':'')+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</span><input type="number" min="0" value="'+(p.gold||0)+'" id="gc_'+id+'"></div>';
+  });
+  html+='<div class="gold-confirm-actions"><button class="btn btn-gray" onclick="document.getElementById(\'goldConfirmModal\').remove()">取消</button><button class="btn" onclick="confirmGoldAndStart()">✅ 确认并开始</button></div>';
+  html+='</div></div>';
+  document.querySelector('.container').insertAdjacentHTML('beforeend',html);
+  window._goldConfirmCallback=onConfirm;
+}
+function confirmGoldAndStart(){
+  Object.entries(state.players).forEach(([id,p])=>{
+    const inp=document.getElementById('gc_'+id);
+    if(inp)p.gold=Math.max(0,parseInt(inp.value)||0);
+  });
+  document.getElementById('goldConfirmModal').remove();
+  if(window._goldConfirmCallback){window._goldConfirmCallback();window._goldConfirmCallback=null}
+}
+
+function hostSkipGame(){
+  if(!isHost||state.phase!=='playing')return;
+  if(!confirm('确定跳过本局「'+GAMES[state.currentGame-1].name+'」吗？\n跳过不结算金币，直接回到大厅。'))return;
+  state.phase='lobby';
+  state.game=null;state.gameSummary=null;
+  document.getElementById('hostSkipBar').classList.add('hidden');
+  document.getElementById('hostControls').classList.add('hidden');
+  document.getElementById('gameArea').innerHTML='';
+  showScreen('hostLobby');
+  renderHostLobby();
   broadcastState();
-  // 主持人和玩家都进入游戏界面
-  showScreen('gameScreen');
-  document.getElementById('myRoleLabel').textContent='🎩 主持人';
-  document.getElementById('hostControls').classList.remove('hidden');
-  setConn('online','已连接');
-  if(window.G && window.G.render)window.G.render();
 }
 
 // 游戏结束（由游戏模块调用）
@@ -698,9 +748,9 @@ function renderGameSummary(){
 function closeSummaryAndNext(){
   document.getElementById('gameArea').innerHTML='';
   state.phase='lobby';
-  // 回到大厅
   showScreen('hostLobby');
   document.getElementById('hostControls').classList.add('hidden');
+  document.getElementById('hostSkipBar').classList.add('hidden');
   renderHostLobby();
   broadcastState();
 }
