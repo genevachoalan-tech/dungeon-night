@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏰 冒险王之夜 · 桌游合集</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#c9a227;--gold-light:#e8c84a;--gold-dark:#8a6d1a;
+  --stone:#2a1d10;--stone-light:#3d2e1a;--stone-dark:#1a0f08;
+  --blue:#4a90e2;--red:#e74c3c;--green:#7bc47f;
+  --text:#d4c5a9;--text-dim:#8a7050;
+}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#0d0704;min-height:100vh;color:var(--text);user-select:none;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:url('https://aka.doubaocdn.com/s/QW9qIjkD9F');background-size:cover;background-position:center;background-attachment:fixed;opacity:.3;z-index:0;pointer-events:none}
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,rgba(13,7,4,.2) 0%,rgba(13,7,4,.75) 100%);z-index:0;pointer-events:none}
+.container{max-width:1100px;margin:0 auto;padding:14px;position:relative;z-index:1}
+
+/* 按钮 */
+.btn{padding:11px 28px;font-size:15px;font-weight:bold;border:none;border-radius:26px;cursor:pointer;transition:all .2s;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#1a0f08;box-shadow:0 3px 10px rgba(201,162,39,.4);border:1px solid var(--gold)}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 16px rgba(201,162,39,.6)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-blue{background:linear-gradient(135deg,#5ba0f0,#1565c0);color:#fff;border-color:#4a90e2;box-shadow:0 3px 10px rgba(21,101,192,.4)}
+.btn-red{background:linear-gradient(135deg,#f06060,#c62828);color:#fff;border-color:#e74c3c;box-shadow:0 3px 10px rgba(198,40,40,.4)}
+.btn-gray{background:linear-gradient(135deg,#78909c,#455a64);color:#fff;border-color:#607d8b;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.btn-small{padding:6px 16px;font-size:13px}
+.hidden{display:none!important}
+
+/* 角色选择 */
+.role-screen{text-align:center;padding:30px 16px;position:relative;z-index:1}
+.role-screen h1{font-size:36px;color:var(--gold-light);margin-bottom:6px;text-shadow:0 4px 12px rgba(0,0,0,.8);letter-spacing:2px}
+.role-screen .sub{font-size:14px;color:var(--text-dim);margin-bottom:28px}
+.char-pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:520px;margin:0 auto 24px}
+.char-pick-card{background:rgba(26,15,8,.7);border:2px solid #4a3520;border-radius:14px;padding:14px 10px;cursor:pointer;transition:all .25s;backdrop-filter:blur(4px)}
+.char-pick-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 8px 24px rgba(201,162,39,.3)}
+.char-pick-card.selected{border-color:var(--gold-light);box-shadow:0 0 16px rgba(232,200,74,.5);background:rgba(201,162,39,.15)}
+.char-pick-card img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #4a3520;margin-bottom:8px}
+.char-pick-card.selected img{border-color:var(--gold-light)}
+.char-pick-card .cname{font-size:14px;color:var(--text);font-weight:bold}
+.join-field{max-width:360px;margin:0 auto 14px;text-align:left}
+.join-field label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:5px}
+.join-field input{width:100%;padding:11px 14px;border-radius:10px;border:2px solid #4a3520;background:rgba(26,15,8,.8);color:var(--text);font-size:15px;outline:none}
+.join-field input:focus{border-color:var(--gold)}
+.team-select{display:flex;gap:10px;max-width:360px;margin:0 auto 18px}
+.team-btn{flex:1;padding:14px;border-radius:12px;border:3px solid transparent;cursor:pointer;font-size:15px;font-weight:bold;transition:all .2s;background:rgba(26,15,8,.7);color:#999;backdrop-filter:blur(4px)}
+.team-btn.blue{border-color:#1976d2}.team-btn.blue.selected{background:rgba(21,101,192,.4);border-color:#64b5f6;color:#fff;box-shadow:0 0 14px rgba(100,181,246,.4)}
+.team-btn.red{border-color:#c62828}.team-btn.red.selected{background:rgba(198,40,40,.4);border-color:#ef9a9a;color:#fff;box-shadow:0 0 14px rgba(239,154,154,.4)}
+.team-btn .t-icon{font-size:26px;display:block;margin-bottom:3px}
+.join-status{font-size:14px;color:var(--gold-light);margin:12px 0;min-height:20px;text-align:center}
+
+/* 大厅 */
+.lobby-screen{padding:18px;position:relative;z-index:1}
+.lobby-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.lobby-header h2{font-size:22px;color:var(--gold-light)}
+.room-id-box{background:rgba(0,0,0,.5);border:2px dashed var(--gold);border-radius:10px;padding:10px 22px;font-size:26px;font-weight:bold;letter-spacing:6px;color:#fff;cursor:pointer;transition:all .2s;user-select:none;position:relative}
+.room-id-box:hover{background:rgba(201,162,39,.2);border-style:solid}
+.room-id-box:active{transform:scale(.97)}
+.room-id-box .copy-hint{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:0;color:var(--gold);white-space:nowrap}
+.room-id-box.copied{border-color:#7bc47f;color:#7bc47f}
+.team-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.team-panel{background:rgba(26,15,8,.7);border-radius:14px;padding:14px;border:2px solid transparent;backdrop-filter:blur(4px)}
+.team-panel.blue{border-color:#1976d2}.team-panel.red{border-color:#c62828}
+.team-panel h3{font-size:16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.team-panel.blue h3{color:#64b5f6}.team-panel.red h3{color:#ef9a9a}
+.team-panel h3 .count{font-size:13px;color:#aaa}
+.player-slot{background:rgba(255,255,255,.06);border-radius:8px;padding:9px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;font-size:14px;flex-wrap:wrap;gap:6px}
+.player-slot.empty{color:#666;font-style:italic;justify-content:center}
+.player-slot .pinfo{display:flex;align-items:center;gap:6px}
+.player-slot .pinfo img{width:28px;height:28px;border-radius:50%;border:1px solid #4a3520}
+.player-slot .status{font-size:12px;color:var(--green)}.player-slot .status.offline{color:#ef5350}
+.lobby-actions{text-align:center}
+.lobby-actions .btn{font-size:17px;padding:13px 44px}
+.lobby-actions .tip{font-size:13px;color:var(--text-dim);margin-top:10px}
+
+/* 游戏通用 */
+.conn-bar{background:rgba(0,0,0,.5);border-radius:8px;padding:6px 14px;font-size:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;backdrop-filter:blur(4px)}
+.conn-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#666;margin-right:5px;vertical-align:middle}
+.conn-dot.online{background:var(--green);box-shadow:0 0 6px var(--green)}
+.game-topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.4);border-radius:10px;padding:8px 16px;margin-bottom:10px;flex-wrap:wrap;gap:8px;font-size:13px;backdrop-filter:blur(4px)}
+.game-topbar .title{font-size:17px;font-weight:bold;color:var(--gold-light)}
+.game-topbar .info span{background:rgba(255,255,255,.1);padding:3px 10px;border-radius:14px;margin-left:5px}
+.game-topbar .info b{color:var(--gold-light)}
+.host-controls{margin-bottom:8px;text-align:center}
+#gameArea{min-height:300px}
+
+/* 游戏进度条 */
+.game-progress{display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.gp-step{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;font-size:11px;background:rgba(26,15,8,.7);border:1px solid #4a3520;color:var(--text-dim);transition:all .3s}
+.gp-step.active{background:rgba(201,162,39,.2);border-color:var(--gold);color:var(--gold-light);box-shadow:0 0 8px rgba(201,162,39,.3)}
+.gp-step.done{background:rgba(123,196,127,.15);border-color:var(--green);color:var(--green)}
+.gp-arrow{color:#4a3520;font-size:10px}
+
+/* 游戏结束总结 */
+.summary-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.summary-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:16px;padding:24px 30px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;text-align:center;box-shadow:0 0 40px rgba(201,162,39,.4)}
+.summary-title{font-size:24px;color:var(--gold-light);margin-bottom:16px;font-weight:bold}
+.summary-section{text-align:left;margin-bottom:14px}
+.summary-section h4{color:var(--gold);font-size:14px;margin-bottom:6px;border-bottom:1px solid #4a3520;padding-bottom:4px}
+.summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid rgba(74,53,32,.3)}
+.summary-row .sr-name{display:flex;align-items:center;gap:6px}
+.summary-row .sr-name img{width:22px;height:22px;border-radius:50%}
+.summary-row .sr-val{color:var(--gold-light);font-weight:bold}
+.summary-total{font-size:16px;color:var(--gold-light);font-weight:bold;margin:12px 0;padding:10px;background:rgba(201,162,39,.1);border-radius:8px}
+
+/* 弹窗 */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:900;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:14px;padding:20px 24px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-box h3{color:var(--gold-light);margin-bottom:12px;text-align:center}
+
+/* 重连码 */
+.reconnect-bar{background:rgba(201,162,39,.12);border:1px solid var(--gold);border-radius:8px;padding:6px 14px;font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.reconnect-bar b{color:var(--gold-light);letter-spacing:2px;font-size:15px}
+.reconnect-code-box{background:rgba(201,162,39,.15);border:1px solid var(--gold);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:13px}
+.reconnect-code-box code{color:var(--gold-light);font-weight:bold;letter-spacing:2px}
+
+/* 等待页面 */
+.wait-screen{text-align:center;padding:30px 16px;position:relative;z-index:1}
+.wait-info{background:rgba(26,15,8,.7);border-radius:12px;padding:18px;max-width:400px;margin:0 auto 18px;font-size:14px;line-height:2;backdrop-filter:blur(4px)}
+.wait-info b{color:var(--gold-light)}
+.team-badge-display{display:inline-block;padding:3px 14px;border-radius:18px;font-size:13px;font-weight:bold}
+.team-badge-display.blue{background:#1976d2;color:#fff}.team-badge-display.red{background:#c62828;color:#fff}
+
+@media(max-width:640px){
+  .container{padding:10px}
+  .role-screen h1{font-size:26px}
+  .char-pick-grid{gap:8px}
+  .char-pick-card{padding:10px 6px}
+  .char-pick-card img{width:56px;height:56px}
+  .team-columns{grid-template-columns:1fr;gap:10px}
+  .room-id-box{font-size:20px;padding:8px 14px}
+}
+
+/* ===== 小蛇机样式 ===== */
+#gameArea .g1-team-coins{display:flex;justify-content:space-between;margin-bottom:10px;gap:10px}
+#gameArea .g1-team-coin{flex:1;background:rgba(0,0,0,.3);border-radius:10px;padding:8px 16px;display:flex;justify-content:space-between;align-items:center;font-size:14px;border:2px solid transparent}
+#gameArea .g1-team-coin.blue{border-color:#1976d2}#gameArea .g1-team-coin.red{border-color:#c62828}
+#gameArea .g1-team-coin b{font-size:20px;color:var(--gold-light)}
+#gameArea .g1-players{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+#gameArea .g1-card{background:rgba(0,0,0,.25);border-radius:12px;padding:10px;border:2px solid transparent;transition:all .3s}
+#gameArea .g1-card.active{border-color:var(--gold);box-shadow:0 0 14px rgba(201,162,39,.3)}
+#gameArea .g1-card.failed{opacity:.5}
+#gameArea .g1-card.me{background:rgba(201,162,39,.05)}
+#gameArea .g1-pc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;flex-wrap:wrap;gap:4px}
+#gameArea .g1-pc-name{font-weight:bold}
+#gameArea .g1-pc-coins{color:var(--gold-light);font-weight:bold;font-size:15px}
+#gameArea .g1-mini-badge{font-size:10px;padding:1px 6px;border-radius:8px;margin-left:3px}
+#gameArea .g1-mini-badge.title{background:linear-gradient(90deg,#ff6f00,#ffd54f);color:#3e2723}
+#gameArea .g1-mini-badge.fail{background:#616161}
+#gameArea .g1-snake{display:flex;gap:4px;overflow-x:auto;padding:4px 0}
+#gameArea .g1-mcard{flex-shrink:0;width:40px;height:54px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-weight:bold;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+#gameArea .g1-mcard .mi{font-size:16px}
+#gameArea .g1-mcard .mv{font-size:10px;margin-top:1px}
+#gameArea .g1-mcard.tail{background:linear-gradient(135deg,#4caf50,#2e7d32);border:1px solid #81c784}
+#gameArea .g1-mcard.body-0{background:linear-gradient(135deg,#66bb6a,#388e3c);border:1px solid #a5d6a7}
+#gameArea .g1-mcard.body-1{background:linear-gradient(135deg,#4fc3f7,#0288d1);border:1px solid #81d4fa}
+#gameArea .g1-mcard.body-2{background:linear-gradient(135deg,#ba68c8,#7b1fa2);border:1px solid #ce93d8}
+#gameArea .g1-mcard.body-3{background:linear-gradient(135deg,#ff8a65,#d84315);border:1px solid #ffab91}
+#gameArea .g1-mcard.gold{background:linear-gradient(135deg,#ffd54f,#ff8f00);border:1px solid #fff176;color:#3e2723}
+#gameArea .g1-mcard.head{background:linear-gradient(135deg,#ef5350,#b71c1c);border:1px solid #ef9a9a;animation:g1pulse 1s infinite}
+@keyframes g1pulse{0%,100%{box-shadow:0 0 4px #ef5350}50%{box-shadow:0 0 10px #ef5350}}
+#gameArea .g1-center{background:rgba(0,0,0,.25);border-radius:12px;padding:16px;text-align:center;margin-bottom:10px}
+#gameArea .g1-msg{font-size:15px;font-weight:bold;min-height:24px;margin-bottom:12px;color:#fff59d}
+#gameArea .g1-msg.warn{color:#ef9a9a}#gameArea .g1-msg.good{color:#a5d6a7}
+#gameArea .g1-rollrow{display:flex;align-items:center;justify-content:center;gap:24px}
+#gameArea .g1-deck{width:60px;height:80px;border-radius:8px;background:repeating-linear-gradient(45deg,#2e7d32,#2e7d32 6px,#1b5e20 6px,#1b5e20 12px);border:2px solid #81c784;display:flex;align-items:center;justify-content:center;font-size:22px;color:rgba(255,255,255,.3)}
+#gameArea .g1-dice{width:58px;height:58px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#333;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+#gameArea .g1-dice.rolling{animation:g1shake .5s ease infinite}
+@keyframes g1shake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.1)}75%{transform:rotate(15deg) scale(.95)}}
+#gameArea .g1-reveal{text-align:center;margin-bottom:14px;animation:g1reveal .4s ease}
+@keyframes g1reveal{0%{transform:scale(.3) rotateY(180deg);opacity:0}100%{transform:scale(1) rotateY(0);opacity:1}}
+#gameArea .g1-rcard{width:120px;height:160px;margin:0 auto;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.5);border:3px solid #fff}
+#gameArea .g1-rcard.tail{background:linear-gradient(135deg,#4caf50,#2e7d32)}
+#gameArea .g1-rcard.body-0{background:linear-gradient(135deg,#66bb6a,#388e3c)}
+#gameArea .g1-rcard.body-1{background:linear-gradient(135deg,#4fc3f7,#0288d1)}
+#gameArea .g1-rcard.body-2{background:linear-gradient(135deg,#ba68c8,#7b1fa2)}
+#gameArea .g1-rcard.body-3{background:linear-gradient(135deg,#ff8a65,#d84315)}
+#gameArea .g1-rcard.gold{background:linear-gradient(135deg,#ffd54f,#ff8f00);color:#3e2723}
+#gameArea .g1-rcard.head{background:linear-gradient(135deg,#ef5350,#b71c1c);animation:g1rpulse .6s ease infinite}
+@keyframes g1rpulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.5)}50%{box-shadow:0 8px 30px rgba(239,83,80,.8)}}
+#gameArea .g1-ricon{font-size:48px;margin-bottom:8px}
+#gameArea .g1-rname{font-size:20px;font-weight:bold;color:#fff}
+#gameArea .g1-reffect{font-size:14px;color:#fff;opacity:.9;margin-top:4px;background:rgba(0,0,0,.25);padding:3px 12px;border-radius:10px}
+#gameArea .g1-rplayer{font-size:14px;color:var(--gold-light);font-weight:bold;margin-top:8px}
+
+/* ===== 拍词酒杯样式 ===== */
+#gameArea .g2-cup-area{text-align:center;margin-bottom:14px}
+#gameArea .g2-cup-wrap{display:inline-block;position:relative}
+#gameArea .g2-cup{width:130px;height:160px;margin:0 auto;position:relative;border:4px solid #ffcc80;border-top:none;border-radius:0 0 50px 50px;background:rgba(0,0,0,.3);overflow:hidden}
+#gameArea .g2-liquid{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,#ffb74d,#e65100);transition:height .6s ease,background .6s ease}
+#gameArea .g2-liquid::before{content:'';position:absolute;top:-6px;left:0;right:0;height:12px;background:rgba(255,255,255,.2);border-radius:50%}
+#gameArea .g2-cup-txt{font-size:26px;font-weight:bold;color:#ffb74d;margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+#gameArea .g2-cup-txt .max{font-size:15px;color:#ffcc80}
+#gameArea .g2-cup.danger{animation:g2shake .4s ease infinite}
+@keyframes g2shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+#gameArea .g2-dice-row{display:flex;justify-content:center;gap:16px;margin-bottom:10px}
+#gameArea .g2-dice{width:62px;height:62px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#333;box-shadow:0 4px 12px rgba(0,0,0,.5);cursor:pointer;transition:all .2s}
+#gameArea .g2-dice.rolling{animation:g2dshake .5s ease infinite}
+@keyframes g2dshake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.1)}75%{transform:rotate(15deg) scale(.95)}}
+#gameArea .g2-dice.selectable:hover{transform:translateY(-6px) scale(1.1);box-shadow:0 8px 20px rgba(255,183,77,.5)}
+#gameArea .g2-dice.selected{border:3px solid #ffb74d;box-shadow:0 0 18px rgba(255,183,77,.6);transform:translateY(-6px)}
+#gameArea .g2-dice.disabled{opacity:.5;cursor:not-allowed}
+#gameArea .g2-dice-eff{font-size:11px;color:#ffab91;margin-top:4px;min-height:16px;text-align:center}
+#gameArea .g2-msg{font-size:15px;font-weight:bold;min-height:24px;margin-bottom:10px;color:#fff59d;text-align:center}
+#gameArea .g2-msg.warn{color:#ef9a9a}#gameArea .g2-msg.good{color:#a5d6a7}
+#gameArea .g2-teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+#gameArea .g2-team{background:rgba(0,0,0,.25);border-radius:12px;padding:10px;border:2px solid transparent}
+#gameArea .g2-team.blue{border-color:#1976d2}#gameArea .g2-team.red{border-color:#c62828}
+#gameArea .g2-team h4{font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between}
+#gameArea .g2-team.blue h4{color:#64b5f6}#gameArea .g2-team.red h4{color:#ef9a9a}
+#gameArea .g2-team h4 .coins{color:var(--gold-light);font-size:16px}
+#gameArea .g2-chip{display:inline-block;padding:5px 10px;border-radius:16px;font-size:12px;margin:2px;background:rgba(255,255,255,.08);transition:all .2s}
+#gameArea .g2-chip.active{background:#ffb74d;color:#3e2723;font-weight:bold;box-shadow:0 0 10px rgba(255,183,77,.5)}
+#gameArea .g2-chip.me{border:1px dashed var(--gold)}
+#gameArea .g2-chip.offline{opacity:.4;text-decoration:line-through}
+#gameArea .g2-center{text-align:center;margin-bottom:10px}
+
+/* ===== 酒馆争夺战样式 ===== */
+#gameArea .g3-taverns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+#gameArea .g3-tv{background:rgba(0,0,0,.3);border-radius:10px;padding:8px;border:2px solid #5d4037;transition:all .2s;cursor:default}
+#gameArea .g3-tv.guardian{border-color:#ffb74d}
+#gameArea .g3-tv.attackable{cursor:pointer;border-color:var(--gold);box-shadow:0 0 10px rgba(201,162,39,.4)}
+#gameArea .g3-tv.attackable:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(201,162,39,.5)}
+#gameArea .g3-tv-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+#gameArea .g3-tv-gold{font-size:11px;color:var(--gold-light);margin-bottom:4px}
+#gameArea .g3-tv-gold b{font-size:13px}
+#gameArea .g3-hit-row{display:flex;align-items:center;gap:4px;font-size:9px;margin:2px 0}
+#gameArea .g3-hit-row .bar{flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+#gameArea .g3-hit-row .bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .3s}
+#gameArea .g3-dice-row{display:flex;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+#gameArea .g3-dice{width:48px;height:48px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#333;box-shadow:0 3px 8px rgba(0,0,0,.5)}
+#gameArea .g3-dice.rolling{animation:g3shake .5s ease infinite}
+@keyframes g3shake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-15deg) scale(1.1)}75%{transform:rotate(15deg) scale(.95)}}
+#gameArea .g3-counts{display:flex;justify-content:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+#gameArea .g3-count{font-size:12px;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,.08)}
+#gameArea .g3-count b{color:var(--gold-light)}
+#gameArea .g3-msg{font-size:14px;font-weight:bold;min-height:22px;margin-bottom:8px;color:#fff59d;text-align:center}
+#gameArea .g3-msg.warn{color:#ef9a9a}#gameArea .g3-msg.good{color:#a5d6a7}
+#gameArea .g3-reveal{background:rgba(0,0,0,.3);border-radius:10px;padding:10px;text-align:center;margin-bottom:8px;animation:g3reveal .3s ease}
+@keyframes g3reveal{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+#gameArea .g3-reveal .rv-name{font-size:16px;font-weight:bold;color:var(--gold-light)}
+#gameArea .g3-reveal .rv-eff{font-size:13px;color:#a5d6a7;margin-top:4px}
+#gameArea .g3-reveal .rv-g{font-size:12px;color:#ffb74d;margin-top:3px}
+#gameArea .g3-center{text-align:center;margin-bottom:10px}
+#gameArea .g3-ind-info{font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:6px}
+#gameArea .g3-ind-info b{color:var(--gold-light)}
+#gameArea .g3-guardian-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:800;display:flex;align-items:center;justify-content:center;padding:16px}
+#gameArea .g3-guardian-box{background:linear-gradient(135deg,#3e2723,#1a0a00);border:2px solid var(--gold);border-radius:14px;padding:20px 24px;max-width:400px;width:100%;text-align:center}
+#gameArea .g3-guardian-box h3{color:var(--gold-light);margin-bottom:12px}
+#gameArea .g3-guardian-box p{font-size:13px;line-height:1.7;color:#ffcc80;margin-bottom:8px}
+@media(max-width:640px){#gameArea .g3-taverns{grid-template-columns:repeat(2,1fr)}#gameArea .g3-dice{width:40px;height:40px;font-size:20px}}
+
+/* ===== 冒险王样式 ===== */
+#gameArea .g4-enemy{text-align:center;margin-bottom:12px;background:rgba(0,0,0,.3);border-radius:14px;padding:14px}
+#gameArea .g4-enemy-name{font-size:20px;font-weight:bold;color:#ff6b6b;margin-bottom:6px}
+#gameArea .g4-hp-bar{width:100%;max-width:420px;height:26px;background:rgba(0,0,0,.4);border-radius:13px;margin:0 auto 6px;overflow:hidden;border:2px solid #ff6b6b}
+#gameArea .g4-hp-fill{height:100%;background:linear-gradient(90deg,#ff6b6b,#ee5a24);transition:width .5s;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#fff}
+#gameArea .g4-target{display:flex;justify-content:center;margin-bottom:12px}
+#gameArea .g4-twrap{position:relative;width:280px;height:280px}
+#gameArea .g4-tsvg{width:100%;height:100%}
+#gameArea .g4-tdice{position:absolute;width:30px;height:30px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#333;box-shadow:0 3px 8px rgba(0,0,0,.5);transition:all .6s cubic-bezier(.34,1.56,.64,1);transform:translate(-50%,-50%);pointer-events:none}
+#gameArea .g4-tdice.flying{opacity:0;transform:translate(-50%,-200%) scale(.5)}
+#gameArea .g4-roll-area{text-align:center;margin-bottom:10px}
+#gameArea .g4-msg{font-size:15px;font-weight:bold;min-height:24px;margin-bottom:8px;color:#fff59d}
+#gameArea .g4-msg.warn{color:#ef9a9a}#gameArea .g4-msg.good{color:#a5d6a7}
+#gameArea .g4-result{font-size:17px;margin:6px 0;min-height:24px}
+#gameArea .g4-result .hit{color:#a5d6a7}#gameArea .g4-result .miss{color:#ef9a9a}#gameArea .g4-result .dmg{color:var(--gold-light);font-weight:bold}
+#gameArea .g4-power-wrap{max-width:380px;margin:0 auto 12px}
+#gameArea .g4-power{position:relative;height:32px;border-radius:16px;overflow:hidden;border:2px solid #4cc9f0;background:#0d1b2a}
+#gameArea .g4-pz{position:absolute;top:0;height:100%}
+#gameArea .g4-pz.miss{left:0;width:10%;background:linear-gradient(90deg,#c62828,#ef5350)}
+#gameArea .g4-pz.hole{left:10%;width:8%;background:linear-gradient(90deg,#424242,#616161)}
+#gameArea .g4-pz.r1{left:18%;width:20%;background:linear-gradient(90deg,#1565c0,#1976d2)}
+#gameArea .g4-pz.r3{left:38%;width:20%;background:linear-gradient(90deg,#00838f,#0097a7)}
+#gameArea .g4-pz.r5{left:58%;width:18%;background:linear-gradient(90deg,#2e7d32,#388e3c)}
+#gameArea .g4-pz.r7{left:76%;width:13%;background:linear-gradient(90deg,#f9a825,#fbc02d)}
+#gameArea .g4-pz.r9{left:89%;width:7%;background:linear-gradient(90deg,#ef6c00,#f57c00)}
+#gameArea .g4-pz.r10{left:96%;width:4%;background:linear-gradient(90deg,#ffd700,#fff176)}
+#gameArea .g4-pointer{position:absolute;top:-4px;width:4px;height:40px;background:#fff;box-shadow:0 0 8px #fff;z-index:2}
+#gameArea .g4-plabels{display:flex;justify-content:space-between;font-size:10px;color:#90e0ef;margin-top:4px;padding:0 2px}
+@media(max-width:640px){#gameArea .g4-twrap{width:230px;height:230px}#gameArea .g4-power{height:40px}#gameArea .g4-pointer{height:48px}}
+
+/* ===== 逃生机制样式 ===== */
+#gameArea .g5-phase{text-align:center;font-size:13px;color:var(--gold-light);margin-bottom:6px}
+#gameArea .g5-map{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:10px}
+#gameArea .g5-cell{background:rgba(0,0,0,.35);border:1px solid #4a3520;border-radius:6px;padding:3px;min-height:62px;position:relative;font-size:9px;text-align:center}
+#gameArea .g5-cell.start{border-color:#7bc47f}#gameArea .g5-cell.end{border-color:var(--gold-light)}
+#gameArea .g5-cell.skillpoint{border-color:#9c27b0}#gameArea .g5-cell.rock{border-color:#ff9800}
+#gameArea .g5-cell-num{font-size:9px;color:var(--text-dim)}
+#gameArea .g5-cell-label{font-size:8px;color:var(--text-dim)}
+#gameArea .g5-cell-dots{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin-top:2px}
+#gameArea .g5-pdot{width:18px;height:18px;border-radius:50%;overflow:hidden;border:1px solid #4a3520;position:relative}
+#gameArea .g5-pdot img{width:100%;height:100%;object-fit:cover}
+#gameArea .g5-pdot.blue{border-color:#4a90e2}#gameArea .g5-pdot.red{border-color:#e74c3c}
+#gameArea .g5-players{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+#gameArea .g5-pcard{background:rgba(0,0,0,.3);border-radius:8px;padding:7px;border:2px solid transparent;font-size:11px}
+#gameArea .g5-pcard.active{border-color:var(--gold);box-shadow:0 0 8px rgba(201,162,39,.3)}
+#gameArea .g5-pcard.dead{opacity:.4}
+#gameArea .g5-pcard-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+#gameArea .g5-pcard-head .blue{color:#64b5f6}#gameArea .g5-pcard-head .red{color:#ef9a9a}
+#gameArea .g5-pcard-head img{width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:3px}
+#gameArea .g5-pcard-skill{font-size:10px;color:var(--gold-light);margin-top:2px}
+#gameArea .g5-pcard-skill span{color:#8a7050;font-size:9px}
+#gameArea .g5-action{text-align:center;margin-bottom:8px}
+#gameArea .g5-dice-display{font-size:28px;margin:6px 0;color:var(--gold-light)}
+#gameArea .g5-msg{font-size:14px;font-weight:bold;min-height:22px;margin-bottom:8px;color:#fff59d;text-align:center}
+#gameArea .g5-msg.warn{color:#ef9a9a}#gameArea .g5-msg.good{color:#a5d6a7}
+#gameArea .g5-duel-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:850;display:flex;align-items:center;justify-content:center;padding:16px}
+#gameArea .g5-duel-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:14px;padding:20px 28px;max-width:420px;width:100%;text-align:center}
+#gameArea .g5-duel-box h3{color:var(--gold-light);margin-bottom:14px}
+#gameArea .g5-duel-row{display:flex;justify-content:space-around;align-items:center;margin:16px 0}
+#gameArea .g5-duel-player{font-size:16px;font-weight:bold}
+#gameArea .g5-duel-player.blue{color:#64b5f6}#gameArea .g5-duel-player.red{color:#ef9a9a}
+#gameArea .g5-duel-dice{width:56px;height:56px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#333;margin:8px auto;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+#gameArea .g5-duel-dice.stopped{animation:none}
+#gameArea .g5-duel-vs{font-size:22px;color:var(--gold)}
+#gameArea .g5-duel-result{font-size:16px;margin:10px 0;min-height:24px}
+#gameArea .g5-duel-result.win{color:var(--gold-light);font-weight:bold}
+#gameArea .g5-summary-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:860;display:flex;align-items:center;justify-content:center;padding:16px}
+#gameArea .g5-summary-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:14px;padding:20px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto}
+#gameArea .g5-summary-box h3{color:var(--gold-light);text-align:center;margin-bottom:12px}
+#gameArea .g5-sum-player{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid rgba(74,53,32,.3)}
+#gameArea .g5-skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#gameArea .g5-skill-card{background:rgba(201,162,39,.1);border:1px solid var(--gold-dark);border-radius:8px;padding:8px;cursor:pointer;font-size:11px;transition:all .2s}
+#gameArea .g5-skill-card:hover{background:rgba(201,162,39,.25);border-color:var(--gold)}
+#gameArea .g5-skill-card .sk-name{font-weight:bold;color:var(--gold-light);font-size:12px;margin-bottom:3px}
+#gameArea .g5-skill-card .sk-desc{color:var(--text-dim);font-size:10px}
+@media(max-width:640px){#gameArea .g5-map{grid-template-columns:repeat(5,1fr);gap:2px}#gameArea .g5-cell{min-height:50px;padding:2px}#gameArea .g5-pdot{width:16px;height:16px}#gameArea .g5-players{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- 角色选择/加入页面 -->
+<div id="joinScreen" class="role-screen">
+  <h1>🏰 冒险王之夜</h1>
+  <div class="sub">五合一桌游联机 · 地下城冒险</div>
+  <div class="char-pick-grid" id="charPickGrid"></div>
+  <div class="join-field"><label>房间号</label><input id="joinRoomInput" maxlength="6" placeholder="6位房间号" style="text-transform:uppercase;letter-spacing:4px;text-align:center"></div>
+  <div class="join-field"><label>重连码（断线重连时填写，首次留空）</label><input id="joinReconnectInput" maxlength="6" placeholder="可选" style="text-transform:uppercase;letter-spacing:3px;text-align:center"></div>
+  <div class="team-select">
+    <div class="team-btn blue" id="teamBlueBtn" onclick="selectTeam('blue')"><span class="t-icon">🔵</span>蓝队</div>
+    <div class="team-btn red" id="teamRedBtn" onclick="selectTeam('red')"><span class="t-icon">🔴</span>红队</div>
+  </div>
+  <div class="join-status" id="joinStatus">选择角色和队伍后点击连接</div>
+  <button class="btn" onclick="playerJoin()" style="width:100%;max-width:360px">连接并加入</button>
+  <div style="margin-top:20px"><button class="btn btn-small btn-gray" onclick="enterHost()">🎩 我是主持人</button></div>
+</div>
+
+<!-- 主持人大厅 -->
+<div id="hostLobby" class="lobby-screen hidden">
+  <div class="lobby-header">
+    <h2>🎩 主持人大厅</h2>
+    <div class="room-id-box" id="hostRoomId" onclick="copyRoomId()" title="点击复制房间号">------<span class="copy-hint">📋 点击复制</span></div>
+  </div>
+  <div class="game-progress" id="lobbyProgress"></div>
+  <div class="team-columns">
+    <div class="team-panel blue"><h3>🔵 蓝队 <span class="count" id="blueCount">0/3</span></h3><div id="blueList"></div></div>
+    <div class="team-panel red"><h3>🔴 红队 <span class="count" id="redCount">0/3</span></h3><div id="redList"></div></div>
+  </div>
+  <div class="lobby-actions">
+    <button class="btn" id="startBtn" onclick="hostStartNextGame()" disabled>开始游戏</button>
+    <div class="tip" id="startTip">等待玩家加入（每队至少1人）</div>
+  </div>
+</div>
+
+<!-- 玩家等待页面 -->
+<div id="playerWait" class="wait-screen hidden">
+  <h2 style="color:var(--gold-light);margin-bottom:14px">等待主持人开始</h2>
+  <div class="wait-info">
+    <div>角色：<b id="waitName"></b></div>
+    <div>队伍：<span id="waitTeam" class="team-badge-display"></span></div>
+    <div>房间号：<b id="waitRoom"></b></div>
+    <div>当前进度：<b id="waitProgress">等待开始</b></div>
+    <div class="reconnect-code-box">重连码：<code id="waitReconnectCode">------</code><br><span style="font-size:11px">断线后凭此码重新加入</span></div>
+  </div>
+  <div id="waitPlayers" style="font-size:13px;color:var(--text-dim);max-width:400px;margin:0 auto"></div>
+</div>
+
+<!-- 游戏区域 -->
+<div id="gameScreen" class="hidden">
+  <div class="conn-bar"><div><span class="conn-dot" id="connDot"></span><span id="connText">连接中</span></div><div id="myRoleLabel"></div></div>
+  <div id="playerReconnectBar" class="reconnect-bar hidden"><span>🔑 重连码：<b id="playerReconnectCode">------</b></span></div>
+  <div class="game-topbar">
+    <div class="title" id="gameTitle">游戏</div>
+    <div class="info" id="gameInfo"></div>
+  </div>
+  <div class="game-progress" id="gameProgress"></div>
+  <div class="host-controls hidden" id="hostControls"></div>
+  <div id="gameArea"></div>
+</div>
+
+</div>
+
+<script>
+// ==================== 常量 ====================
+const CHARACTERS=[
+  {id:'adou',name:'阿兜',img:'https://aka.doubaocdn.com/s/Lh6PmLCxMT'},
+  {id:'duolin',name:'多琳',img:'https://aka.doubaocdn.com/s/9UahRGVXMU'},
+  {id:'lier',name:'莉尔',img:'https://aka.doubaocdn.com/s/HORtTWaL71'},
+  {id:'muen',name:'沐恩',img:'https://aka.doubaocdn.com/s/jmuVaUnHIS'},
+  {id:'xiupa',name:'休帕',img:'https://aka.doubaocdn.com/s/UsW6A1uMzh'},
+  {id:'yuanyuan',name:'圆圆',img:'https://aka.doubaocdn.com/s/m1e9FU01iN'},
+];
+const GAMES=[
+  {id:1,name:'小蛇机',icon:'🐍',teamGold:true},
+  {id:2,name:'拍词酒杯',icon:'🍺',teamGold:true},
+  {id:3,name:'酒馆争夺战',icon:'⚔️',teamGold:false},
+  {id:4,name:'冒险王之投了个骰',icon:'🎯',teamGold:false},
+  {id:5,name:'逃生机制',icon:'🏰',teamGold:false},
+];
+const CODE_CHARS='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const STORAGE_KEY='dungeon_night_reconnect';
+
+// ==================== 全局状态 ====================
+let peer=null,conn=null,isHost=false,myPeerId=null,myTeam=null,myName=null,myReconnectCode=null,myCharId=null;
+let selectedTeam='blue',selectedChar=null;
+let state=null;
+let hostConns={};
+
+function genCode(){let s='';for(let i=0;i<6;i++)s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return s}
+function showScreen(id){['joinScreen','hostLobby','playerWait','gameScreen'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+function setConn(s,t){document.getElementById('connDot').className='conn-dot'+(s==='online'?' online':'');document.getElementById('connText').textContent=t}
+function saveReconnectCode(roomId,code,name,charId){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');d[roomId]={code,name,charId};localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}}
+function loadReconnectCode(roomId){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')[roomId]||null}catch(e){return null}}
+function playerName(id){return state&&state.players[id]?state.players[id].name:'?'}
+function charImg(charId){const c=CHARACTERS.find(x=>x.id===charId);return c?c.img:''}
+function charName(charId){const c=CHARACTERS.find(x=>x.id===charId);return c?c.name:'?'}
+
+// ==================== 角色选择UI ====================
+function renderCharPick(){
+  const grid=document.getElementById('charPickGrid');
+  grid.innerHTML=CHARACTERS.map(c=>`<div class="char-pick-card ${selectedChar===c.id?'selected':''}" onclick="pickChar('${c.id}')"><img src="${c.img}" alt="${c.name}"><div class="cname">${c.name}</div></div>`).join('');
+}
+function pickChar(id){selectedChar=id;renderCharPick()}
+function selectTeam(t){selectedTeam=t;document.getElementById('teamBlueBtn').classList.toggle('selected',t==='blue');document.getElementById('teamRedBtn').classList.toggle('selected',t==='red')}
+
+// ==================== 主持人 ====================
+function enterHost(){
+  isHost=true;
+  showScreen('hostLobby');
+  document.getElementById('hostRoomId').textContent='连接中...';
+  const roomId=genCode();
+  const iceConfig={config:{iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+    {urls:'stun:stun2.l.google.com:19302'},
+    {urls:'stun:stun.cloudflare.com:3478'},
+    {urls:'stun:stun.services.mozilla.com:3478'},
+    {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}
+  ]}};
+  try{peer=new Peer('dungeon-'+roomId,{debug:1,...iceConfig})}catch(e){alert('连接失败');return}
+  peer.on('open',id=>{
+    myPeerId=id;
+    state={phase:'lobby',roomId,players:{},currentGame:0,game:null,gameSummary:null,turnOrder:[],currentIndex:0,round:1,message:'',messageType:''};
+    peer.on('connection',c=>{
+      c.on('open',()=>{hostConns[c.peer]=c;setupHostConn(c)});
+      c.on('close',()=>{
+        if(hostConns[c.peer]){delete hostConns[c.peer];
+          if(state&&state.players[c.peer]){
+            state.players[c.peer].online=false;
+            if(state.phase==='lobby'){renderHostLobby();broadcastState()}
+            else{broadcastState();if(window.G&&window.G.render)window.G.render()}
+          }
+        }
+      });
+    });
+    document.getElementById('hostRoomId').textContent=roomId;
+    renderHostLobby();
+  });
+  peer.on('error',err=>{if(err.type==='unavailable-id'){alert('房间号冲突，请刷新重试')}else alert('连接失败：'+(err.type||err.message))});
+}
+function setupHostConn(c){
+  c.on('data',msg=>handleHostMsg(c.peer,msg));
+}
+function sendTo(id,m){if(hostConns[id]&&hostConns[id].open)try{hostConns[id].send(m)}catch(e){}}
+function broadcast(m){Object.values(hostConns).forEach(c=>{if(c.open)try{c.send(m)}catch(e){}})}
+function broadcastState(){broadcast({type:'state',state:state})}
+
+function handleHostMsg(peerId,msg){
+  if(!msg||!msg.type)return;
+  if(msg.type==='join'){
+    // 重连
+    if(msg.reconnectCode){
+      const ex=Object.entries(state.players).find(([id,p])=>p.reconnectCode===msg.reconnectCode);
+      if(ex){
+        const[oldId,p]=ex;delete hostConns[oldId];delete state.players[oldId];
+        p.online=true;state.players[peerId]=p;
+        if(state.turnOrder){const idx=state.turnOrder.indexOf(oldId);if(idx>=0)state.turnOrder[idx]=peerId}
+        sendTo(peerId,{type:'joinAccept',yourId:peerId,reconnectCode:msg.reconnectCode,reconnected:true,name:p.name,team:p.team,charId:p.character,state:state});
+        if(state.phase==='lobby')renderHostLobby();
+        if(state.phase==='playing'&&window.G&&window.G.render)window.G.render();
+        broadcastState();return;
+      }
+    }
+    if(state.phase!=='lobby'){sendTo(peerId,{type:'joinReject',reason:'游戏已开始，需重连码'});return}
+    if(Object.values(state.players).filter(p=>p.team===msg.team).length>=3){sendTo(peerId,{type:'joinReject',reason:'队伍已满'});return}
+    let charId=msg.charId;
+    if(charId&&Object.values(state.players).some(p=>p.character===charId)){
+      const taken=Object.values(state.players).map(p=>p.character).filter(Boolean);
+      const avail=CHARACTERS.find(c=>!taken.includes(c.id));charId=avail?avail.id:null;
+    }
+    const rc=genCode();
+    const cname=charName(charId);
+    state.players[peerId]={name:cname,character:charId,team:msg.team,online:true,reconnectCode:rc,gold:0};
+    sendTo(peerId,{type:'joinAccept',yourId:peerId,reconnectCode:rc,name:cname,team:msg.team,charId:charId});
+    renderHostLobby();broadcastState();
+  }
+  else if(msg.type==='hostAction'){
+    // 主持人操作由游戏模块处理
+    if(window.G && window.G.hostAction)window.G.hostAction(peerId,msg.action);
+  }
+  else if(msg.type==='playerAction'){
+    if(window.G && window.G.playerAction)window.G.playerAction(peerId,msg.action);
+  }
+}
+
+function renderHostLobby(){
+  const b=Object.entries(state.players).filter(([_,p])=>p.team==='blue');
+  const r=Object.entries(state.players).filter(([_,p])=>p.team==='red');
+  document.getElementById('blueCount').textContent=b.length+'/3';
+  document.getElementById('redCount').textContent=r.length+'/3';
+  const renderSlot=(list,elId)=>{const el=document.getElementById(elId);el.innerHTML='';list.forEach(([id,p])=>{
+    const d=document.createElement('div');d.className='player-slot';
+    const tt=p.team==='blue'?'→红队':'→蓝队';const bc=p.team==='blue'?'btn-red':'btn-blue';
+    d.innerHTML=`<span class="pinfo">${p.character?`<img src="${charImg(p.character)}">`:''}${p.name} <span style="font-size:10px;color:var(--gold)">🔑${p.reconnectCode}</span></span>
+    <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span class="status ${p.online?'':'offline'}">${p.online?'在线':'离线'}</span>
+      <span style="font-size:11px">💰</span><input type="number" min="0" value="${p.gold||0}" style="width:50px;padding:2px 4px;font-size:12px;background:#1a0f08;color:var(--text);border:1px solid #4a3520;border-radius:3px" onchange="hostSetGold('${id}',this.value)">
+      <button class="btn btn-small ${bc}" style="padding:2px 8px;font-size:11px" onclick="hostSwitchTeam('${id}')">${tt}</button>
+    </span>`;
+    el.appendChild(d);
+  });for(let i=list.length;i<3;i++){const d=document.createElement('div');d.className='player-slot empty';d.textContent='空位';el.appendChild(d)}};
+  renderSlot(b,'blueList');renderSlot(r,'redList');
+  const can=b.length>=1&&r.length>=1;
+  const btn=document.getElementById('startBtn');
+  btn.disabled=!can;
+  if(state.currentGame===0){btn.textContent='🎮 开始第1局：小蛇机';document.getElementById('startTip').textContent=can?'可以开始！':'等待玩家加入（每队至少1人）'}
+  else if(state.currentGame<5){btn.textContent='🎮 开始第'+(state.currentGame+1)+'局：'+GAMES[state.currentGame].name;document.getElementById('startTip').textContent='上一局已结束，点击开始下一局'}
+  else{btn.textContent='🎉 全部游戏结束';btn.disabled=true;document.getElementById('startTip').textContent=''}
+  renderProgress('lobbyProgress');
+}
+function hostSetGold(id,val){if(!state||state.phase!=='lobby')return;state.players[id].gold=Math.max(0,parseInt(val)||0);broadcastState()}
+function hostSwitchTeam(id){
+  if(!state||state.phase!=='lobby')return;const p=state.players[id];if(!p)return;
+  const nt=p.team==='blue'?'red':'blue';
+  if(Object.values(state.players).filter(pl=>pl.team===nt).length>=3){alert('队伍已满');return}
+  p.team=nt;sendTo(id,{type:'teamChanged',team:nt});renderHostLobby();broadcastState();
+}
+
+function copyRoomId(){
+  const el=document.getElementById('hostRoomId');
+  const code=state.roomId||'';
+  if(!code)return;
+  const done=()=>{el.classList.add('copied');const h=el.querySelector('.copy-hint');if(h)h.textContent='✅ 已复制';setTimeout(()=>{el.classList.remove('copied');if(h)h.textContent='📋 点击复制'},1500)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(done).catch(()=>{fallbackCopy(code,done)})}
+  else fallbackCopy(code,done);
+}
+function fallbackCopy(text,cb){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');cb&&cb()}catch(e){alert('复制失败，请手动复制：'+text)}
+  document.body.removeChild(ta);
+}
+
+function hostStartNextGame(){
+  if(state.currentGame>=5)return;
+  const nextGame=state.currentGame+1;
+  state.currentGame=nextGame;
+  state.phase='playing';
+  state.gameSummary=null;
+  // 初始化游戏模块
+  if(window.G && window.G.init)window.G.init(nextGame);
+  broadcastState();
+  // 主持人和玩家都进入游戏界面
+  showScreen('gameScreen');
+  document.getElementById('myRoleLabel').textContent='🎩 主持人';
+  document.getElementById('hostControls').classList.remove('hidden');
+  setConn('online','已连接');
+  if(window.G && window.G.render)window.G.render();
+}
+
+// 游戏结束（由游戏模块调用）
+function gameOver(summary){
+  state.phase='gameOver';
+  state.gameSummary=summary;
+  // 金币结算
+  if(summary.teamGold){
+    // 队伍金币平分
+    ['blue','red'].forEach(team=>{
+      const members=Object.entries(state.players).filter(([_,p])=>p.team===team);
+      const teamGold=summary.teamGold[team]||0;
+      const share=members.length>0?Math.floor(teamGold/members.length):0;
+      members.forEach(([id,p])=>{p.gold=(p.gold||0)+share});
+    });
+  }
+  if(summary.personalGold){
+    Object.entries(summary.personalGold).forEach(([id,g])=>{if(state.players[id])state.players[id].gold=(state.players[id].gold||0)+g});
+  }
+  broadcastState();
+  renderGameSummary();
+}
+
+function renderGameSummary(){
+  const s=state.gameSummary;if(!s)return;
+  const gi=GAMES[state.currentGame-1];
+  let html=`<div class="summary-modal"><div class="summary-box">
+    <div class="summary-title">${gi.icon} ${gi.name} · 结算</div>`;
+  if(s.winner){html+=`<div style="font-size:18px;color:var(--gold-light);margin-bottom:12px">${s.winner}</div>`}
+  // 队伍金币
+  if(s.teamGold){
+    html+=`<div class="summary-section"><h4>队伍金币</h4>`;
+    ['blue','red'].forEach(t=>{
+      const members=Object.entries(state.players).filter(([_,p])=>p.team===t);
+      const tg=s.teamGold[t]||0;
+      const share=members.length>0?Math.floor(tg/members.length):0;
+      html+=`<div class="summary-row"><span>${t==='blue'?'🔵蓝队':'🔴红队'}</span><span class="sr-val">${tg}金币 ÷${members.length} = 每人${share}</span></div>`;
+    });
+    html+='</div>';
+  }
+  // 个人金币
+  if(s.personalGold){
+    html+=`<div class="summary-section"><h4>个人金币</h4>`;
+    Object.entries(s.personalGold).forEach(([id,g])=>{
+      const p=state.players[id];if(!p)return;
+      html+=`<div class="summary-row"><span class="sr-name">${p.character?`<img src="${charImg(p.character)}">`:''}${p.name}</span><span class="sr-val">+${g}金币</span></div>`;
+    });
+    html+='</div>';
+  }
+  // 总金币
+  html+=`<div class="summary-section"><h4>当前总金币</h4>`;
+  Object.values(state.players).forEach(p=>{
+    html+=`<div class="summary-row"><span class="sr-name">${p.character?`<img src="${charImg(p.character)}">`:''}${p.name} (${p.team==='blue'?'🔵':'🔴'})</span><span class="sr-val">💰${p.gold}</span></div>`;
+  });
+  html+='</div>';
+  if(isHost){
+    if(state.currentGame<5){
+      html+=`<button class="btn" onclick="closeSummaryAndNext()" style="width:100%">开始下一局：${GAMES[state.currentGame].icon} ${GAMES[state.currentGame].name}</button>`;
+    }else{
+      html+=`<div class="summary-total">🎉 全部游戏结束！</div>`;
+    }
+  }else{
+    html+=`<div style="color:var(--text-dim);font-size:13px">等待主持人开始下一局...</div>`;
+  }
+  html+='</div></div>';
+  document.getElementById('gameArea').innerHTML=html;
+}
+function closeSummaryAndNext(){
+  document.getElementById('gameArea').innerHTML='';
+  state.phase='lobby';
+  // 回到大厅
+  showScreen('hostLobby');
+  document.getElementById('hostControls').classList.add('hidden');
+  renderHostLobby();
+  broadcastState();
+}
+
+// ==================== 进度条 ====================
+function renderProgress(elId){
+  const el=document.getElementById(elId);if(!el)return;
+  let html='';
+  GAMES.forEach((g,i)=>{
+    const cls=i+1<state.currentGame?'done':i+1===state.currentGame&&state.phase==='playing'?'active':'';
+    html+=`<span class="gp-step ${cls}">${g.icon}${g.name}</span>`;
+    if(i<GAMES.length-1)html+='<span class="gp-arrow">›</span>';
+  });
+  el.innerHTML=html;
+}
+
+// ==================== 玩家端 ====================
+function playerJoin(){
+  const roomId=document.getElementById('joinRoomInput').value.trim().toUpperCase();
+  const rc=document.getElementById('joinReconnectInput').value.trim().toUpperCase();
+  if(roomId.length!==6){document.getElementById('joinStatus').textContent='请输入6位房间号';return}
+  if(!selectedChar&&!rc){document.getElementById('joinStatus').textContent='请先选择角色';return}
+  myTeam=selectedTeam;myReconnectCode=rc||null;myCharId=selectedChar;
+  document.getElementById('joinStatus').textContent='正在连接...';
+  const iceConfig={config:{iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+    {urls:'stun:stun2.l.google.com:19302'},
+    {urls:'stun:stun.cloudflare.com:3478'},
+    {urls:'stun:stun.services.mozilla.com:3478'},
+    {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}
+  ]}};
+  try{peer=new Peer({debug:1,...iceConfig})}catch(e){document.getElementById('joinStatus').textContent='连接失败';return}
+  peer.on('open',()=>{
+    myPeerId=peer.id;
+    conn=peer.connect('dungeon-'+roomId,{reliable:true});
+    conn.on('open',()=>{
+      const m={type:'join',team:myTeam,charId:myCharId};
+      if(rc)m.reconnectCode=rc;
+      conn.send(m);
+      document.getElementById('joinStatus').textContent=rc?'正在重连...':'已连接...';
+    });
+    conn.on('data',d=>handlePlayerMsg(d));
+    conn.on('close',()=>{setConn('offline','已断开')});
+    conn.on('error',()=>{document.getElementById('joinStatus').textContent='连接失败'});
+  });
+  peer.on('error',err=>{document.getElementById('joinStatus').textContent='连接失败：'+(err.type||err.message)});
+}
+
+function handlePlayerMsg(msg){
+  if(!msg||!msg.type)return;
+  if(msg.type==='joinAccept'){
+    myPeerId=msg.yourId;myReconnectCode=msg.reconnectCode;
+    if(msg.name)myName=msg.name;if(msg.team)myTeam=msg.team;if(msg.charId)myCharId=msg.charId;
+    const roomId=document.getElementById('joinRoomInput').value.trim().toUpperCase();
+    saveReconnectCode(roomId,msg.reconnectCode,myName,myCharId);
+    if(msg.reconnected&&msg.state){state=msg.state;enterGameScreen();if(window.G&&window.G.render)window.G.render();return}
+    document.getElementById('waitName').textContent=myName;
+    const tb=document.getElementById('waitTeam');tb.textContent=myTeam==='blue'?'🔵 蓝队':'🔴 红队';tb.className='team-badge-display '+myTeam;
+    document.getElementById('waitRoom').textContent=roomId;
+    document.getElementById('waitReconnectCode').textContent=msg.reconnectCode;
+    showScreen('playerWait');
+  }
+  else if(msg.type==='joinReject'){document.getElementById('joinStatus').textContent='加入失败：'+msg.reason}
+  else if(msg.type==='teamChanged'){myTeam=msg.team;const tb=document.getElementById('waitTeam');if(tb){tb.textContent=myTeam==='blue'?'🔵 蓝队':'🔴 红队';tb.className='team-badge-display '+myTeam}}
+  else if(msg.type==='state'){
+    state=msg.state;
+    if(state.phase==='playing'&&document.getElementById('gameScreen').classList.contains('hidden'))enterGameScreen();
+    if(state.phase==='gameOver'){
+      if(document.getElementById('gameScreen').classList.contains('hidden'))enterGameScreen();
+      renderGameSummary();
+    }
+    if(state.phase==='lobby'&&!document.getElementById('playerWait').classList.contains('hidden'))renderWaitScreen();
+    if(state.phase==='playing'&&window.G&&window.G.render)window.G.render();
+    if(state.phase==='playing'){
+      renderProgress('gameProgress');
+      document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
+    }
+  }
+}
+function enterGameScreen(){
+  showScreen('gameScreen');
+  document.getElementById('myRoleLabel').textContent=myName+' ('+(myTeam==='blue'?'🔵蓝队':'🔴红队')+')';
+  setConn('online','已连接');
+  if(myReconnectCode){document.getElementById('playerReconnectBar').classList.remove('hidden');document.getElementById('playerReconnectCode').textContent=myReconnectCode}
+  renderProgress('gameProgress');
+}
+function renderWaitScreen(){
+  const b=Object.values(state.players).filter(p=>p.team==='blue');
+  const r=Object.values(state.players).filter(p=>p.team==='red');
+  document.getElementById('waitPlayers').innerHTML=`蓝队(${b.length}/3)：${b.map(p=>p.name).join('、')||'—'}<br>红队(${r.length}/3)：${r.map(p=>p.name).join('、')||'—'}`;
+  document.getElementById('waitProgress').textContent=state.currentGame>0?state.phase==='playing'?'第'+state.currentGame+'局进行中':'等待下一局':'等待开始';
+  renderProgress('lobbyProgress');
+}
+
+// 玩家发送操作
+function sendAction(action){if(conn&&conn.open)conn.send({type:'playerAction',action})}
+function sendHostAction(action){if(isHost&&window.G&&window.G.hostAction)window.G.hostAction(myPeerId,action)}
+
+// ==================== 游戏模块接口 ====================
+window.G={
+  gameId:0,g1Rolling:false,g1Deck:null,g1RevealTimer:null,
+  init(gameId){this.gameId=gameId;document.getElementById('gameArea').innerHTML='';this[`initG${gameId}`]&&this[`initG${gameId}`]()},
+  render(){this[`renderG${this.gameId}`]&&this[`renderG${this.gameId}`]()},
+  playerAction(id,action){this[`actionG${this.gameId}`]&&this[`actionG${this.gameId}`](id,action)},
+  hostAction(id,action){this[`hostActionG${this.gameId}`]&&this[`hostActionG${this.gameId}`](id,action)},
+};
+
+// ==================== 游戏1：小蛇机 ====================
+const G1_CARDS={
+  head:{label:'出局',cls:'head',value:0,icon:'🐍'},
+  gold:{label:'金牌',cls:'gold',value:5,icon:'🏆'},
+  scarf0:{label:'0围脖',cls:'body-0',value:0,icon:'🐍'},
+  scarf1:{label:'1围脖',cls:'body-1',value:1,icon:'🧣'},
+  scarf2:{label:'2围脖',cls:'body-2',value:2,icon:'🧣'},
+  scarf3:{label:'3围脖',cls:'body-3',value:3,icon:'🧣'},
+  tail:{label:'蛇尾',cls:'tail',value:0,icon:'🐍'},
+};
+const G1_DECK=[{type:'head',count:8},{type:'gold',count:4},{type:'scarf0',count:8},{type:'scarf1',count:8},{type:'scarf2',count:8},{type:'scarf3',count:6}];
+const G1_DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+window.G.initG1=function(){
+  this.g1Deck=[];G1_DECK.forEach(c=>{for(let i=0;i<c.count;i++)this.g1Deck.push(c.type)});
+  for(let i=this.g1Deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.g1Deck[i],this.g1Deck[j]]=[this.g1Deck[j],this.g1Deck[i]]}
+  // 初始化玩家
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
+  const order=[];const mx=Math.max(blues.length,reds.length);
+  for(let i=0;i<mx;i++){if(blues[i])order.push(blues[i]);if(reds[i])order.push(reds[i])}
+  state.turnOrder=order;state.currentIndex=0;state.round=1;
+  state.game={firstHead:false,lastCard:null,deckCount:this.g1Deck.length};
+  Object.values(state.players).forEach(p=>{p.snake=['tail'];p.g1coins=0;p.failed=false;p.g1title=false});
+  state.message=playerName(order[0])+' 的回合，投掷骰子';state.messageType='';
+  document.getElementById('gameInfo').innerHTML='<span>回合 <b id="g1Round">1</b></span><span>牌堆 <b id="g1DeckN">42</b></span><span id="g1Turn"></span>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG1(null,\'skip\')">跳过当前断线玩家</button>';
+  this.g1Rolling=false;
+};
+
+window.G.renderG1=function(){
+  if(!state.game)return;
+  const g=state.game;
+  document.getElementById('g1Round').textContent=state.round;
+  document.getElementById('g1DeckN').textContent=g.deckCount;
+  const curId=state.turnOrder[state.currentIndex];
+  if(curId&&state.players[curId]){
+    const cp=state.players[curId];
+    document.getElementById('g1Turn').innerHTML=`当前：<b style="color:${cp.team==='blue'?'#64b5f6':'#ef9a9a'}">${cp.name}</b>${cp.online?'':'（离线⏸️）'}`;
+  }
+  let bc=0,rc=0;
+  Object.values(state.players).forEach(p=>{if(p.team==='blue')bc+=p.g1coins;else rc+=p.g1coins});
+  let html=`<div class="g1-team-coins"><div class="g1-team-coin blue"><span>🔵 蓝队</span><b>${bc}</b></div><div class="g1-team-coin red"><span>🔴 红队</span><b>${rc}</b></div></div>`;
+  html+='<div class="g1-players">';
+  state.turnOrder.forEach(id=>{
+    const p=state.players[id];if(!p)return;
+    let badges='';
+    if(p.g1title)badges+='<span class="g1-mini-badge title">一发入魂</span>';
+    if(p.failed)badges+='<span class="g1-mini-badge fail">出局</span>';
+    let snakeHtml='';
+    p.snake.forEach(t=>{const c=G1_CARDS[t];let mv=t==='gold'?'5':t.startsWith('scarf')?c.value:t==='head'?'✕':'';snakeHtml+=`<div class="g1-mcard ${c.cls}"><span class="mi">${c.icon}</span><span class="mv">${mv}</span></div>`});
+    html+=`<div class="g1-card ${id===curId&&state.phase==='playing'&&!p.failed?'active':''} ${p.failed?'failed':''} ${id===myPeerId?'me':''}">
+      <div class="g1-pc-head"><span class="g1-pc-name">${p.team==='blue'?'🔵':'🔴'} ${p.name}${id===myPeerId?' (你)':''}${badges}${p.online?'':' 💤'}</span><span class="g1-pc-coins">${p.g1coins}币</span></div>
+      <div class="g1-snake">${snakeHtml}</div></div>`;
+  });
+  html+='</div>';
+  html+=`<div class="g1-center"><div class="g1-msg ${state.messageType||''}" id="g1Msg">${state.message||''}</div><div class="g1-rollrow">
+    <div><div class="g1-deck">🃏</div><div style="font-size:11px;color:#a5d6a7;margin-top:4px">牌堆 ${g.deckCount}</div></div>
+    <div class="g1-dice" id="g1Dice">🎲</div>
+    <button class="btn" id="g1RollBtn" onclick="G.actionG1(myPeerId,'roll')">投掷骰子</button>
+  </div></div>`;
+  if(g.lastCard){
+    const lc=g.lastCard,ct=G1_CARDS[lc.type];
+    html+=`<div class="g1-reveal"><div class="g1-rcard ${ct.cls}"><div class="g1-ricon">${ct.icon}</div><div class="g1-rname">${ct.label}</div><div class="g1-reffect">${lc.effect}</div></div><div class="g1-rplayer">${lc.playerName} 抽到</div></div>`;
+  }
+  document.getElementById('gameArea').innerHTML=html;
+  // 按钮状态
+  const btn=document.getElementById('g1RollBtn');
+  if(state.phase==='playing'){
+    if(isHost){btn.disabled=true;btn.textContent='观战中'}
+    else if(!curId||!state.players[curId].online){btn.disabled=true;btn.textContent='等待重连...'}
+    else{const myTurn=curId===myPeerId&&!state.players[myPeerId].failed;btn.disabled=!myTurn||this.g1Rolling;btn.textContent=myTurn?(this.g1Rolling?'投掷中...':'🎲 投掷骰子'):'等待对手...'}
+  }else{btn.disabled=true;btn.textContent='游戏已结束'}
+};
+
+window.G.actionG1=function(peerId,action){
+  if(action.type!=='roll')return;
+  if(state.phase!=='playing'||this.g1Rolling)return;
+  if(state.turnOrder[state.currentIndex]!==peerId)return;
+  if(!state.players[peerId].online||state.players[peerId].failed)return;
+  this.g1Rolling=true;this.renderG1();
+  this.g1AnimateDice();
+  setTimeout(()=>{this.g1DrawCard()},850);
+};
+
+window.G.hostActionG1=function(peerId,action){
+  if(action.type==='skip'&&state.phase==='playing'){
+    const curId=state.turnOrder[state.currentIndex];
+    state.message='主持人跳过了 '+state.players[curId].name+' 的回合';state.messageType='warn';
+    this.g1NextTurn();broadcastState();this.renderG1();
+  }
+};
+
+window.G.g1AnimateDice=function(){
+  const el=document.getElementById('g1Dice');if(!el)return;
+  el.classList.add('rolling');let t=0;
+  const iv=setInterval(()=>{el.textContent=G1_DICE[Math.floor(Math.random()*6)];t++;if(t>=10){clearInterval(iv);el.classList.remove('rolling');el.textContent=G1_DICE[Math.floor(Math.random()*6)]}},80);
+};
+
+window.G.g1DrawCard=function(){
+  if(!this.g1Deck||this.g1Deck.length===0){this.g1EndGame();return}
+  const idx=Math.floor(Math.random()*this.g1Deck.length);
+  const cardType=this.g1Deck.splice(idx,1)[0];
+  const curId=state.turnOrder[state.currentIndex];
+  const p=state.players[curId];const card=G1_CARDS[cardType];
+  if(cardType==='head'){
+    if(state.round<=3){
+      this.g1Deck.push('head');
+      for(let i=this.g1Deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.g1Deck[i],this.g1Deck[j]]=[this.g1Deck[j],this.g1Deck[i]]}
+      state.message=`🐍 ${p.name} 翻出蛇头！第${state.round}回合保底期，无效放回。继续投掷！`;state.messageType='warn';
+      state.game.lastCard={type:'head',playerName:p.name,effect:'保底无效，放回牌堆'};
+    }else{
+      p.snake.push('head');p.failed=true;
+      let m=`💀 ${p.name} 翻出蛇头，出局！`;let eff='失败出局';
+      if(!state.game.firstHead){state.game.firstHead=true;p.g1title=true;p.g1coins+=5;m+=' 一发入魂+5金币！';eff='出局 · 一发入魂+5币'}
+      state.message=m;state.messageType='warn';
+      state.game.lastCard={type:'head',playerName:p.name,effect:eff};
+    }
+  }else{
+    p.snake.push(cardType);p.g1coins+=card.value;
+    state.message=`${p.name} 抓到【${card.label}】，${card.value>0?'+'+card.value+'金币':'无金币'}`;state.messageType='good';
+    state.game.lastCard={type:cardType,playerName:p.name,effect:card.value>0?'+'+card.value+'金币':'无金币'};
+  }
+  state.game.deckCount=this.g1Deck.length;
+  this.g1Rolling=false;
+  broadcastState();this.renderG1();
+  if(this.g1CheckEnd())setTimeout(()=>this.g1EndGame(),1500);
+  else setTimeout(()=>{this.g1NextTurn();broadcastState();this.renderG1()},1200);
+};
+
+window.G.g1NextTurn=function(){
+  const len=state.turnOrder.length;if(len===0)return;
+  let nextIdx=(state.currentIndex+1)%len;
+  if(nextIdx<=state.currentIndex)state.round++;
+  state.currentIndex=nextIdx;
+  let guard=0;
+  while(state.players[state.turnOrder[state.currentIndex]].failed&&guard<len){
+    state.currentIndex=(state.currentIndex+1)%len;
+    if(state.currentIndex===0)state.round++;guard++;
+  }
+  const np=state.players[state.turnOrder[state.currentIndex]];
+  if(!np.online){state.message='⏸️ '+np.name+' 断线，等待重连...';state.messageType='warn'}
+  else{state.message=np.name+' 的回合（第'+state.round+'回合），投掷骰子';state.messageType=''}
+};
+
+window.G.g1CheckEnd=function(){
+  if(state.round>8)return true;
+  const alive=state.turnOrder.filter(id=>!state.players[id].failed);
+  if(alive.length===0)return true;
+  if(!this.g1Deck||this.g1Deck.length===0)return true;
+  return false;
+};
+
+window.G.g1EndGame=function(){
+  let bc=0,rc=0;
+  Object.values(state.players).forEach(p=>{if(p.team==='blue')bc+=p.g1coins;else rc+=p.g1coins});
+  const winner=bc>rc?'🔵 蓝队获胜！':rc>bc?'🔴 红队获胜！':'🤝 平局！';
+  gameOver({winner,teamGold:{blue:bc,red:rc}});
+};
+
+// ==================== 游戏2：拍词酒杯 ====================
+const G2_DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const G2_EFF={1:'+1酒',2:'+2酒',3:'+3酒',4:'-4酒',5:'跳过',6:'反转'};
+const G2_CUP_INIT=15,G2_CUP_MAX=31;
+
+window.G.initG2=function(){
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
+  const order=[];const mx=Math.max(blues.length,reds.length);
+  for(let i=0;i<mx;i++){if(blues[i])order.push(blues[i]);if(reds[i])order.push(reds[i])}
+  state.turnOrder=order;state.currentIndex=0;state.round=1;
+  state.game={cup:G2_CUP_INIT,direction:1,dice:[null,null,null],diceRolled:false,winner:null};
+  Object.values(state.players).forEach(p=>{p.g2coins=0});
+  state.message=playerName(order[0])+' 的回合，投掷骰子';state.messageType='';
+  document.getElementById('gameInfo').innerHTML='<span>第 <b id="g2Round">1</b> 轮</span><span id="g2Turn"></span><span id="g2Dir">➡️</span>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG2(null,\'skip\')">跳过当前断线玩家</button>';
+};
+
+window.G.renderG2=function(){
+  if(!state.game)return;const g=state.game;
+  document.getElementById('g2Round').textContent=state.round;
+  document.getElementById('g2Dir').textContent=g.direction===1?'➡️':'⬅️';
+  const curId=state.turnOrder[state.currentIndex];
+  if(curId&&state.players[curId]){const cp=state.players[curId];document.getElementById('g2Turn').innerHTML=`当前：<b style="color:${cp.team==='blue'?'#64b5f6':'#ef9a9a'}">${cp.name}</b>${cp.online?'':'（离线⏸️）'}`}
+  const pct=Math.min(100,(g.cup/G2_CUP_MAX)*100);
+  let html=`<div class="g2-cup-area"><div class="g2-cup-wrap"><div class="g2-cup ${g.cup>=27?'danger':''}"><div class="g2-liquid" style="height:${pct}%;background:${g.cup>=27?'linear-gradient(180deg,#ff5252,#b71c1c)':g.cup>=20?'linear-gradient(180deg,#ff8a65,#d84315)':'linear-gradient(180deg,#ffb74d,#e65100)'}"></div></div><div class="g2-cup-txt">${g.cup}<span class="max">/${G2_CUP_MAX}</span></div></div></div>`;
+  html+='<div class="g2-center"><div class="g2-dice-row">';
+  for(let i=0;i<3;i++){
+    const val=g.dice[i];
+    const canSelect=!isHost&&curId===myPeerId&&g.diceRolled&&state.phase==='playing'&&state.players[curId]&&state.players[curId].online;
+    html+=`<div class="g2-dice ${g.diceRolled&&val!=null?(canSelect?'selectable':''):'disabled'}" id="g2d${i}" ${canSelect?`onclick="G.actionG2(myPeerId,{type:'select',index:${i}})"`:''}>${g.diceRolled&&val!=null?G2_DICE[val-1]:'🎲'}</div>`;
+  }
+  html+='</div><div class="g2-dice-eff">'+(g.diceRolled?g.dice.map((v,i)=>`骰${i+1}:${G2_EFF[v]}`).join(' | '):'')+'</div>';
+  html+=`<div class="g2-msg ${state.messageType||''}">${state.message||''}</div>`;
+  const canRoll=!isHost&&curId===myPeerId&&!g.diceRolled&&state.phase==='playing'&&state.players[curId]&&state.players[curId].online;
+  html+=`<button class="btn" id="g2RollBtn" onclick="G.actionG2(myPeerId,{type:'roll'})" ${canRoll?'':'disabled'}>${g.diceRolled?'请选择一颗骰子':(curId===myPeerId?'🎲 投掷骰子':'等待对手...')}</button></div>`;
+  // 队伍
+  html+='<div class="g2-teams">';
+  ['blue','red'].forEach(t=>{
+    let tc=0;state.turnOrder.forEach(id=>{const p=state.players[id];if(p&&p.team===t)tc+=p.g2coins});
+    html+=`<div class="g2-team ${t}"><h4>${t==='blue'?'🔵 蓝队':'🔴 红队'}<span class="coins">${tc}币</span></h4>`;
+    state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.team!==t)return;html+=`<span class="g2-chip ${id===curId?'active':''} ${id===myPeerId?'me':''} ${p.online?'':'offline'}">${p.name}${p.online?'':'💤'}${id===curId?(g.direction===1?'➡️':'⬅️'):''}</span>`});
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('gameArea').innerHTML=html;
+};
+
+window.G.actionG2=function(peerId,action){
+  if(state.phase!=='playing')return;
+  if(state.turnOrder[state.currentIndex]!==peerId)return;
+  if(!state.players[peerId].online)return;
+  if(action.type==='roll'&&!state.game.diceRolled){
+    state.game.dice=[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)];
+    state.game.diceRolled=true;
+    state.message=state.players[peerId].name+' 投出骰子，请选择一颗';state.messageType='';
+    broadcastState();this.renderG2();
+  }else if(action.type==='select'&&state.game.diceRolled){
+    this.g2DoSelect(action.index);
+  }
+};
+
+window.G.hostActionG2=function(peerId,action){
+  if(action.type==='skip'&&state.phase==='playing'){
+    state.message='主持人跳过了 '+state.players[state.turnOrder[state.currentIndex]].name+' 的回合';state.messageType='warn';
+    state.game.diceRolled=false;state.game.dice=[null,null,null];
+    this.g2NextTurn();broadcastState();this.renderG2();
+  }
+};
+
+window.G.g2DoSelect=function(idx){
+  const val=state.game.dice[idx];const curId=state.turnOrder[state.currentIndex];const p=state.players[curId];
+  if(val<=3){state.game.cup+=val;state.message=`${p.name} 选择+${val}酒，酒杯 ${state.game.cup-val}→${state.game.cup}`}
+  else if(val===4){state.game.cup=Math.max(0,state.game.cup-4);state.message=`${p.name} 选择-4酒，酒杯降至 ${state.game.cup}`}
+  else if(val===5){state.message=`${p.name} 选择跳过回合`}
+  else if(val===6){state.game.direction*=-1;state.message=`${p.name} 选择反转！方向${state.game.direction===1?'恢复正向':'变为逆向'}`}
+  state.messageType=(val<=3&&state.game.cup>=27)?'warn':'good';
+  if(state.game.cup>=G2_CUP_MAX){
+    state.game.winner=p.team==='blue'?'red':'blue';
+    state.message+=` — 酒杯溢出！${p.team==='blue'?'蓝队':'红队'}输了！`;state.messageType='warn';
+    const winTeam=state.game.winner;
+    Object.values(state.players).forEach(pl=>{pl.g2coins=pl.team===winTeam?10:6});
+    let wc=0,lc=0;Object.values(state.players).forEach(pl=>{if(pl.team===winTeam)wc+=10;else lc+=6});
+    const winner=winTeam==='blue'?'🔵 蓝队获胜！':'🔴 红队获胜！';
+    gameOver({winner,teamGold:{blue:winTeam==='blue'?wc:lc,red:winTeam==='red'?wc:lc}});
+    return;
+  }
+  state.game.diceRolled=false;state.game.dice=[null,null,null];
+  this.g2NextTurn();broadcastState();this.renderG2();
+};
+
+window.G.g2NextTurn=function(){
+  const len=state.turnOrder.length;if(len===0)return;
+  const nextIdx=(state.currentIndex+state.game.direction+len)%len;
+  if(state.game.direction===1&&nextIdx<=state.currentIndex)state.round++;
+  if(state.game.direction===-1&&nextIdx>=state.currentIndex&&nextIdx!==state.currentIndex)state.round++;
+  state.currentIndex=nextIdx;
+  const np=state.players[state.turnOrder[nextIdx]];
+  if(!np.online){state.message='⏸️ '+np.name+' 断线，等待重连...';state.messageType='warn'}
+  else{state.message=np.name+' 的回合（第'+state.round+'轮），投掷骰子';state.messageType=''}
+};
+
+// ==================== 游戏3：酒馆争夺战 ====================
+const G3_DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const G3_TAVERNS=[
+  {id:1,topGold:5,bottomGold:2,guardian:'猞猁'},{id:2,topGold:7,bottomGold:3,guardian:'乌鸦'},
+  {id:3,topGold:9,bottomGold:4,guardian:'老虎'},{id:4,topGold:12,bottomGold:5,guardian:null},
+  {id:5,topGold:15,bottomGold:6,guardian:null},{id:6,topGold:20,bottomGold:8,guardian:null},
+];
+const G3_INIT_IND=8;
+
+window.G.initG3=function(){
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
+  state._blues=blues;state._reds=reds;
+  state.game={taverns:G3_TAVERNS.map(t=>({...t,hits:{}})),dice:[],diceRolled:false,coinflip:null,guardianGame:null,lastAction:null};
+  state.turnOrder=[];state.currentIndex=0;state.round=1;
+  Object.values(state.players).forEach(p=>{p.g3coins=0;p.indicators=G3_INIT_IND});
+  state.phase='coinflip';
+  state.message='开局比大小：两队各投一颗骰子，点数大的先行动';state.messageType='';
+  document.getElementById('gameInfo').innerHTML='<span>第 <b id="g3Round">1</b> 轮</span><span id="g3Turn"></span><span id="g3IndInfo" class="g3-ind-info"></span>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small" id="g3CoinflipBtn" onclick="G.hostActionG3(null,{type:\'coinflip\'})">投骰比大小</button> <button class="btn btn-small btn-red" onclick="G.hostActionG3(null,\'skip\')">跳过断线玩家</button>';
+};
+
+window.G.renderG3=function(){
+  if(!state.game)return;const g=state.game;
+  document.getElementById('g3Round').textContent=state.round;
+  const curId=state.turnOrder[state.currentIndex];
+  if(curId&&state.players[curId]){const cp=state.players[curId];document.getElementById('g3Turn').innerHTML=`当前：<b style="color:${cp.team==='blue'?'#64b5f6':'#ef9a9a'}">${cp.name}</b>${cp.online?'':'（离线⏸️）'}`}
+  if(!isHost&&state.players[myPeerId])document.getElementById('g3IndInfo').innerHTML='我的指示物：<b>'+state.players[myPeerId].indicators+'</b>';
+  else if(isHost&&curId)document.getElementById('g3IndInfo').innerHTML=playerName(curId)+' 指示物：<b>'+state.players[curId].indicators+'</b>';
+
+  let html='';
+  // 比大小阶段
+  if(state.phase==='coinflip'){
+    const cf=g.coinflip||{};
+    html+='<div class="g3-center"><div class="g3-dice-row">';
+    if(cf.done){
+      html+=`<div class="g3-dice" style="border:3px solid #1976d2">${G3_DICE[cf.blue-1]}</div><div style="font-size:22px;align-self:center">VS</div><div class="g3-dice" style="border:3px solid #c62828">${G3_DICE[cf.red-1]}</div>`;
+    }else html+='<div style="font-size:14px;color:#ffcc80;align-self:center">等待主持人投骰...</div>';
+    html+='</div>';
+    if(cf.done)html+=`<div style="font-size:13px;margin:8px 0">🔵蓝队 ${cf.blue} 点 · 🔴红队 ${cf.red} 点</div>`;
+    if(isHost)html+=`<button class="btn" onclick="G.hostActionG3(null,{type:'coinflip'})">${cf.done&&cf.winner==='tie'?'平局！再投一次':'投骰比大小'}</button>`;
+    else html+='<button class="btn" disabled>等待主持人...</button>';
+    html+='</div>';
+    html+=`<div class="g3-msg ${state.messageType||''}">${state.message||''}</div>`;
+    document.getElementById('gameArea').innerHTML=html;return;
+  }
+
+  // 酒馆网格
+  html+='<div class="g3-taverns">';
+  const isMyTurn=!isHost&&curId===myPeerId&&g.diceRolled&&state.phase==='playing'&&state.players[curId]&&state.players[curId].online;
+  g.taverns.forEach(tv=>{
+    const maxHit=Math.max(1,...Object.values(tv.hits));
+    let hitsHtml='';
+    state.turnOrder.forEach(id=>{const p=state.players[id];if(!p)return;const h=tv.hits[id]||0;hitsHtml+=`<div class="g3-hit-row"><span>${p.team==='blue'?'🔵':'🔴'}${p.name}</span><span class="bar"><span class="bar-fill" style="width:${(h/maxHit)*100}%"></span></span><span>${h}</span></div>`});
+    html+=`<div class="g3-tv ${tv.guardian?'guardian':''} ${isMyTurn?'attackable':''}" ${isMyTurn?`onclick="G.actionG3(myPeerId,{type:'attack',tavernId:${tv.id}})"`:''}>
+      <div class="g3-tv-head"><span>🍺 ${tv.id}号</span>${tv.guardian?'🛡️':''}</div>
+      <div class="g3-tv-gold">上<b>${tv.topGold}</b>/下<b>${tv.bottomGold}</b></div>${hitsHtml}</div>`;
+  });
+  html+='</div>';
+  // 骰子
+  html+='<div class="g3-dice-row">';
+  if(g.diceRolled&&g.dice.length)g.dice.forEach(v=>html+=`<div class="g3-dice">${G3_DICE[v-1]}</div>`);
+  html+='</div>';
+  if(g.diceRolled){
+    html+='<div class="g3-counts">';
+    for(let n=1;n<=6;n++){const cnt=g.dice.filter(d=>d===n).length;html+=`<span class="g3-count">${G3_DICE[n-1]}×<b>${cnt}</b></span>`}
+    html+='</div>';
+  }
+  // 操作展示
+  if(g.lastAction){
+    const la=g.lastAction;
+    html+=`<div class="g3-reveal"><div class="rv-name">${la.playerName} → ${la.tavernId}号酒馆</div><div class="rv-eff">${la.effect}</div>${la.guardianEffect?`<div class="rv-g">🛡️ ${la.guardianEffect}</div>`:''}</div>`;
+  }
+  html+=`<div class="g3-msg ${state.messageType||''}">${state.message||''}</div>`;
+  html+='<div class="g3-center">';
+  if(state.phase==='playing'){
+    if(g.guardianGame)html+='<button class="btn" disabled>守护者小游戏中...</button>';
+    else if(isHost)html+='<button class="btn" disabled>观战中</button>';
+    else if(!curId||!state.players[curId].online)html+='<button class="btn" disabled>等待重连...</button>';
+    else{
+      const myTurn=curId===myPeerId;const myInd=state.players[myPeerId]?state.players[myPeerId].indicators:0;
+      if(!g.diceRolled)html+=`<button class="btn" onclick="G.actionG3(myPeerId,{type:'roll'})" ${!myTurn||myInd<=0?'disabled':''}>${myTurn?(myInd<=0?'已用完':'🎲 投掷骰子'):'等待对手...'}</button>`;
+      else html+=`<button class="btn" ${!myTurn?'disabled':''}>${myTurn?'点击酒馆攻击 ↑':'等待对手...'}</button>`;
+    }
+  }else html+='<button class="btn" disabled>游戏已结束</button>';
+  html+='</div>';
+  document.getElementById('gameArea').innerHTML=html;
+  // 守护者弹窗
+  if(g.guardianGame)this.g3ShowGuardian(g.guardianGame);
+};
+
+window.G.actionG3=function(peerId,action){
+  if(action.type==='roll'){
+    if(state.phase!=='playing'||state.game.diceRolled)return;
+    if(state.turnOrder[state.currentIndex]!==peerId||!state.players[peerId].online)return;
+    const count=state.players[peerId].indicators;
+    state.game.dice=[];for(let i=0;i<count;i++)state.game.dice.push(1+Math.floor(Math.random()*6));
+    state.game.diceRolled=true;
+    state.message=state.players[peerId].name+' 投出 '+count+' 颗骰子，请选择攻击的酒馆';state.messageType='';
+    broadcastState();this.renderG3();
+  }else if(action.type==='attack'){
+    if(state.phase!=='playing'||!state.game.diceRolled)return;
+    if(state.turnOrder[state.currentIndex]!==peerId)return;
+    this.g3DoAttack(action.tavernId);
+  }else if(action.type==='guardianAction'){
+    if(!state.game.guardianGame||state.game.guardianGame.playerId!==peerId)return;
+    this.g3GuardianAction(action.action);
+  }else if(action.type==='guardianDone'){
+    if(!state.game.guardianGame||state.game.guardianGame.playerId!==peerId)return;
+    this.g3FinishGuardian();
+  }
+};
+
+window.G.hostActionG3=function(peerId,action){
+  if(action.type==='coinflip'&&state.phase==='coinflip'){
+    const b=1+Math.floor(Math.random()*6),r=1+Math.floor(Math.random()*6);
+    state.game.coinflip={blue:b,red:r,done:true};
+    if(b>r)state.game.coinflip.winner='blue';else if(r>b)state.game.coinflip.winner='red';else state.game.coinflip.winner='tie';
+    if(state.game.coinflip.winner!=='tie'){
+      const first=state.game.coinflip.winner==='blue'?state._blues:state._reds;
+      const second=state.game.coinflip.winner==='blue'?state._reds:state._blues;
+      const order=[];const mx=Math.max(first.length,second.length);
+      for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+      state.turnOrder=order;state.currentIndex=0;state.phase='playing';
+      state.message=(state.game.coinflip.winner==='blue'?'🔵蓝队':'🔴红队')+' 获胜先行动！'+playerName(order[0])+' 的回合';state.messageType='good';
+    }else state.message='平局！再投一次';state.messageType='warn';
+    broadcastState();this.renderG3();
+  }else if(action==='skip'&&state.phase==='playing'){
+    state.message='主持人跳过了 '+state.players[state.turnOrder[state.currentIndex]].name;state.messageType='warn';
+    state.game.diceRolled=false;state.game.dice=[];state.game.guardianGame=null;
+    this.g3NextTurn();broadcastState();this.renderG3();
+  }
+};
+
+window.G.g3DoAttack=function(tavernId){
+  const curId=state.turnOrder[state.currentIndex];const p=state.players[curId];const tv=state.game.taverns[tavernId-1];
+  const baseHits=state.game.dice.filter(d=>d===tavernId).length;
+  if(baseHits===0){
+    state.message=p.name+' 选了'+tavernId+'号酒馆，但该数字未出现，跳过';state.messageType='warn';
+    state.game.lastAction={tavernId,playerName:p.name,effect:'跳过回合'};
+    state.game.diceRolled=false;state.game.dice=[];this.g3AfterAttack();return;
+  }
+  tv.hits[curId]=(tv.hits[curId]||0)+baseHits;
+  const cost=Math.min(p.indicators,baseHits);p.indicators-=cost;
+  state.message=`${p.name} 攻击${tavernId}号酒馆，打破${baseHits}个酒桶（剩余${p.indicators}指示物）`;state.messageType='good';
+  state.game.lastAction={tavernId,playerName:p.name,effect:'打破'+baseHits+'个酒桶',guardian:tv.guardian};
+  state.game.diceRolled=false;state.game.dice=[];
+  if(tv.guardian){
+    const gg={active:true,tavernId,playerId:curId,type:tv.guardian,step:'choose'};
+    if(tv.guardian==='猞猁')gg.actualHand=Math.random()<0.5?'left':'right';
+    else if(tv.guardian==='乌鸦')gg.guardianGuess=1+Math.floor(Math.random()*3);
+    else if(tv.guardian==='老虎'){gg.rounds=[];gg.wins=0}
+    state.game.guardianGame=gg;broadcastState();this.renderG3();return;
+  }
+  this.g3AfterAttack();
+};
+
+window.G.g3GuardianAction=function(action){
+  const gg=state.game.guardianGame;if(!gg)return;
+  if(gg.type==='猞猁'){gg.guess=action.guess;gg.step='result'}
+  else if(gg.type==='乌鸦'){gg.playerNum=action.playerNum;gg.step='result'}
+  else if(gg.type==='老虎'){
+    const pr=1+Math.floor(Math.random()*6),gr=1+Math.floor(Math.random()*6);
+    if(pr>gr)gg.wins++;gg.rounds.push({player:pr,guardian:gr,win:pr>gr});
+    if(gg.rounds.length>=3)gg.step='result';
+  }
+  broadcastState();this.renderG3();
+};
+
+window.G.g3FinishGuardian=function(){
+  const gg=state.game.guardianGame;if(!gg)return;const p=state.players[gg.playerId];let eff='';
+  if(gg.type==='猞猁'){if(gg.guess===gg.actualHand){p.g3coins+=2;eff='猜对！+2金币'}else eff='猜错，无事发生'}
+  else if(gg.type==='乌鸦'){if(gg.playerNum!==gg.guardianGuess){p.indicators+=1;eff='守护者猜错！返还1指示物'}else{p.g3coins+=gg.playerNum;eff='守护者猜对！+'+gg.playerNum+'金币'}}
+  else if(gg.type==='老虎'){p.g3coins+=gg.wins;eff='赢'+gg.wins+'局，+'+gg.wins+'金币'}
+  state.message+=' | 🛡️'+gg.type+'：'+eff;
+  if(state.game.lastAction)state.game.lastAction.guardianEffect=eff;
+  state.game.guardianGame=null;this.g3AfterAttack();
+};
+
+window.G.g3AfterAttack=function(){
+  broadcastState();this.renderG3();
+  const allDone=state.turnOrder.every(id=>state.players[id].indicators<=0);
+  if(allDone){setTimeout(()=>this.g3EndGame(),1500);return}
+  setTimeout(()=>{this.g3NextTurn();broadcastState();this.renderG3()},1500);
+};
+
+window.G.g3NextTurn=function(){
+  const len=state.turnOrder.length;if(len===0)return;
+  let nextIdx=(state.currentIndex+1)%len;if(nextIdx<=state.currentIndex)state.round++;
+  let guard=0;
+  while(state.players[state.turnOrder[nextIdx]].indicators<=0&&guard<len){nextIdx=(nextIdx+1)%len;if(nextIdx===0)state.round++;guard++}
+  state.currentIndex=nextIdx;
+  const np=state.players[state.turnOrder[nextIdx]];
+  if(!np.online){state.message='⏸️ '+np.name+' 断线，等待重连...';state.messageType='warn'}
+  else state.message=np.name+' 的回合（第'+state.round+'轮），投掷骰子';state.messageType='';
+};
+
+window.G.g3SettleTavern=function(tv){
+  const groups={};
+  Object.entries(tv.hits).forEach(([id,c])=>{if(c>0){if(!groups[c])groups[c]=[];groups[c].push(id)}});
+  const invalid=new Set();Object.values(groups).forEach(ids=>{if(ids.length>=2)ids.forEach(id=>invalid.add(id))});
+  const valid=Object.entries(tv.hits).filter(([id,c])=>c>0&&!invalid.has(id)).sort((a,b)=>b[1]-a[1]);
+  return{first:valid[0]?valid[0][0]:null,second:valid[1]?valid[1][0]:null};
+};
+
+window.G.g3EndGame=function(){
+  state.phase='ended';
+  let m=document.getElementById('g3GuardianModal');if(m)m.remove();
+  Object.values(state.players).forEach(p=>p.g3coins=0);
+  state.game.taverns.forEach(tv=>{const r=this.g3SettleTavern(tv);if(r.first)state.players[r.first].g3coins+=tv.topGold;if(r.second)state.players[r.second].g3coins+=tv.bottomGold});
+  const personalGold={};Object.entries(state.players).forEach(([id,p])=>personalGold[id]=p.g3coins);
+  let bc=0,rc=0;Object.values(state.players).forEach(p=>{if(p.team==='blue')bc+=p.g3coins;else rc+=p.g3coins});
+  const winner=bc>rc?'🔵 蓝队获胜！':rc>bc?'🔴 红队获胜！':'🤝 平局！';
+  gameOver({winner,personalGold});
+};
+
+window.G.g3ShowGuardian=function(gg){
+  const isPlayer=!isHost&&gg.playerId===myPeerId;const pname=playerName(gg.playerId);
+  let title='',content='';
+  if(gg.type==='猞猁'){
+    title='🛡️ 猞猁守护者';
+    if(gg.step==='choose')content=`<p>猜金币在哪只手，猜对得2金币！</p><p style="color:${isPlayer?'var(--gold-light)':'#888'}">${isPlayer?'请选择：':pname+' 正在选择...'}</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin:14px 0">
+      <button class="btn btn-blue" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{guess:'left'}})">🤚 左手</button>
+      <button class="btn btn-red" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{guess:'right'}})">🤚 右手</button></div>`;
+    else{const ok=gg.guess===gg.actualHand;content=`<div style="font-size:36px;margin:10px">${ok?'🎉':'😅'}</div><p>${pname}猜${gg.guess==='left'?'左':'右'}手，金币在${gg.actualHand==='left'?'左':'右'}手</p><p style="color:${ok?'#a5d6a7':'#ef9a9a'};font-weight:bold">${ok?'猜对！+2金币':'猜错'}</p>${isPlayer?'<button class="btn" onclick="G.actionG3(myPeerId,{type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
+  }else if(gg.type==='乌鸦'){
+    title='🛡️ 乌鸦守护者';
+    if(gg.step==='choose')content=`<p>放1-3个金币，守护者猜数字。猜错返1指示物，猜对得对应金币。</p><p style="color:${isPlayer?'var(--gold-light)':'#888'}">${isPlayer?'请选择：':pname+' 正在选择...'}</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin:14px 0">
+      <button class="btn" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{playerNum:1}})">1个</button>
+      <button class="btn" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{playerNum:2}})">2个</button>
+      <button class="btn" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{playerNum:3}})">3个</button></div>`;
+    else{const wrong=gg.playerNum!==gg.guardianGuess;content=`<div style="font-size:36px;margin:10px">${wrong?'🎉':'😅'}</div><p>${pname}放了<b>${gg.playerNum}</b>个，守护者猜<b>${gg.guardianGuess}</b></p><p style="color:${wrong?'#a5d6a7':'#ef9a9a'};font-weight:bold">${wrong?'猜错！返1指示物':'猜对！+'+gg.playerNum+'金币'}</p>${isPlayer?'<button class="btn" onclick="G.actionG3(myPeerId,{type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
+  }else if(gg.type==='老虎'){
+    title='🛡️ 老虎守护者';
+    let rh='';gg.rounds.forEach((r,i)=>rh+=`<div style="font-size:13px;padding:3px 0">第${i+1}局：${pname} ${G3_DICE[r.player-1]}(${r.player}) vs 守护者 ${G3_DICE[r.guardian-1]}(${r.guardian}) → ${r.win?'赢':'输/平'}</div>`);
+    if(gg.step==='choose')content=`<p>3局赌大小，赢几局得几金币。</p><div style="margin:10px 0">${rh}</div>${isPlayer?`<button class="btn" onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{roll:true}})">投第${gg.rounds.length+1}局</button>`:'<p style="color:#888">等待'+pname+'...</p>'}`;
+    else content=`<p>3局赌大小，赢几局得几金币。</p><div style="margin:10px 0">${rh}</div><div style="color:var(--gold-light);font-weight:bold">共赢${gg.wins}局，+${gg.wins}金币！</div>${isPlayer?'<button class="btn" style="margin-top:10px" onclick="G.actionG3(myPeerId,{type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
+  // 渲染弹窗
+  let modal=document.getElementById('g3GuardianModal');
+  if(!modal){modal=document.createElement('div');modal.id='g3GuardianModal';modal.className='g3-guardian-modal';document.querySelector('.container').appendChild(modal)}
+  modal.innerHTML=`<div class="g3-guardian-box"><h3>${title}</h3>${content}</div>`;
+  modal.style.display='flex';
+};
+// 守护者弹窗在游戏切换时隐藏
+const _origInit3=window.G.initG3;
+window.G.initG3=function(){let m=document.getElementById('g3GuardianModal');if(m)m.remove();_origInit3.call(this)};
+
+// ==================== 游戏4：冒险王之投了个骰 ====================
+const G4_DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+window.G.g4PowerPos=0;window.G.g4PowerDir=1;window.G.g4PowerLocking=false;window.G.g4PowerTimer=null;window.G.g4Rolling=false;
+
+window.G.initG4=function(){
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
+  state._blues=blues;state._reds=reds;
+  state.game={enemy:{name:'🐉 龙蛋',hp:50,maxHp:50,counter:false},lastAction:null,coinflip:null};
+  state.turnOrder=[];state.currentIndex=0;state.round=1;
+  state.phase='coinflip';
+  state.message='开局比大小：点数大的队伍先行动';state.messageType='';
+  document.getElementById('gameInfo').innerHTML='<span>第 <b id="g4Round">1</b> 轮</span><span id="g4Turn"></span>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small" onclick="G.hostActionG4(null,{type:\'coinflip\'})">投骰比大小</button> <button class="btn btn-small btn-red" onclick="G.hostActionG4(null,\'skip\')">跳过断线玩家</button>';
+  this.g4PowerLocking=false;this.g4Rolling=false;this.g4StopPower();
+};
+
+window.G.renderG4=function(){
+  if(!state.game)return;const g=state.game;
+  document.getElementById('g4Round').textContent=state.round;
+  const curId=state.turnOrder[state.currentIndex];
+  if(curId&&state.players[curId]){const cp=state.players[curId];document.getElementById('g4Turn').innerHTML=`当前：<b style="color:${cp.team==='blue'?'#64b5f6':'#ef9a9a'}">${cp.name}</b>${cp.online?'':'（离线⏸️）'}`}
+  const e=g.enemy;
+  let html=`<div class="g4-enemy"><div class="g4-enemy-name">${e.name}</div><div class="g4-hp-bar"><div class="g4-hp-fill" style="width:${Math.max(0,(e.hp/e.maxHp)*100)}%">${e.hp}/${e.maxHp}</div></div></div>`;
+  // 比大小阶段
+  if(state.phase==='coinflip'){
+    const cf=g.coinflip||{};
+    html+='<div class="g4-roll-area"><div class="g4-msg">'+(cf.done?`🔵蓝队 ${cf.blue}点 · 🔴红队 ${cf.red}点${cf.winner==='tie'?' — 平局！':''}`:'等待主持人投骰比大小...')+'</div>';
+    if(isHost)html+=`<button class="btn" onclick="G.hostActionG4(null,{type:'coinflip'})">${cf.done&&cf.winner==='tie'?'平局！再投一次':'投骰比大小'}</button>`;
+    else html+='<button class="btn" disabled>等待主持人...</button>';
+    html+='</div>';
+    // 靶盘
+    html+=this.g4TargetHTML(null);
+    document.getElementById('gameArea').innerHTML=html;return;
+  }
+  // 靶盘
+  html+=this.g4TargetHTML(g.lastAction);
+  // 结果
+  if(g.lastAction&&g.lastAction.resolved){
+    const la=g.lastAction;
+    if(la.result.type==='hit')html+=`<div class="g4-result"><span class="hit">${la.playerName} 命中 ${la.result.ring}环</span> · <span class="dmg">-${la.result.damage} HP</span></div>`;
+    else html+=`<div class="g4-result"><span class="miss">${la.playerName} ${la.result.subtype==='hole'?'投进黑洞':'脱靶'}！未命中</span></div>`;
+  }
+  html+=`<div class="g4-msg ${state.messageType||''}">${state.message||''}</div>`;
+  // 力度条
+  const showPower=!isHost&&curId===myPeerId&&state.phase==='playing'&&!this.g4Rolling&&this.g4PowerLocking;
+  html+=`<div class="g4-power-wrap" id="g4PowerWrap" style="display:${showPower?'block':'none'}"><div class="g4-power">
+    <div class="g4-pz miss"></div><div class="g4-pz hole"></div><div class="g4-pz r1"></div><div class="g4-pz r3"></div><div class="g4-pz r5"></div><div class="g4-pz r7"></div><div class="g4-pz r9"></div><div class="g4-pz r10"></div>
+    <div class="g4-pointer" id="g4Pointer" style="left:0%"></div></div><div class="g4-plabels"><span>脱靶</span><span>黑洞</span><span>1环</span><span>5环</span><span>10环</span></div></div>`;
+  // 按钮
+  html+='<div class="g4-roll-area">';
+  if(state.phase==='playing'){
+    if(isHost)html+='<button class="btn" disabled>观战中</button>';
+    else if(!curId||!state.players[curId].online)html+='<button class="btn" disabled>等待重连...</button>';
+    else if(curId===myPeerId){
+      if(this.g4Rolling)html+='<button class="btn" disabled>投掷中...</button>';
+      else if(this.g4PowerLocking)html+='<button class="btn" id="g4LockBtn" onclick="G.g4Lock()">🎯 锁定！</button>';
+      else html+='<button class="btn" id="g4StartBtn" onclick="G.g4StartPower()">🎲 投掷骰子</button>';
+    }else html+='<button class="btn" disabled>等待对手...</button>';
+  }else html+='<button class="btn" disabled>游戏已结束</button>';
+  html+='</div>';
+  document.getElementById('gameArea').innerHTML=html;
+  if(showPower)this.g4StartAnim();
+};
+
+window.G.g4TargetHTML=function(la){
+  let diceClass='g4-tdice flying',diceStyle='',diceContent='⚀';
+  if(la&&!la.resolved){diceClass='g4-tdice';diceStyle=`left:${la.result.x}%;top:${la.result.y}%`;diceContent=G4_DICE[la.diceFace-1]}
+  return `<div class="g4-target"><div class="g4-twrap"><svg class="g4-tsvg" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="95" fill="#1a1a2e" stroke="#4cc9f0" stroke-width="1"/>
+    <circle cx="100" cy="100" r="85" fill="#16213e" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="75" fill="#0f3460" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="65" fill="#16213e" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="55" fill="#0f3460" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="45" fill="#16213e" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="35" fill="#0f3460" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="25" fill="#16213e" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="15" fill="#0f3460" stroke="#4361ee" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="7" fill="#4cc9f0"/>
+    <circle cx="55" cy="70" r="8" fill="#000" stroke="#ef5350" stroke-width="1.5"/>
+    <circle cx="145" cy="70" r="8" fill="#000" stroke="#ef5350" stroke-width="1.5"/>
+    <circle cx="55" cy="130" r="8" fill="#000" stroke="#ef5350" stroke-width="1.5"/>
+    <circle cx="145" cy="130" r="8" fill="#000" stroke="#ef5350" stroke-width="1.5"/>
+    <text x="100" y="104" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">10</text>
+  </svg><div class="${diceClass}" style="${diceStyle}">${diceContent}</div></div></div>`;
+};
+
+window.G.g4StartPower=function(){
+  this.g4PowerLocking=true;this.g4PowerPos=0;this.g4PowerDir=1;
+  this.renderG4();
+  setTimeout(()=>document.getElementById('g4PowerWrap')&&document.getElementById('g4PowerWrap').scrollIntoView({behavior:'smooth',block:'center'}),100);
+};
+window.G.g4StartAnim=function(){
+  this.g4StopPower();
+  this.g4PowerTimer=setInterval(()=>{
+    this.g4PowerPos+=this.g4PowerDir*2.5;
+    if(this.g4PowerPos>=100){this.g4PowerPos=100;this.g4PowerDir=-1}
+    if(this.g4PowerPos<=0){this.g4PowerPos=0;this.g4PowerDir=1}
+    const pt=document.getElementById('g4Pointer');if(pt)pt.style.left=this.g4PowerPos+'%';
+  },20);
+};
+window.G.g4StopPower=function(){if(this.g4PowerTimer){clearInterval(this.g4PowerTimer);this.g4PowerTimer=null}};
+window.G.g4Lock=function(){
+  this.g4StopPower();this.g4PowerLocking=false;
+  const power=Math.round(this.g4PowerPos);
+  this.actionG4(myPeerId,{type:'lockPower',power});
+};
+
+window.G.actionG4=function(peerId,action){
+  if(action.type==='lockPower'&&state.phase==='playing'){
+    if(state.turnOrder[state.currentIndex]!==peerId||!state.players[peerId].online)return;
+    this.g4DoRoll(action.power);
+  }
+};
+
+window.G.hostActionG4=function(peerId,action){
+  if(action.type==='coinflip'&&state.phase==='coinflip'){
+    const b=1+Math.floor(Math.random()*6),r=1+Math.floor(Math.random()*6);
+    state.game.coinflip={blue:b,red:r,done:true};
+    if(b>r)state.game.coinflip.winner='blue';else if(r>b)state.game.coinflip.winner='red';else state.game.coinflip.winner='tie';
+    if(state.game.coinflip.winner!=='tie'){
+      const first=state.game.coinflip.winner==='blue'?state._blues:state._reds;
+      const second=state.game.coinflip.winner==='blue'?state._reds:state._blues;
+      const order=[];const mx=Math.max(first.length,second.length);
+      for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+      state.turnOrder=order;state.currentIndex=0;state.phase='playing';
+      state.message=(state.game.coinflip.winner==='blue'?'🔵蓝队':'🔴红队')+' 先行动！'+playerName(order[0])+' 的回合';state.messageType='good';
+    }else state.message='平局！再投一次';state.messageType='warn';
+    broadcastState();this.renderG4();
+  }else if(action==='skip'&&state.phase==='playing'){
+    state.message='主持人跳过了 '+state.players[state.turnOrder[state.currentIndex]].name;state.messageType='warn';
+    this.g4NextTurn();broadcastState();this.renderG4();
+  }
+};
+
+window.G.g4DoRoll=function(power){
+  if(this.g4Rolling)return;this.g4Rolling=true;
+  const curId=state.turnOrder[state.currentIndex];
+  const p=Math.max(0,Math.min(100,power+(Math.random()*12-6)));
+  let result;
+  if(p<10){result={type:'miss',subtype:'offtarget',ring:0,damage:0,x:50+Math.random()*100,y:50+Math.random()*100}}
+  else if(p<18){const holes=[{x:27.5,y:35},{x:72.5,y:35},{x:27.5,y:65},{x:72.5,y:65}];const h=holes[Math.floor(Math.random()*holes.length)];result={type:'miss',subtype:'hole',ring:0,damage:0,x:h.x,y:h.y}}
+  else{
+    const ring=Math.max(1,Math.min(10,Math.round((p-18)/82*9)+1));
+    const radius=(10-ring)*4.5+2;const angle=Math.random()*Math.PI*2;
+    result={type:'hit',ring:ring,damage:ring,x:Math.max(5,Math.min(95,50+radius*Math.cos(angle))),y:Math.max(5,Math.min(95,50+radius*Math.sin(angle)))};
+  }
+  const diceFace=1+Math.floor(Math.random()*6);
+  state.game.lastAction={playerId:curId,playerName:playerName(curId),result,diceFace};
+  state.message=playerName(curId)+' 投掷骰子！';state.messageType='';
+  broadcastState();this.renderG4();
+  setTimeout(()=>{
+    const pl=state.players[curId];const enemy=state.game.enemy;
+    if(result.type==='hit'){enemy.hp=Math.max(0,enemy.hp-result.damage);state.message=`${pl.name} 命中 ${result.ring}环！造成 ${result.damage} 点伤害`;state.messageType='good'}
+    else{state.message=`${pl.name} ${result.subtype==='hole'?'投进黑洞！':'脱靶！'}未命中`;state.messageType='warn'}
+    state.game.lastAction.resolved=true;this.g4Rolling=false;
+    broadcastState();this.renderG4();
+    if(enemy.hp<=0)setTimeout(()=>this.g4EndGame(),1200);
+    else setTimeout(()=>{this.g4NextTurn();broadcastState();this.renderG4()},1200);
+  },800);
+};
+
+window.G.g4NextTurn=function(){
+  const len=state.turnOrder.length;if(len===0)return;
+  let nextIdx=(state.currentIndex+1)%len;if(nextIdx<=state.currentIndex)state.round++;
+  state.currentIndex=nextIdx;
+  const np=state.players[state.turnOrder[nextIdx]];
+  if(!np.online){state.message='⏸️ '+np.name+' 断线，等待重连...';state.messageType='warn'}
+  else{state.message=np.name+' 的回合（第'+state.round+'轮），点击投掷';state.messageType=''}
+};
+
+window.G.g4EndGame=function(){
+  state.phase='ended';
+  const curId=state.turnOrder[state.currentIndex];
+  const winTeam=state.players[curId].team;
+  const winner=winTeam==='blue'?'🔵 蓝队获胜！':'🔴 红队获胜！';
+  // 队伍金币：赢队每人10，输队每人5
+  const winCount=Object.values(state.players).filter(p=>p.team===winTeam).length;
+  const loseCount=Object.values(state.players).filter(p=>p.team!==winTeam).length;
+  gameOver({winner,teamGold:{blue:winTeam==='blue'?winCount*10:loseCount*5,red:winTeam==='red'?winCount*10:loseCount*5}});
+};
+
+// ==================== 游戏5：逃生机制 ====================
+const G5_DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+const G5_ROCK=[9,12,15],G5_SKILL_POINTS=[0,8,16],G5_FINISH=24;
+const G5_SKILLS=[
+  {id:'胜者余酿酒',desc:'决斗胜利后复制败方技能（限一次）',type:'passive'},
+  {id:'落井下石酒',desc:'他人投1时跳过其移动，你+1格',type:'passive'},
+  {id:'狂飙忘忧酒',desc:'步数×2但跳过下回合',type:'active'},
+  {id:'绊足黑啤',desc:'指定他人骰子-1（最小1）',type:'active',needTarget:true},
+  {id:'尾灯引路酒',desc:'放弃移动，末尾+2你+1',type:'active'},
+  {id:'回收者神酿',desc:'从弃牌堆选1张替换',type:'active'},
+  {id:'再投双杯酿',desc:'重投每回合最多2次',type:'active'},
+  {id:'恶臭黑啤',desc:'停留有他人格他们-1血',type:'passive'},
+  {id:'踏风者烈酿',desc:'经过他人他们退后2格',type:'passive'},
+  {id:'恰好止步酒',desc:'必须正好等于剩余格数冲线',type:'global'},
+  {id:'次席预言酒',desc:'预测获胜者他获胜你成第二',type:'passive'},
+  {id:'投机者特调',desc:'他人停你格他后退1格',type:'passive'},
+  {id:'附影随行酒',desc:'同格人移动后你传送',type:'passive'},
+  {id:'当关烈酒',desc:'经过你的玩家必须停',type:'passive'},
+  {id:'凑桌传送酒',desc:'放弃移动传送至2人格',type:'active'},
+  {id:'孤独者陈酿',desc:'他人停1人格你+1',type:'passive'},
+  {id:'错位时空果酒',desc:'移动前将一人传送到你格',type:'active',needTarget:true},
+  {id:'骄傲兔子酒',desc:'步数+2但独自领先跳过',type:'passive'},
+  {id:'有福同享佳酿',desc:'他人投6你+2格',type:'passive'},
+  {id:'预言家陈酿',desc:'预测点数猜对额外回合',type:'active'},
+  {id:'蛙跳青柠酒',desc:'跳过有人格',type:'passive'},
+  {id:'魁首仿酿酒',desc:'复制领先者技能',type:'passive'},
+  {id:'派对小扎啤',desc:'同格人移动+1步数',type:'passive'},
+  {id:'逆袭苦艾酒',desc:'投1移动2格',type:'passive'},
+];
+
+window.G.initG5=function(){
+  const shuffled=[...G5_SKILLS].sort(()=>Math.random()-0.5);
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
+  state._blues=blues;state._reds=reds;
+  state.game={skillPools:{0:shuffled.slice(0,8).map(s=>s.id),8:shuffled.slice(8,16).map(s=>s.id),16:shuffled.slice(16,24).map(s=>s.id)},discarded:[],duel:null,roundSummary:null,globalExactStop:false,coinflip:null,pendingSkillChange:null,pendingTargetChoice:null,pendingPrediction:null,lastRoll:undefined,debuff:null};
+  state.turnOrder=[];state.currentIndex=0;state.round=1;state.skillSelectIndex=0;
+  Object.values(state.players).forEach(p=>{p.pos=0;p.hp=9;p.skill=null;p.skillUsed=false;p.skipNext=false;p.extraTurn=false;p.predictedWinner=null;p.dead=false;p.skillChangeUsed={};p._rerollCount=0;p._copiedSkill=false;p._shadowTarget=null});
+  state.phase='coinflip';
+  state.message='开局比大小：主持人点击投掷';state.messageType='';
+  document.getElementById('gameInfo').innerHTML='<span>第 <b id="g5Round">1</b> 轮</span><span id="g5Turn"></span><span id="g5Phase" class="g5-phase"></span>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small" onclick="G.hostActionG5(null,{type:\'coinflip\'})">投骰比大小</button> <button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button>';
+};
+
+window.G.renderG5=function(){
+  if(!state.game)return;const g=state.game;
+  document.getElementById('g5Round').textContent=state.round;
+  const curId=state.turnOrder[state.currentIndex];
+  if(curId&&state.players[curId]){const cp=state.players[curId];document.getElementById('g5Turn').innerHTML='当前：<b style="color:'+(cp.team==='blue'?'#64b5f6':'#ef9a9a')+'">'+cp.name+'</b>'+(cp.online?'':'（离线⏸️）')}
+  let phaseText='';
+  if(state.phase==='playing'&&curId){const pos=state.players[curId].pos;phaseText=pos>=16?'第三阶段·石像守卫':pos>=8?'第二阶段·落石':'第一阶段·巨龙吐息'}
+  document.getElementById('g5Phase').textContent=phaseText;
+  let html='<div class="g5-map">';
+  for(let i=0;i<=G5_FINISH;i++){
+    let cls='g5-cell';if(i===0)cls+=' start';if(i===G5_FINISH)cls+=' end';if(G5_SKILL_POINTS.includes(i))cls+=' skillpoint';if(G5_ROCK.includes(i))cls+=' rock';
+    const here=Object.entries(state.players).filter(([_,p])=>!p.dead&&p.pos===i);
+    let dots='';here.forEach(([id,p])=>{const c=CHARACTERS.find(ch=>ch.id===p.character);dots+='<div class="g5-pdot '+p.team+'" title="'+p.name+'">'+(c?'<img src="'+c.img+'">':p.name.charAt(0))+'</div>'});
+    let label=i===0?'🏰起点':i===G5_FINISH?'🚪终点':G5_SKILL_POINTS.includes(i)?'📜技能':G5_ROCK.includes(i)?'🪨落石':'';
+    html+='<div class="'+cls+'"><div class="g5-cell-num">'+i+'</div><div class="g5-cell-label">'+label+'</div><div class="g5-cell-dots">'+dots+'</div></div>';
+  }
+  html+='</div><div class="g5-players">';
+  state.turnOrder.forEach(id=>{
+    const p=state.players[id];if(!p)return;
+    const c=CHARACTERS.find(ch=>ch.id===p.character);
+    const sk=p.skill?G5_SKILLS.find(s=>s.id===p.skill):null;
+    html+='<div class="g5-pcard '+(id===curId&&state.phase==='playing'?'active':'')+' '+(p.dead?'dead':'')+'"><div class="g5-pcard-head"><span class="'+p.team+'">'+(c?'<img src="'+c.img+'">':'')+(p.team==='blue'?'🔵':'🔴')+' '+p.name+(id===myPeerId?'(你)':'')+'</span><span>❤️'+p.hp+' 💰'+(p.gold||0)+'</span></div><div>位置：'+p.pos+'格'+(p.dead?' 💀':'')+'</div><div class="g5-pcard-skill">'+(p.skill?'📜'+p.skill+'<br><span>'+(sk?sk.desc:'')+'</span>':'无技能')+'</div></div>';
+  });
+  html+='</div><div class="g5-msg '+(state.messageType||'')+'">'+(state.message||'')+'</div><div class="g5-action"><div class="g5-dice-display" id="g5DiceDisplay"></div><div id="g5Buttons"></div></div>';
+  document.getElementById('gameArea').innerHTML=html;
+  this.g5RenderButtons();
+  if(g.duel)this.g5RenderDuel();else{let m=document.getElementById('g5DuelModal');if(m)m.remove()}
+  if(g.roundSummary)this.g5RenderSummary();else{let m=document.getElementById('g5SumModal');if(m)m.remove()}
+  this.g5CheckModals();
+};
+
+window.G.g5RenderButtons=function(){
+  const g=state.game;const btns=document.getElementById('g5Buttons');const dice=document.getElementById('g5DiceDisplay');
+  if(!btns)return;btns.innerHTML='';
+  if(state.phase==='coinflip'){
+    if(isHost)btns.innerHTML='<button class="btn" onclick="G.hostActionG5(null,{type:\'coinflip\'})">'+(g.coinflip&&g.coinflip.done&&g.coinflip.winner==='tie'?'平局！再投一次':'投骰比大小')+'</button>';
+    else dice.innerHTML='<span style="font-size:13px;color:#888">等待主持人...</span>';
+    if(g.coinflip&&g.coinflip.done)dice.innerHTML='<span style="font-size:14px">🔵'+G5_DICE[g.coinflip.blue-1]+'('+g.coinflip.blue+') VS 🔴'+G5_DICE[g.coinflip.red-1]+'('+g.coinflip.red+')</span>';
+    return;
+  }
+  if(state.phase==='skillselect'){dice.innerHTML='<span style="font-size:13px;color:#a08060">技能选择阶段</span>';return}
+  if(state.phase!=='playing')return;
+  if(g.duel){dice.innerHTML='<span style="font-size:14px;color:var(--gold-light)">⚔️ 决斗中...</span>';return}
+  if(g.roundSummary){dice.innerHTML='<span style="font-size:13px;color:#888">查看回合总结...</span>';return}
+  const curId=state.turnOrder[state.currentIndex];const p=state.players[curId];if(!p)return;
+  if(isHost){dice.innerHTML='<span style="font-size:13px;color:#888">观战中</span>';return}
+  if(curId!==myPeerId){dice.innerHTML='<span style="font-size:13px;color:#888">等待'+p.name+'...</span>';return}
+  if(!p.online){dice.innerHTML='<span style="font-size:13px;color:#d46a6a">断线中...</span>';return}
+  if(typeof g.lastRoll==='number')dice.innerHTML=G5_DICE[g.lastRoll-1]+' <span style="font-size:14px">('+g.lastRoll+')</span>';
+  if(g.pendingDuel&&g.pendingDuel.playerId===myPeerId){
+    const t=state.players[g.pendingDuel.targetId];
+    btns.innerHTML='<button class="btn btn-red" onclick="G.actionG5(myPeerId,{type:\'duel\',targetId:\''+g.pendingDuel.targetId+'\'})">⚔️ 与'+t.name+'决斗</button>';
+    if(!g.pendingDuel.forced)btns.innerHTML+='<button class="btn btn-gray" style="margin-left:8px" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">跳过</button>';
+    return;
+  }
+  if(g.pendingSkillChange&&g.pendingSkillChange.playerId===myPeerId){dice.innerHTML='<span style="font-size:13px;color:var(--gold-light)">请选择新技能</span>';return}
+  if(!p.skillUsed||(p.skill==='再投双杯酿'&&typeof g.lastRoll==='number'&&(p._rerollCount||0)<2)){
+    if(typeof g.lastRoll!=='number')btns.innerHTML='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'roll\'})">🎲 投掷骰子</button>';
+    else if(p.skill==='再投双杯酿'&&(p._rerollCount||0)<2)btns.innerHTML='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'reroll\'})">🔄 重投('+(2-(p._rerollCount||0))+')</button><button class="btn btn-gray" style="margin-left:8px" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">结束回合</button>';
+    else btns.innerHTML='<button class="btn btn-gray" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">结束回合</button>';
+  }else btns.innerHTML='<button class="btn btn-gray" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">结束回合</button>';
+  if(p.skill&&!p.skillUsed&&typeof g.lastRoll!=='number'){
+    const sk=G5_SKILLS.find(s=>s.id===p.skill);
+    if(sk&&sk.type==='active')btns.innerHTML+='<button class="btn btn-small" style="margin-left:8px" onclick="G.actionG5(myPeerId,{type:\'useSkill\',skillId:\''+p.skill+'\'})">📜 '+p.skill+'</button>';
+  }
+};
+
+window.G.g5CheckModals=function(){
+  const g=state.game;
+  if(state.phase==='skillselect'){const selector=state.turnOrder[state.skillSelectIndex||0];if(selector===myPeerId&&!isHost)this.g5ShowSkillSelect(g.skillPoolKey||0);else this.g5RemoveModal()}
+  else if(g.pendingSkillChange&&g.pendingSkillChange.playerId===myPeerId&&!isHost)this.g5ShowSkillSelect(g.pendingSkillChange.poolKey);
+  else if(g.pendingSkillChoice&&g.pendingSkillChoice.playerId===myPeerId&&!isHost)this.g5ShowDiscardSelect();
+  else if(g.pendingTargetChoice&&g.pendingTargetChoice.playerId===myPeerId&&!isHost)this.g5ShowTargetChoice();
+  else if(g.pendingPrediction&&g.pendingPrediction.playerId===myPeerId&&!isHost)this.g5ShowPrediction();
+  else this.g5RemoveModal();
+};
+window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
+window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.querySelector('.container').appendChild(m)}m.innerHTML='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+'</div>';m.style.display='flex'};
+window.G.g5ShowSkillSelect=function(poolKey){
+  const pool=state.game.skillPools[poolKey]||[];let html='<p style="font-size:12px;color:#ffcc80">选择一张技能：</p><div class="g5-skill-grid">';
+  pool.forEach(sid=>{const sk=G5_SKILLS.find(s=>s.id===sid);html+='<div class="g5-skill-card" onclick="G.g5SelectSkill(\''+sid+'\')"><div class="sk-name">'+sk.id+'</div><div class="sk-desc">'+sk.desc+'</div></div>'});
+  html+='</div>';this.g5ShowModal('📜 选择技能（'+poolKey+'格池）',html);
+};
+window.G.g5SelectSkill=function(sid){this.g5RemoveModal();sendAction({type:'selectSkill',skillId:sid})};
+window.G.g5ShowDiscardSelect=function(){
+  let html='<p style="font-size:12px;color:#ffcc80">从弃牌堆选一张：</p><div class="g5-skill-grid">';
+  state.game.discarded.forEach(sid=>{const sk=G5_SKILLS.find(s=>s.id===sid);html+='<div class="g5-skill-card" onclick="G.g5SelectDiscard(\''+sid+'\')"><div class="sk-name">'+sk.id+'</div><div class="sk-desc">'+sk.desc+'</div></div>'});
+  html+='</div>';this.g5ShowModal('📜 回收者神酿',html);
+};
+window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();sendAction({type:'selectDiscard',skillId:sid})};
+window.G.g5ShowTargetChoice=function(){
+  const skill=state.game.pendingTargetChoice.skillId;let html='<p style="font-size:12px">使用【'+skill+'】选择目标：</p>';
+  state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.dead||id===myPeerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5ChooseTarget(\''+id+'\')"><div class="sk-name">'+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</div><div class="sk-desc">位置'+p.pos+'格 · 血量'+p.hp+'</div></div>'});
+  this.g5ShowModal('🎯 选择目标',html);
+};
+window.G.g5ChooseTarget=function(id){this.g5RemoveModal();sendAction({type:'chooseTarget',targetId:id})};
+window.G.g5ShowPrediction=function(){
+  let html='<p style="font-size:12px">预测投掷点数：</p><div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">';
+  for(let i=1;i<=6;i++)html+='<button class="btn" style="font-size:18px;padding:8px 14px" onclick="G.g5MakePrediction('+i+')">'+G5_DICE[i-1]+'</button>';
+  html+='</div>';this.g5ShowModal('🔮 预言家陈酿',html);
+};
+window.G.g5MakePrediction=function(n){this.g5RemoveModal();state.game.pendingPrediction=null;sendAction({type:'roll',prediction:n})};
+
+window.G.g5RenderDuel=function(){
+  const d=state.game.duel;const pa=state.players[d.playerA],pb=state.players[d.playerB];
+  let m=document.getElementById('g5DuelModal');
+  if(!m){m=document.createElement('div');m.id='g5DuelModal';m.className='g5-duel-modal';document.querySelector('.container').appendChild(m)}
+  let actHtml='';
+  if(d.phase==='waitA'){
+    if(myPeerId===d.playerA&&!isHost)actHtml='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'duelRoll\'})">🎲 投骰子</button>';
+    else if(isHost)actHtml='<button class="btn" onclick="G.g5HostDuelRoll(\''+d.playerA+'\')">替'+pa.name+'投骰</button>';
+    else actHtml='<span style="color:#888">等待'+pa.name+'投骰...</span>';
+  }else if(d.phase==='waitB'){
+    if(myPeerId===d.playerB&&!isHost)actHtml='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'duelRoll\'})">🎲 投骰子</button>';
+    else if(isHost)actHtml='<button class="btn" onclick="G.g5HostDuelRoll(\''+d.playerB+'\')">替'+pb.name+'投骰</button>';
+    else actHtml='<span style="color:#888">等待'+pb.name+'投骰...</span>';
+  }else{
+    if(d.winner===d.playerA)actHtml='<span style="color:var(--gold-light);font-weight:bold">'+pa.name+'获胜！+1格，'+pb.name+'-1血</span>';
+    else if(d.winner===d.playerB)actHtml='<span style="color:var(--gold-light);font-weight:bold">'+pb.name+'获胜！+1格，'+pa.name+'-1血</span>';
+    else actHtml='<span>平局！无事发生</span>';
+  }
+  m.innerHTML='<div class="g5-duel-box"><h3>⚔️ 决斗</h3><div class="g5-duel-row"><div><div class="g5-duel-player '+pa.team+'">'+(pa.team==='blue'?'🔵':'🔴')+' '+pa.name+'</div><div class="g5-duel-dice '+(d.rollA!==null?'stopped':'')+'">'+(d.rollA!==null?G5_DICE[d.rollA-1]:'🎲')+'</div></div><div class="g5-duel-vs">VS</div><div><div class="g5-duel-player '+pb.team+'">'+(pb.team==='blue'?'🔵':'🔴')+' '+pb.name+'</div><div class="g5-duel-dice '+(d.rollB!==null?'stopped':'')+'">'+(d.rollB!==null?G5_DICE[d.rollB-1]:'🎲')+'</div></div></div><div style="margin:12px 0">'+actHtml+'</div></div>';
+};
+
+window.G.g5RenderSummary=function(){
+  const s=state.game.roundSummary;
+  let m=document.getElementById('g5SumModal');
+  if(!m){m=document.createElement('div');m.id='g5SumModal';m.className='g5-summary-modal';document.querySelector('.container').appendChild(m)}
+  let html='<div class="g5-summary-box"><h3>第'+s.round+'回合总结</h3>'+s.html;
+  if(isHost)html+='<div style="text-align:center;margin-top:12px"><button class="btn" onclick="G.g5CloseSummary()">继续</button></div>';
+  else html+='<div style="text-align:center;color:#888;font-size:12px;margin-top:12px">等待主持人继续...</div>';
+  html+='</div>';m.innerHTML=html;
+};
+
+window.G.g5ShowSkillPool=function(){
+  if(!isHost)return;
+  let html='';const taken={};
+  Object.entries(state.players).forEach(([id,p])=>{if(p.skill)taken[p.skill]=p.name});
+  G5_SKILL_POINTS.forEach(cell=>{
+    const pool=state.game.skillPools[cell]||[];
+    html+='<div style="margin-bottom:10px"><div style="color:var(--gold-light);font-weight:bold;font-size:12px">📍'+cell+'格池（剩'+pool.length+'）</div>';
+    pool.forEach(sid=>{const sk=G5_SKILLS.find(s=>s.id===sid);html+='<div style="font-size:10px;padding:2px 0"><b>'+sid+'</b> <span style="color:#8a7050">'+(sk?sk.desc:'')+'</span></div>'});
+    html+='</div>';
+  });
+  html+='<div style="margin-bottom:10px"><div style="color:#7bc47f;font-weight:bold;font-size:12px">✅已领取</div>';
+  Object.entries(taken).forEach(([sid,n])=>html+='<div style="font-size:10px;padding:2px 0">'+sid+' → '+n+'</div>');
+  html+='</div>';
+  if(state.game.discarded.length){html+='<div><div style="color:#d46a6a;font-weight:bold;font-size:12px">🗑️弃牌堆</div>';state.game.discarded.forEach(sid=>html+='<div style="font-size:10px">'+sid+'</div>');html+='</div>'}
+  this.g5ShowModal('📜 技能池总览',html);
+};
+
+window.G.actionG5=function(peerId,action){
+  if(action.type==='roll'||action.type==='reroll'){
+    if(state.phase!=='playing'||state.game.duel)return;
+    if(state.turnOrder[state.currentIndex]!==peerId||!state.players[peerId].online)return;
+    this.g5DoRoll(peerId,action.type==='reroll',action.prediction);
+  }else if(action.type==='useSkill'){this.g5DoUseSkill(peerId,action.skillId)}
+  else if(action.type==='endTurn'){this.g5EndTurn(peerId)}
+  else if(action.type==='duel'){this.g5StartDuel(peerId,action.targetId)}
+  else if(action.type==='duelRoll'){this.g5DuelRoll(peerId)}
+  else if(action.type==='selectSkill'){
+    if(state.phase==='skillselect'&&state.turnOrder[state.skillSelectIndex||0]===peerId)this.g5DoSelectSkill(peerId,action.skillId);
+    else if(state.game.pendingSkillChoice&&state.game.pendingSkillChoice.playerId===peerId)this.g5DoSelectDiscard(peerId,action.skillId);
+  }else if(action.type==='chooseTarget'){
+    if(state.game.pendingTargetChoice&&state.game.pendingTargetChoice.playerId===peerId)this.g5ResolveTarget(peerId,action.targetId);
+  }
+};
+
+window.G.hostActionG5=function(peerId,action){
+  if(action.type==='coinflip'&&state.phase==='coinflip'){
+    const b=1+Math.floor(Math.random()*6),r=1+Math.floor(Math.random()*6);
+    state.game.coinflip={blue:b,red:r,done:true,winner:b>r?'blue':r>b?'red':'tie'};
+    if(state.game.coinflip.winner!=='tie'){
+      const first=state.game.coinflip.winner==='blue'?state._blues:state._reds;
+      const second=state.game.coinflip.winner==='blue'?state._reds:state._blues;
+      const order=[];const mx=Math.max(first.length,second.length);
+      for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+      state.turnOrder=order;state.phase='skillselect';state.skillSelectIndex=0;state.game.skillPoolKey=0;
+      state.message=(state.game.coinflip.winner==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
+    }else state.message='平局！再投一次';state.messageType='warn';
+    broadcastState();this.renderG5();
+  }else if(action==='skip'&&state.phase==='playing'){
+    state.message='主持人跳过了 '+playerName(state.turnOrder[state.currentIndex]);state.messageType='warn';
+    state.game.pendingTargetChoice=null;state.game.pendingSkillChange=null;state.game.pendingPrediction=null;
+    this.g5EndTurn(state.turnOrder[state.currentIndex]);
+  }
+};
+
+window.G.g5DoSelectSkill=function(playerId,skillId){
+  const poolKey=state.game.skillPoolKey||0;const idx=state.game.skillPools[poolKey].indexOf(skillId);if(idx<0)return;
+  const p=state.players[playerId];
+  if(p.skill)state.game.discarded.push(p.skill);
+  p.skill=skillId;state.game.skillPools[poolKey].splice(idx,1);p.skillChangeUsed[poolKey]=true;
+  if(skillId==='次席预言酒'){const alive=state.turnOrder.filter(id=>!state.players[id].dead);p.predictedWinner=alive[Math.floor(Math.random()*alive.length)]}
+  if(skillId==='恰好止步酒')state.game.globalExactStop=true;
+  state.skillSelectIndex=(state.skillSelectIndex||0)+1;
+  if(state.skillSelectIndex>=state.turnOrder.length){
+    state.phase='playing';state.currentIndex=0;state.round=1;
+    state.message=playerName(state.turnOrder[0])+' 的回合，投掷骰子';state.messageType='';
+  }else state.message='轮到 '+playerName(state.turnOrder[state.skillSelectIndex])+' 选择技能';
+  broadcastState();this.renderG5();
+};
+
+window.G.g5DoSelectDiscard=function(playerId,skillId){
+  const g=state.game;const idx=g.discarded.indexOf(skillId);if(idx<0)return;
+  const p=state.players[playerId];
+  if(p.skill)g.discarded.push(p.skill);
+  p.skill=skillId;g.discarded.splice(idx,1);p.skillUsed=true;
+  g.pendingSkillChoice=null;state.message=playerName(playerId)+' 从弃牌堆获得'+skillId;state.messageType='good';
+  broadcastState();this.renderG5();
+};
+
+window.G.g5DoRoll=function(playerId,isReroll,prediction){
+  const p=state.players[playerId];const g=state.game;
+  if(p.skillUsed&&!isReroll)return;
+  g.pendingPrediction=null;
+  let roll=1+Math.floor(Math.random()*6);g.lastRoll=roll;
+  if(g.debuff&&g.debuff[playerId]){roll=Math.max(1,roll-1);delete g.debuff[playerId]}
+  let steps=roll<=2?1:roll<=4?2:3;
+  if(p.skill==='逆袭苦艾酒'&&roll===1)steps=2;
+  if(p.skill==='骄傲兔子酒'){
+    const maxPos=Math.max(...Object.values(state.players).filter(pl=>!pl.dead).map(pl=>pl.pos));
+    const leaders=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===maxPos);
+    if(leaders.length===1&&leaders[0]===p){state.message=playerName(playerId)+' 独自领先，骄傲兔子酒跳过移动！';state.messageType='warn';g.lastSteps=0;p.skillUsed=true;this.g5AfterMove(playerId,0);return}
+    steps+=2;
+  }
+  if(p.skill==='派对小扎啤'){const same=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos&&pl!==p).length;if(same>0)steps+=1}
+  if(p.skill==='狂飙忘忧酒'&&p.skillActive){steps*=2;p.skipNext=true}
+  if(roll===1)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='落井下石酒'&&id!==playerId){pl.pos=Math.min(G5_FINISH,pl.pos+1);state.message+=' | '+playerName(id)+' 落井下石+1格'}});
+  if(roll===6)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='有福同享佳酿'&&id!==playerId)pl.pos=Math.min(G5_FINISH,pl.pos+2)});
+  if(prediction&&prediction===roll)p.extraTurn=true;
+  g.lastSteps=steps;p.skillUsed=true;
+  state.message=playerName(playerId)+' 投出 '+G5_DICE[roll-1]+'('+roll+')，移动'+steps+'格';state.messageType='';
+  this.g5ExecuteMove(playerId,steps);this.g5AfterMove(playerId,steps);
+};
+
+window.G.g5ExecuteMove=function(playerId,steps){
+  const p=state.players[playerId];const startPos=p.pos;let targetPos=p.pos+steps;
+  if(state.game.globalExactStop&&targetPos>G5_FINISH){state.message+='（恰好止步酒生效）';return}
+  targetPos=Math.min(G5_FINISH,targetPos);
+  if(p.skill==='蛙跳青柠酒'){let pos=p.pos;for(let i=0;i<steps;i++){pos++;if(pos>G5_FINISH)break;if(Object.values(state.players).some(pl=>!pl.dead&&pl.pos===pos&&pl!==p))pos++}targetPos=Math.min(G5_FINISH,pos)}
+  const passed=[];
+  for(let pos=startPos+1;pos<targetPos;pos++)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.pos===pos&&id!==playerId){passed.push(id);if(pl.skill==='当关烈酒')targetPos=pos}});
+  if(p.skill==='踏风者烈酿'){passed.forEach(id=>{state.players[id].pos=Math.max(0,state.players[id].pos-2)});if(passed.length)state.message+=' | 踏风者：'+passed.map(id=>playerName(id)).join('、')+'退后2格'}
+  p.pos=targetPos;
+};
+
+window.G.g5AfterMove=function(playerId,steps){
+  const p=state.players[playerId];const g=state.game;
+  if(p.skill==='恶臭黑啤'){const others=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos&&pl!==p);others.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});if(others.length)state.message+=' | 恶臭黑啤：同格-1血'}
+  Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='投机者特调'&&id!==playerId&&pl.pos===p.pos){p.pos=Math.max(0,p.pos-1);state.message+=' | 投机者：'+playerName(id)+'使你后退1格'}});
+  const cellCount=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos).length;
+  if(cellCount===1)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='孤独者陈酿'&&id!==playerId)pl.pos=Math.min(G5_FINISH,pl.pos+1)});
+  const poolKey=G5_SKILL_POINTS.find(c=>p.pos===c);
+  if(poolKey!==undefined&&g.skillPools[poolKey]&&g.skillPools[poolKey].length>0&&!p.skillChangeUsed[poolKey]){
+    g.pendingSkillChange={playerId,poolKey};state.message=playerName(playerId)+' 到达技能更换点！';state.messageType='good';broadcastState();this.renderG5();return;
+  }
+  if(p.pos>=G5_FINISH){this.g5EndGame(playerId);return}
+  if(p.pos>=8&&p.pos<=15&&G5_ROCK.includes(p.pos)){p.hp-=1;state.message+=' | 落石！-1血';this.g5CheckDeath(playerId)}
+  const enemies=Object.entries(state.players).filter(([id,pl])=>!pl.dead&&pl.pos===p.pos&&pl.team!==p.team&&id!==playerId);
+  if(enemies.length>0){
+    const inPhase3=p.pos>=16;
+    g.pendingDuel={playerId,targetId:enemies[0][0],forced:inPhase3};
+    state.message+=inPhase3?' | 第三阶段：必须决斗！':' | 与'+playerName(enemies[0][0])+'同格，可决斗';
+  }
+  broadcastState();this.renderG5();
+};
+
+window.G.g5StartDuel=function(playerId,targetId){
+  state.game.duel={playerA:playerId,playerB:targetId,rollA:null,rollB:null,phase:'waitA',winner:null};
+  state.game.pendingDuel=null;broadcastState();this.renderG5();
+};
+window.G.g5DuelRoll=function(peerId){
+  const d=state.game.duel;if(!d)return;
+  if(d.phase==='waitA'&&peerId===d.playerA){d.rollA=1+Math.floor(Math.random()*6);d.phase='waitB';broadcastState();this.renderG5()}
+  else if(d.phase==='waitB'&&peerId===d.playerB){d.rollB=1+Math.floor(Math.random()*6);d.phase='result';this.g5ResolveDuel();broadcastState();this.renderG5();setTimeout(()=>{if(!state.game.duel)return;const dd=state.game.duel;state.game.duel=null;const a=state.players[dd.playerA];if(a&&a.pos>=G5_FINISH){this.g5EndGame(dd.playerA);return}this.g5EndTurn(dd.playerA)},2500)}
+};
+window.G.g5HostDuelRoll=function(id){this.g5DuelRoll(id)};
+window.G.g5ResolveDuel=function(){
+  const d=state.game.duel;const a=state.players[d.playerA],b=state.players[d.playerB];
+  if(d.rollA>d.rollB){a.pos=Math.min(G5_FINISH,a.pos+1);b.hp-=1;d.winner=d.playerA;state.message=playerName(d.playerA)+' 决斗胜利！('+d.rollA+'vs'+d.rollB+') +1格，'+playerName(d.playerB)+'-1血';state.messageType='good';if(a.skill==='胜者余酿酒'&&b.skill&&!a._copiedSkill){a.skill=b.skill;a._copiedSkill=true}this.g5CheckDeath(d.playerB)}
+  else if(d.rollB>d.rollA){b.pos=Math.min(G5_FINISH,b.pos+1);a.hp-=1;d.winner=d.playerB;state.message=playerName(d.playerB)+' 决斗胜利！('+d.rollB+'vs'+d.rollA+') +1格，'+playerName(d.playerA)+'-1血';state.messageType='warn';this.g5CheckDeath(d.playerA)}
+  else state.message='决斗平局('+d.rollA+'vs'+d.rollB+')';
+};
+
+window.G.g5DoUseSkill=function(playerId,skillId){
+  const p=state.players[playerId];const g=state.game;if(p.skillUsed)return;
+  if(skillId==='再投双杯酿'){if(g.lastRoll===undefined)return;p.skillUsed=true;p._rerollCount=(p._rerollCount||0)+1;if(p._rerollCount>2)return;this.g5DoRoll(playerId,true);return}
+  if(skillId==='尾灯引路酒'){const alive=Object.entries(state.players).filter(([_,pl])=>!pl.dead);const minPos=Math.min(...alive.map(([_,pl])=>pl.pos));alive.filter(([_,pl])=>pl.pos===minPos).forEach(([id])=>{state.players[id].pos=Math.min(G5_FINISH,state.players[id].pos+2)});p.pos=Math.min(G5_FINISH,p.pos+1);p.skillUsed=true;state.message=playerName(playerId)+' 尾灯引路：末尾+2你+1';state.messageType='good';this.g5AfterMove(playerId,0);return}
+  if(skillId==='凑桌传送酒'){const counts={};Object.values(state.players).forEach(pl=>{if(!pl.dead)counts[pl.pos]=(counts[pl.pos]||0)+1});const valid=Object.entries(counts).filter(([_,c])=>c===2).map(([pos])=>parseInt(pos));if(!valid.length)return;p.pos=valid[Math.floor(Math.random()*valid.length)];p.skillUsed=true;state.message=playerName(playerId)+' 凑桌传送至'+p.pos+'格';state.messageType='good';this.g5AfterMove(playerId,0);return}
+  if(skillId==='回收者神酿'){if(!g.discarded.length)return;g.pendingSkillChoice={playerId};state.message=playerName(playerId)+' 从弃牌堆选技能';broadcastState();this.renderG5();return}
+  if(skillId==='错位时空果酒'||skillId==='绊足黑啤'){g.pendingTargetChoice={playerId,skillId};state.message=playerName(playerId)+' 选择目标';broadcastState();this.renderG5();return}
+  if(skillId==='预言家陈酿'){g.pendingPrediction={playerId};state.message=playerName(playerId)+' 预测点数';broadcastState();this.renderG5();return}
+  if(skillId==='狂飙忘忧酒'){p.skillActive=true;p.skillUsed=true;state.message=playerName(playerId)+' 狂飙忘忧：步数×2，下回合跳过';state.messageType='good';broadcastState();this.renderG5();return}
+};
+
+window.G.g5ResolveTarget=function(playerId,targetId){
+  const p=state.players[playerId];const skill=state.game.pendingTargetChoice.skillId;
+  if(skill==='错位时空果酒'){state.players[targetId].pos=p.pos;state.message=playerName(playerId)+' 错位时空：将'+playerName(targetId)+'传送到'+p.pos+'格'}
+  else if(skill==='绊足黑啤'){if(!state.game.debuff)state.game.debuff={};state.game.debuff[targetId]=true;state.message=playerName(playerId)+' 绊足黑啤：'+playerName(targetId)+'下次-1'}
+  p.skillUsed=true;state.game.pendingTargetChoice=null;state.messageType='good';broadcastState();this.renderG5();
+};
+
+window.G.g5EndTurn=function(playerId){
+  const p=state.players[playerId];const g=state.game;
+  p.skillUsed=false;p.skillActive=false;p._rerollCount=0;
+  g.pendingDuel=null;g.lastRoll=undefined;g.pendingSkillChange=null;g.pendingTargetChoice=null;g.pendingPrediction=null;
+  Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='附影随行酒'&&id!==playerId&&pl._shadowTarget===playerId){pl.pos=p.pos;pl._shadowTarget=null}});
+  const alive=Object.values(state.players).filter(pl=>!pl.dead);
+  if(alive.length){const minPos=Math.min(...alive.map(pl=>pl.pos));if(minPos<=7)alive.filter(pl=>pl.pos===minPos).forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl);state.message+=' | 巨龙吐息！末尾-1血'})}
+  const aliveCount=Object.values(state.players).filter(pl=>!pl.dead).length;
+  if(aliveCount<=1){const w=Object.entries(state.players).find(([_,pl])=>!pl.dead);if(w)this.g5EndGame(w[0]);return}
+  if(p.extraTurn){p.extraTurn=false;state.message=playerName(playerId)+' 额外回合！';state.messageType='good';broadcastState();this.renderG5();return}
+  this.g5NextTurn();broadcastState();this.renderG5();
+};
+
+window.G.g5NextTurn=function(){
+  const g=state.game;const alive=state.turnOrder.filter(id=>!state.players[id].dead);if(!alive.length)return;
+  g.lastRoll=undefined;
+  let idx=state.turnOrder.indexOf(state.turnOrder[state.currentIndex]);
+  let nextIdx=(idx+1)%state.turnOrder.length;let guard=0;
+  while(state.players[state.turnOrder[nextIdx]].dead&&guard<state.turnOrder.length){nextIdx=(nextIdx+1)%state.turnOrder.length;guard++}
+  state.currentIndex=nextIdx;
+  if(nextIdx<=idx){
+    state.round++;
+    const summary=[];
+    state.turnOrder.forEach(id=>{const pl=state.players[id];if(!pl)return;summary.push('<div class="g5-sum-player"><span class="'+pl.team+'">'+(pl.team==='blue'?'🔵':'🔴')+' '+pl.name+'</span><span>位置'+pl.pos+' · ❤️'+pl.hp+' · 💰'+(pl.gold||0)+(pl.dead?' · 💀':'')+(pl.skill?' · 📜'+pl.skill:'')+'</span></div>')});
+    g.roundSummary={round:state.round-1,html:summary.join('')};
+  }
+  const np=state.players[state.turnOrder[nextIdx]];
+  np.skillUsed=false;np.skillActive=false;np._rerollCount=0;
+  if(np.skipNext){np.skipNext=false;state.message=np.name+' 被跳过（狂飙忘忧酒）';state.messageType='warn';setTimeout(()=>this.g5EndTurn(state.turnOrder[nextIdx]),800);return}
+  if(!np.online){state.message='⏸️ '+np.name+' 断线，等待重连...';state.messageType='warn'}
+  else{state.message=np.name+' 的回合（第'+state.round+'轮），投掷骰子';state.messageType=''}
+};
+
+window.G.g5CloseSummary=function(){state.game.roundSummary=null;broadcastState();this.renderG5()};
+
+window.G.g5CheckDeath=function(playerId){
+  const p=state.players[playerId];
+  if(p.hp<=0&&!p.dead){
+    const needed=1-p.hp;
+    if(p.gold&&p.gold>=needed){p.gold-=needed;p.hp=1;state.message+=' | '+playerName(playerId)+' 消耗'+needed+'金币复活（1血）';state.messageType='warn'}
+    else{p.dead=true;if(p.skill)state.game.discarded.push(p.skill);p.skill=null;if(p.gold)p.gold=0;state.message+=' | '+playerName(playerId)+' 被淘汰！';state.messageType='warn'}
+  }
+};
+window.G.g5CheckDeathObj=function(p){if(p.hp<=0&&!p.dead){p.dead=true;if(p.skill)state.game.discarded.push(p.skill);p.skill=null}};
+
+window.G.g5EndGame=function(winnerId){
+  state.phase='ended';state.winner=winnerId;
+  const rankings=Object.entries(state.players).filter(([_,p])=>!p.dead).sort((a,b)=>b[1].pos-a[1].pos);
+  const goldMap=[6,5,4,3,2,1];
+  const personalGold={};
+  rankings.forEach(([id,p],i)=>{const gg=goldMap[i]||0;personalGold[id]=gg});
+  // 次席预言：预测获胜者正确额外+2
+  Object.entries(state.players).forEach(([id,p])=>{if(p.predictedWinner===winnerId&&!p.dead&&id!==winnerId)personalGold[id]=(personalGold[id]||0)+2});
+  const winner=state.players[winnerId];
+  gameOver({winner:'🎉 '+winner.name+' 逃出地下城！',personalGold});
+};
+
+// ==================== 初始化 ====================
+document.addEventListener('DOMContentLoaded',()=>{
+  renderCharPick();
+  document.getElementById('teamBlueBtn').classList.add('selected');
+  const ri=document.getElementById('joinRoomInput');
+  ri.addEventListener('input',()=>{
+    const rid=ri.value.trim().toUpperCase();
+    if(rid.length===6){const s=loadReconnectCode(rid);if(s){document.getElementById('joinReconnectInput').value=s.code;if(s.charId){selectedChar=s.charId;renderCharPick()}if(s.name)myName=s.name;document.getElementById('joinStatus').textContent='检测到重连码，已自动填入'}}
+  });
+  document.getElementById('joinRoomInput').addEventListener('keydown',e=>{if(e.key==='Enter')playerJoin()});
+  document.getElementById('joinReconnectInput').addEventListener('keydown',e=>{if(e.key==='Enter')playerJoin()});
+});
+</script>
+</body>
+</html>
