@@ -343,6 +343,21 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .gold-confirm-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(74,53,32,.3);font-size:13px}
 .gold-confirm-row input{width:60px;padding:4px 8px;font-size:13px;background:#1a0f08;color:var(--text);border:1px solid #4a3520;border-radius:4px;text-align:center}
 .gold-confirm-actions{text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center}
+
+/* 游戏选择网格 */
+.game-select-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.game-select-card{background:rgba(26,15,8,.7);border:2px solid #4a3520;border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s;font-size:11px}
+.game-select-card:hover{border-color:var(--gold);background:rgba(201,162,39,.1)}
+.game-select-card.selected{border-color:var(--gold-light);background:rgba(201,162,39,.2);box-shadow:0 0 10px rgba(201,162,39,.4)}
+.game-select-card.done{opacity:.5;border-color:#2e7d32}
+.game-select-card.done::after{content:'✅';position:absolute}
+.game-select-card .gs-icon{font-size:24px;display:block;margin-bottom:4px}
+.game-select-card .gs-name{font-size:10px;color:var(--text-dim)}
+.game-select-card.locked{opacity:.3;cursor:not-allowed}
+.ready-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:bold}
+.ready-badge.yes{background:#2e7d32;color:#fff}
+.ready-badge.no{background:#5d4037;color:#bcaaa4}
+@media(max-width:640px){.game-select-grid{grid-template-columns:repeat(3,1fr)}.game-select-card .gs-icon{font-size:20px}}
 </style>
 </head>
 <body>
@@ -364,34 +379,22 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
   <div style="margin-top:20px"><button class="btn btn-small btn-gray" onclick="enterHost()">🎩 我是主持人</button></div>
 </div>
 
-<!-- 主持人大厅 -->
-<div id="hostLobby" class="lobby-screen hidden">
+<!-- 公共大厅（主持人+玩家共用） -->
+<div id="publicLobby" class="lobby-screen hidden">
   <div class="lobby-header">
-    <h2>🎩 主持人大厅</h2>
+    <h2 id="lobbyTitle">🎩 游戏大厅</h2>
     <div class="room-id-box" id="hostRoomId" onclick="copyRoomId()" title="点击复制房间号">------<span class="copy-hint">📋 点击复制</span></div>
   </div>
   <div class="game-progress" id="lobbyProgress"></div>
+  <!-- 游戏选择 -->
+  <div class="game-select-grid" id="gameSelectGrid"></div>
+  <!-- 玩家列表 -->
   <div class="team-columns">
     <div class="team-panel blue"><h3>🔵 蓝队 <span class="count" id="blueCount">0/3</span></h3><div id="blueList"></div></div>
     <div class="team-panel red"><h3>🔴 红队 <span class="count" id="redCount">0/3</span></h3><div id="redList"></div></div>
   </div>
-  <div class="lobby-actions">
-    <button class="btn" id="startBtn" onclick="hostStartNextGame()" disabled>开始游戏</button>
-    <div class="tip" id="startTip">等待玩家加入（每队至少1人）</div>
-  </div>
-</div>
-
-<!-- 玩家等待页面 -->
-<div id="playerWait" class="wait-screen hidden">
-  <h2 style="color:var(--gold-light);margin-bottom:14px">等待主持人开始</h2>
-  <div class="wait-info">
-    <div>角色：<b id="waitName"></b></div>
-    <div>队伍：<span id="waitTeam" class="team-badge-display"></span></div>
-    <div>房间号：<b id="waitRoom"></b></div>
-    <div>当前进度：<b id="waitProgress">等待开始</b></div>
-    <div class="reconnect-code-box">重连码：<code id="waitReconnectCode">------</code><br><span style="font-size:11px">断线后凭此码重新加入</span></div>
-  </div>
-  <div id="waitPlayers" style="font-size:13px;color:var(--text-dim);max-width:400px;margin:0 auto"></div>
+  <!-- 操作区 -->
+  <div class="lobby-actions" id="lobbyActions"></div>
 </div>
 
 <!-- 游戏区域 -->
@@ -478,7 +481,7 @@ let state=null;
 let hostConns={};
 
 function genCode(){let s='';for(let i=0;i<6;i++)s+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return s}
-function showScreen(id){['joinScreen','hostLobby','playerWait','gameScreen'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+function showScreen(id){['joinScreen','publicLobby','gameScreen'].forEach(s=>document.getElementById(s).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
 function setConn(s,t){document.getElementById('connDot').className='conn-dot'+(s==='online'?' online':'');document.getElementById('connText').textContent=t}
 function saveReconnectCode(roomId,code,name,charId){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');d[roomId]={code,name,charId};localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}catch(e){}}
 function loadReconnectCode(roomId){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')[roomId]||null}catch(e){return null}}
@@ -497,8 +500,9 @@ function selectTeam(t){selectedTeam=t;document.getElementById('teamBlueBtn').cla
 // ==================== 主持人 ====================
 function enterHost(){
   isHost=true;
-  showScreen('hostLobby');
+  showScreen('publicLobby');
   document.getElementById('hostRoomId').textContent='连接中...';
+  document.getElementById('lobbyTitle').textContent='🎩 主持人大厅';
   const roomId=genCode();
   const iceConfig={config:{iceServers:[
     {urls:'stun:stun.l.google.com:19302'},
@@ -520,14 +524,14 @@ function enterHost(){
         if(hostConns[c.peer]){delete hostConns[c.peer];
           if(state&&state.players[c.peer]){
             state.players[c.peer].online=false;
-            if(state.phase==='lobby'){renderHostLobby();broadcastState()}
+            if(state.phase==='lobby'){renderPublicLobby();broadcastState()}
             else{broadcastState();if(window.G&&window.G.render)window.G.render()}
           }
         }
       });
     });
     document.getElementById('hostRoomId').textContent=roomId;
-    renderHostLobby();
+    renderPublicLobby();
   });
   peer.on('error',err=>{if(err.type==='unavailable-id'){alert('房间号冲突，请刷新重试')}else alert('连接失败：'+(err.type||err.message))});
 }
@@ -563,50 +567,102 @@ function handleHostMsg(peerId,msg){
     }
     const rc=genCode();
     const cname=charName(charId);
-    state.players[peerId]={name:cname,character:charId,team:msg.team,online:true,reconnectCode:rc,gold:0};
+    state.players[peerId]={name:cname,character:charId,team:msg.team,online:true,reconnectCode:rc,gold:0,ready:false};
+    // 新玩家加入，重置所有人准备状态
+    Object.values(state.players).forEach(p=>p.ready=false);
     sendTo(peerId,{type:'joinAccept',yourId:peerId,reconnectCode:rc,name:cname,team:msg.team,charId:charId});
-    renderHostLobby();broadcastState();
+    renderPublicLobby();broadcastState();
   }
   else if(msg.type==='hostAction'){
     // 主持人操作由游戏模块处理
     if(window.G && window.G.hostAction)window.G.hostAction(peerId,msg.action);
+  }
+  else if(msg.type==='playerReady'){
+    if(state.players[peerId]){state.players[peerId].ready=true;broadcastState();renderPublicLobby()}
   }
   else if(msg.type==='playerAction'){
     if(window.G && window.G.playerAction)window.G.playerAction(peerId,msg.action);
   }
 }
 
-function renderHostLobby(){
+function renderPublicLobby(){
   const b=Object.entries(state.players).filter(([_,p])=>p.team==='blue');
   const r=Object.entries(state.players).filter(([_,p])=>p.team==='red');
   document.getElementById('blueCount').textContent=b.length+'/3';
   document.getElementById('redCount').textContent=r.length+'/3';
-  const renderSlot=(list,elId)=>{const el=document.getElementById(elId);el.innerHTML='';list.forEach(([id,p])=>{
+  // 游戏选择网格
+  const grid=document.getElementById('gameSelectGrid');
+  if(grid){
+    let gh='';
+    GAMES.forEach((g,i)=>{
+      const num=i+1;let cls='game-select-card',label='',icon=g.icon;
+      if(num<state.currentGame){cls+=' done';label='已完成'}
+      else if(num===state.currentGame+1&&state.currentGame<5){cls+=' selected';label='下一局'}
+      else if(num>state.currentGame+1){cls+=' locked';label='未解锁'}
+      else{cls+=' selected';label='进行中'}
+      if(isHost&&num===state.currentGame+1&&state.currentGame<5)cls+=' selectable';
+      gh+=`<div class="${cls}" ${isHost&&num===state.currentGame+1&&state.currentGame<5?`onclick="hostSelectGame(${num})"`:''}><span class="gs-icon">${icon}</span><div class="gs-name">${g.name}</div><div style="font-size:9px;color:var(--gold);margin-top:2px">${label}</div></div>`;
+    });
+    grid.innerHTML=gh;
+  }
+  // 玩家列表
+  const renderSlot=(list,elId)=>{const el=document.getElementById(elId);if(!el)return;el.innerHTML='';list.forEach(([id,p])=>{
     const d=document.createElement('div');d.className='player-slot';
     const tt=p.team==='blue'?'→红队':'→蓝队';const bc=p.team==='blue'?'btn-red':'btn-blue';
+    const readyBadge=p.ready?'<span class="ready-badge yes">✓已准备</span>':'<span class="ready-badge no">未准备</span>';
+    let rightHtml=`<span class="status ${p.online?'':'offline'}">${p.online?'在线':'离线'}</span>`;
+    if(isHost){
+      rightHtml+=`<span style="font-size:11px">💰</span><input type="number" min="0" value="${p.gold||0}" style="width:50px;padding:2px 4px;font-size:12px;background:#1a0f08;color:var(--text);border:1px solid #4a3520;border-radius:3px" onchange="hostSetGold('${id}',this.value)">`;
+      rightHtml+=`<button class="btn btn-small ${bc}" style="padding:2px 8px;font-size:11px" onclick="hostSwitchTeam('${id}')">${tt}</button>`;
+    }else{
+      rightHtml+=`<span style="font-size:11px;color:var(--gold-light)">💰${p.gold||0}</span>`;
+    }
+    rightHtml+=readyBadge;
     d.innerHTML=`<span class="pinfo">${p.character?`<img src="${charImg(p.character)}">`:''}${p.name} <span style="font-size:10px;color:var(--gold)">🔑${p.reconnectCode}</span></span>
-    <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-      <span class="status ${p.online?'':'offline'}">${p.online?'在线':'离线'}</span>
-      <span style="font-size:11px">💰</span><input type="number" min="0" value="${p.gold||0}" style="width:50px;padding:2px 4px;font-size:12px;background:#1a0f08;color:var(--text);border:1px solid #4a3520;border-radius:3px" onchange="hostSetGold('${id}',this.value)">
-      <button class="btn btn-small ${bc}" style="padding:2px 8px;font-size:11px" onclick="hostSwitchTeam('${id}')">${tt}</button>
-    </span>`;
+    <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${rightHtml}</span>`;
     el.appendChild(d);
   });for(let i=list.length;i<3;i++){const d=document.createElement('div');d.className='player-slot empty';d.textContent='空位';el.appendChild(d)}};
   renderSlot(b,'blueList');renderSlot(r,'redList');
-  const can=b.length>=1&&r.length>=1;
-  const btn=document.getElementById('startBtn');
-  btn.disabled=!can;
-  if(state.currentGame===0){btn.textContent='🎮 开始第1局：小蛇机';document.getElementById('startTip').textContent=can?'可以开始！':'等待玩家加入（每队至少1人）'}
-  else if(state.currentGame<5){btn.textContent='🎮 开始第'+(state.currentGame+1)+'局：'+GAMES[state.currentGame].name;document.getElementById('startTip').textContent='上一局已结束，点击开始下一局'}
-  else{btn.textContent='🎉 全部游戏结束';btn.disabled=true;document.getElementById('startTip').textContent=''}
+  // 操作区
+  const actions=document.getElementById('lobbyActions');
+  if(actions){
+    const can=b.length>=1&&r.length>=1;
+    const allReady=Object.values(state.players).every(p=>p.ready||!p.online);
+    const nextGame=state.currentGame+1;
+    if(isHost){
+      if(state.currentGame>=5){
+        actions.innerHTML='<div class="tip">🎉 全部游戏已结束！</div>';
+      }else{
+        const gi=GAMES[nextGame-1];
+        const readyCount=Object.values(state.players).filter(p=>p.ready).length;
+        const totalCount=Object.values(state.players).length;
+        actions.innerHTML=`<button class="btn" id="startBtn" ${can&&allReady?'':'disabled'} onclick="hostStartNextGame()">🎮 开始第${nextGame}局：${gi.icon} ${gi.name}</button>
+        <div class="tip" id="startTip">${!can?'等待玩家加入（每队至少1人）':!allReady?`等待玩家准备（${readyCount}/${totalCount}已准备）`:'✅ 全部已准备，可以开始！'}</div>`;
+      }
+    }else{
+      const me=state.players[myPeerId];
+      if(me&&me.ready){
+        actions.innerHTML='<div style="text-align:center"><span class="ready-badge yes" style="font-size:14px;padding:6px 20px">✓ 已准备，等待主持人开始...</span></div>';
+      }else{
+        actions.innerHTML='<button class="btn btn-blue" onclick="playerReady()" style="width:100%;max-width:300px">✅ 准备</button>';
+      }
+    }
+  }
   renderProgress('lobbyProgress');
 }
-function hostSetGold(id,val){if(!state||state.phase!=='lobby')return;state.players[id].gold=Math.max(0,parseInt(val)||0);broadcastState()}
+// 兼容旧调用
+function renderHostLobby(){renderPublicLobby()}
+function renderWaitScreen(){renderPublicLobby()}
+
+function playerReady(){
+  if(conn&&conn.open)conn.send({type:'playerReady'});
+}
+function hostSetGold(id,val){if(!state||state.phase!=='lobby')return;state.players[id].gold=Math.max(0,parseInt(val)||0);Object.values(state.players).forEach(p=>p.ready=false);broadcastState();renderPublicLobby()}
 function hostSwitchTeam(id){
   if(!state||state.phase!=='lobby')return;const p=state.players[id];if(!p)return;
   const nt=p.team==='blue'?'red':'blue';
   if(Object.values(state.players).filter(pl=>pl.team===nt).length>=3){alert('队伍已满');return}
-  p.team=nt;sendTo(id,{type:'teamChanged',team:nt});renderHostLobby();broadcastState();
+  p.team=nt;p.ready=false;sendTo(id,{type:'teamChanged',team:nt});broadcastState();renderPublicLobby();
 }
 
 function copyRoomId(){
@@ -631,6 +687,7 @@ function hostStartNextGame(){
     state.currentGame=nextGame;
     state.phase='playing';
     state.gameSummary=null;
+    Object.values(state.players).forEach(p=>p.ready=false);
     if(window.G && window.G.init)window.G.init(nextGame);
     broadcastState();
     showScreen('gameScreen');
@@ -640,6 +697,11 @@ function hostStartNextGame(){
     setConn('online','已连接');
     if(window.G && window.G.render)window.G.render();
   });
+}
+
+function hostSelectGame(num){
+  // 游戏按顺序进行，点击下一局卡片等同于准备开始
+  if(num===state.currentGame+1&&state.currentGame<5)hostStartNextGame();
 }
 
 function showGoldConfirm(onConfirm){
@@ -675,8 +737,9 @@ function hostSkipGame(){
   document.getElementById('hostSkipBar').classList.add('hidden');
   document.getElementById('hostControls').classList.add('hidden');
   document.getElementById('gameArea').innerHTML='';
-  showScreen('hostLobby');
-  renderHostLobby();
+  showScreen('publicLobby');
+  Object.values(state.players).forEach(p=>p.ready=false);
+  renderPublicLobby();
   broadcastState();
 }
 
@@ -748,10 +811,11 @@ function renderGameSummary(){
 function closeSummaryAndNext(){
   document.getElementById('gameArea').innerHTML='';
   state.phase='lobby';
-  showScreen('hostLobby');
+  showScreen('publicLobby');
   document.getElementById('hostControls').classList.add('hidden');
   document.getElementById('hostSkipBar').classList.add('hidden');
-  renderHostLobby();
+  Object.values(state.players).forEach(p=>p.ready=false);
+  renderPublicLobby();
   broadcastState();
 }
 
@@ -809,15 +873,14 @@ function handlePlayerMsg(msg){
     if(msg.name)myName=msg.name;if(msg.team)myTeam=msg.team;if(msg.charId)myCharId=msg.charId;
     const roomId=document.getElementById('joinRoomInput').value.trim().toUpperCase();
     saveReconnectCode(roomId,msg.reconnectCode,myName,myCharId);
-    if(msg.reconnected&&msg.state){state=msg.state;enterGameScreen();if(state.phase==='playing'){window.G.gameId=state.currentGame;if(window.G.render)window.G.render()}else if(state.phase==='gameOver'){renderGameSummary()}return}
-    document.getElementById('waitName').textContent=myName;
-    const tb=document.getElementById('waitTeam');tb.textContent=myTeam==='blue'?'🔵 蓝队':'🔴 红队';tb.className='team-badge-display '+myTeam;
-    document.getElementById('waitRoom').textContent=roomId;
-    document.getElementById('waitReconnectCode').textContent=msg.reconnectCode;
-    showScreen('playerWait');
+    if(msg.reconnected&&msg.state){state=msg.state;if(state.phase==='playing'||state.phase==='gameOver'){enterGameScreen();if(state.phase==='playing'){window.G.gameId=state.currentGame;if(window.G.render)window.G.render()}else if(state.phase==='gameOver'){renderGameSummary()}}else{showScreen('publicLobby');renderPublicLobby()}return}
+    document.getElementById('lobbyTitle').textContent='🎮 游戏大厅';
+    document.getElementById('hostRoomId').textContent=roomId;
+    showScreen('publicLobby');
+    renderPublicLobby();
   }
   else if(msg.type==='joinReject'){document.getElementById('joinStatus').textContent='加入失败：'+msg.reason}
-  else if(msg.type==='teamChanged'){myTeam=msg.team;const tb=document.getElementById('waitTeam');if(tb){tb.textContent=myTeam==='blue'?'🔵 蓝队':'🔴 红队';tb.className='team-badge-display '+myTeam}}
+  else if(msg.type==='teamChanged'){myTeam=msg.team;renderPublicLobby()}
   else if(msg.type==='state'){
     state=msg.state;
     if(state.phase==='playing'&&document.getElementById('gameScreen').classList.contains('hidden'))enterGameScreen();
@@ -825,7 +888,10 @@ function handlePlayerMsg(msg){
       if(document.getElementById('gameScreen').classList.contains('hidden'))enterGameScreen();
       renderGameSummary();
     }
-    if(state.phase==='lobby'&&!document.getElementById('playerWait').classList.contains('hidden'))renderWaitScreen();
+    if(state.phase==='lobby'){
+      if(document.getElementById('publicLobby').classList.contains('hidden'))showScreen('publicLobby');
+      renderPublicLobby();
+    }
     if(state.phase==='playing'){
       window.G.gameId=state.currentGame;
       if(window.G.render)window.G.render();
@@ -840,13 +906,6 @@ function enterGameScreen(){
   setConn('online','已连接');
   if(myReconnectCode){document.getElementById('playerReconnectBar').classList.remove('hidden');document.getElementById('playerReconnectCode').textContent=myReconnectCode}
   renderProgress('gameProgress');
-}
-function renderWaitScreen(){
-  const b=Object.values(state.players).filter(p=>p.team==='blue');
-  const r=Object.values(state.players).filter(p=>p.team==='red');
-  document.getElementById('waitPlayers').innerHTML=`蓝队(${b.length}/3)：${b.map(p=>p.name).join('、')||'—'}<br>红队(${r.length}/3)：${r.map(p=>p.name).join('、')||'—'}`;
-  document.getElementById('waitProgress').textContent=state.currentGame>0?state.phase==='playing'?'第'+state.currentGame+'局进行中':'等待下一局':'等待开始';
-  renderProgress('lobbyProgress');
 }
 
 // 玩家发送操作
