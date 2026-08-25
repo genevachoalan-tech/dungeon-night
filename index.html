@@ -2397,8 +2397,11 @@ window.G.g5ShowWinnerPrediction=function(){
 };
 window.G.g5PickWinner=function(id){this.g5RemoveModal();sendAction({type:'pickWinner',targetId:id})};
 window.G.g5ShowLeaderCopy=function(){
-  const cands=state.game.pendingLeaderCopy.candidates;let html='<p style="font-size:12px">领先者多人，选择复制谁的技能：</p>';
-  cands.forEach(c=>{html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5PickLeader(\''+c.id+'\')"><div class="sk-name">'+c.name+'</div><div class="sk-desc">'+c.skill+'</div></div>'});
+  const cands=state.game.pendingLeaderCopy.candidates;
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">领先者多人，选择复制谁的技能：</p>';
+  html+='<table class="g5-skill-table"><thead><tr><th style="width:35%">玩家</th><th>技能</th></tr></thead><tbody>';
+  cands.forEach(c=>{html+='<tr class="g5-skill-row" onclick="G.g5PickLeader(\''+c.id+'\')"><td class="sk-name">'+c.name+'</td><td class="sk-desc">'+c.skill+'</td></tr>'});
+  html+='</tbody></table>';
   this.g5ShowModal('🎭 魁首仿酿酒',html);
 };
 window.G.g5PickLeader=function(id){this.g5RemoveModal();sendAction({type:'pickLeader',targetId:id})};
