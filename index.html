@@ -249,6 +249,34 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 #gameArea .g3-guardian-box{background:linear-gradient(135deg,#3e2723,#1a0a00);border:2px solid var(--gold);border-radius:14px;padding:20px 24px;max-width:400px;width:100%;text-align:center}
 #gameArea .g3-guardian-box h3{color:var(--gold-light);margin-bottom:12px}
 #gameArea .g3-guardian-box p{font-size:13px;line-height:1.7;color:#ffcc80;margin-bottom:8px}
+/* ===== G3操作特效 ===== */
+#gameArea .g3-fx-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:900;display:flex;align-items:center;justify-content:center}
+#gameArea .g3-fx-box{text-align:center;animation:g3fxPop .6s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes g3fxPop{0%{transform:scale(0) rotate(-20deg);opacity:0}50%{transform:scale(1.3) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+#gameArea .g3-fx-icon{font-size:72px;filter:drop-shadow(0 0 20px currentColor);animation:g3fxBounce .5s ease infinite alternate}
+@keyframes g3fxBounce{0%{transform:translateY(0)}100%{transform:translateY(-10px)}}
+#gameArea .g3-fx-text{font-size:28px;font-weight:bold;margin-top:8px;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+#gameArea .g3-fx-sub{font-size:16px;margin-top:4px;opacity:.9}
+/* 打破酒桶 */
+#gameArea .g3-fx-break .g3-fx-icon{color:#ff9800}
+#gameArea .g3-fx-break .g3-fx-text{color:#ffb74d}
+#gameArea .g3-fx-break::after{content:'';position:absolute;width:200px;height:200px;background:radial-gradient(circle,rgba(255,152,0,.4),transparent 70%);animation:g3fxBurst .6s ease-out forwards}
+@keyframes g3fxBurst{0%{transform:scale(0);opacity:1}100%{transform:scale(2);opacity:0}}
+/* 赢金币 */
+#gameArea .g3-fx-gold .g3-fx-icon{color:#ffd700}
+#gameArea .g3-fx-gold .g3-fx-text{color:#ffeb3b}
+#gameArea .g3-fx-gold .g3-coins{position:absolute;font-size:32px;animation:g3fxCoinFly 1s ease-out forwards}
+@keyframes g3fxCoinFly{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-150px) scale(.5);opacity:0}}
+/* 返还指示物 */
+#gameArea .g3-fx-ind .g3-fx-icon{color:#66bb6a}
+#gameArea .g3-fx-ind .g3-fx-text{color:#a5d6a7}
+#gameArea .g3-fx-ind::after{content:'';position:absolute;width:160px;height:160px;border:3px solid #66bb6a;border-radius:50%;animation:g3fxPulse .8s ease-out forwards}
+@keyframes g3fxPulse{0%{transform:scale(.5);opacity:1}100%{transform:scale(2);opacity:0}}
+/* 失败 */
+#gameArea .g3-fx-fail .g3-fx-icon{color:#ef5350}
+#gameArea .g3-fx-fail .g3-fx-text{color:#ef9a9a}
+#gameArea .g3-fx-fail{animation:g3fxShake .4s ease, g3fxPop .6s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes g3fxShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-15px)}75%{transform:translateX(15px)}}
 @media(max-width:640px){#gameArea .g3-taverns{grid-template-columns:repeat(2,1fr)}#gameArea .g3-dice{width:40px;height:40px;font-size:20px}}
 
 /* ===== 冒险王样式 ===== */
@@ -283,25 +311,37 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 
 /* ===== 逃生机制样式 ===== */
 #gameArea .g5-phase{text-align:center;font-size:13px;color:var(--gold-light);margin-bottom:6px}
-#gameArea .g5-map{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:10px}
-#gameArea .g5-cell{background:rgba(0,0,0,.35);border:1px solid #4a3520;border-radius:6px;padding:3px;min-height:62px;position:relative;font-size:9px;text-align:center}
-#gameArea .g5-cell.start{border-color:#7bc47f}#gameArea .g5-cell.end{border-color:var(--gold-light)}
-#gameArea .g5-cell.skillpoint{border-color:#9c27b0}#gameArea .g5-cell.rock{border-color:#ff9800}
-#gameArea .g5-cell-num{font-size:9px;color:var(--text-dim)}
-#gameArea .g5-cell-label{font-size:8px;color:var(--text-dim)}
-#gameArea .g5-cell-dots{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin-top:2px}
-#gameArea .g5-pdot{width:18px;height:18px;border-radius:50%;overflow:hidden;border:1px solid #4a3520;position:relative}
+#gameArea .g5-layout{display:block}
+#gameArea .g5-map-section{margin-bottom:12px}
+#gameArea .g5-map{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;width:100%;max-width:680px;aspect-ratio:1/1;margin:0 auto}
+#gameArea .g5-cell{background:rgba(0,0,0,.35);border:2px solid #4a3520;border-radius:8px;padding:4px;position:relative;font-size:9px;text-align:center;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#gameArea .g5-cell::before{content:'';position:absolute;inset:0;font-size:clamp(20px,4.5vw,44px);display:flex;align-items:center;justify-content:center;opacity:.18;pointer-events:none;z-index:0}
+#gameArea .g5-cell.start{border-color:#7bc47f;background:rgba(123,196,127,.12)}
+#gameArea .g5-cell.start::before{content:'🏰';opacity:.35}
+#gameArea .g5-cell.end{border-color:var(--gold-light);background:rgba(201,162,39,.15)}
+#gameArea .g5-cell.end::before{content:'🚪';opacity:.4}
+#gameArea .g5-cell.skillpoint{border-color:#ce93d8;background:rgba(156,39,176,.12)}
+#gameArea .g5-cell.skillpoint::before{content:'📜';opacity:.35}
+#gameArea .g5-cell.rock{border-color:#ff9800;background:rgba(255,152,0,.1)}
+#gameArea .g5-cell.rock::before{content:'🪨';opacity:.4}
+#gameArea .g5-cell.empty::before{content:'⬛';opacity:.08;font-size:clamp(16px,3vw,28px)}
+#gameArea .g5-cell-num{font-size:clamp(9px,1.4vw,12px);color:var(--text-dim);font-weight:bold;position:relative;z-index:1}
+#gameArea .g5-cell-label{font-size:clamp(9px,1.6vw,13px);color:var(--gold-light);font-weight:bold;margin-top:2px;position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+#gameArea .g5-cell-dots{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:4px;position:relative;z-index:1}
+#gameArea .g5-pdot{width:clamp(18px,3vw,30px);height:clamp(18px,3vw,30px);border-radius:50%;overflow:hidden;border:2px solid #4a3520;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 #gameArea .g5-pdot img{width:100%;height:100%;object-fit:cover}
 #gameArea .g5-pdot.blue{border-color:#4a90e2}#gameArea .g5-pdot.red{border-color:#e74c3c}
-#gameArea .g5-players{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-#gameArea .g5-pcard{background:rgba(0,0,0,.3);border-radius:8px;padding:7px;border:2px solid transparent;font-size:11px}
-#gameArea .g5-pcard.active{border-color:var(--gold);box-shadow:0 0 8px rgba(201,162,39,.3)}
+#gameArea .g5-players-section{margin-bottom:10px}
+#gameArea .g5-players{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:900px;margin:0 auto}
+#gameArea .g5-pcard{background:rgba(0,0,0,.4);border-radius:8px;padding:8px 10px;border:2px solid transparent;font-size:12px}
+#gameArea .g5-pcard.active{border-color:var(--gold);box-shadow:0 0 10px rgba(201,162,39,.4)}
 #gameArea .g5-pcard.dead{opacity:.4}
-#gameArea .g5-pcard-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+#gameArea .g5-pcard-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;font-weight:bold}
 #gameArea .g5-pcard-head .blue{color:#64b5f6}#gameArea .g5-pcard-head .red{color:#ef9a9a}
-#gameArea .g5-pcard-head img{width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:3px}
-#gameArea .g5-pcard-skill{font-size:10px;color:var(--gold-light);margin-top:2px}
-#gameArea .g5-pcard-skill span{color:#8a7050;font-size:9px}
+#gameArea .g5-pcard-head img{width:22px;height:22px;border-radius:50%;vertical-align:middle;margin-right:4px;border:1px solid rgba(255,255,255,.2)}
+#gameArea .g5-pcard-pos{font-size:11px;color:var(--text-dim);margin-bottom:3px}
+#gameArea .g5-pcard-skill{font-size:10px;color:var(--gold-light);margin-top:3px;background:rgba(201,162,39,.08);padding:4px 6px;border-radius:5px}
+#gameArea .g5-pcard-skill span{color:#8a7050;font-size:9px;display:block;margin-top:1px}
 #gameArea .g5-action{text-align:center;margin-bottom:8px}
 #gameArea .g5-dice-display{font-size:28px;margin:6px 0;color:var(--gold-light)}
 #gameArea .g5-msg{font-size:14px;font-weight:bold;min-height:22px;margin-bottom:8px;color:#fff59d;text-align:center}
@@ -326,7 +366,180 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 #gameArea .g5-skill-card:hover{background:rgba(201,162,39,.25);border-color:var(--gold)}
 #gameArea .g5-skill-card .sk-name{font-weight:bold;color:var(--gold-light);font-size:12px;margin-bottom:3px}
 #gameArea .g5-skill-card .sk-desc{color:var(--text-dim);font-size:10px}
-@media(max-width:640px){#gameArea .g5-map{grid-template-columns:repeat(5,1fr);gap:2px}#gameArea .g5-cell{min-height:50px;padding:2px}#gameArea .g5-pdot{width:16px;height:16px}#gameArea .g5-players{grid-template-columns:1fr}}
+/* ===== G5操作特效 ===== */
+#gameArea .g5-fx-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:920;display:flex;align-items:center;justify-content:center}
+#gameArea .g5-fx-box{text-align:center;animation:g5fxPop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes g5fxPop{0%{transform:scale(0) rotate(-15deg);opacity:0}60%{transform:scale(1.2) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+#gameArea .g5-fx-icon{font-size:80px;filter:drop-shadow(0 0 25px currentColor);animation:g5fxShake .3s ease infinite alternate}
+@keyframes g5fxShake{0%{transform:translateX(-3px) rotate(-5deg)}100%{transform:translateX(3px) rotate(5deg)}}
+#gameArea .g5-fx-text{font-size:32px;font-weight:bold;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.9)}
+#gameArea .g5-fx-sub{font-size:16px;margin-top:6px;opacity:.9}
+/* 扣血 */
+#gameArea .g5-fx-damage .g5-fx-icon{color:#ff4444}
+#gameArea .g5-fx-damage .g5-fx-text{color:#ff6b6b}
+#gameArea .g5-fx-damage::after{content:'';position:absolute;width:180px;height:180px;background:radial-gradient(circle,rgba(255,68,68,.5),transparent 70%);animation:g5fxBurst .6s ease-out forwards}
+@keyframes g5fxBurst{0%{transform:scale(.3);opacity:1}100%{transform:scale(2.5);opacity:0}}
+/* 战斗 */
+#gameArea .g5-fx-combat .g5-fx-icon{color:#ff9800}
+#gameArea .g5-fx-combat .g5-fx-text{color:#ffb74d}
+#gameArea .g5-fx-combat::after{content:'';position:absolute;width:200px;height:200px;border:4px solid #ff9800;border-radius:50%;animation:g5fxClash .5s ease-out forwards}
+@keyframes g5fxClash{0%{transform:scale(0);opacity:1;border-width:6px}100%{transform:scale(2);opacity:0;border-width:1px}}
+/* 落石 */
+#gameArea .g5-fx-rock .g5-fx-icon{color:#a0522d;animation:g5fxRockFall .8s ease-in forwards}
+@keyframes g5fxRockFall{0%{transform:translateY(-100px) rotate(0);opacity:0}50%{transform:translateY(10px) rotate(15deg);opacity:1}70%{transform:translateY(-5px) rotate(-10deg)}100%{transform:translateY(0) rotate(0);opacity:1}}
+#gameArea .g5-fx-rock::after{content:'';position:absolute;width:180px;height:180px;background:radial-gradient(circle,rgba(160,82,45,.5),transparent 70%);animation:g5fxBurst .6s ease-out forwards}
+/* 巨龙吐息 */
+#gameArea .g5-fx-dragon .g5-fx-icon{color:#ff6347;animation:g5fxDragon .6s ease-in-out infinite alternate}
+@keyframes g5fxDragon{0%{transform:scale(1) rotate(-5deg);filter:drop-shadow(0 0 20px #ff4500)}100%{transform:scale(1.2) rotate(5deg);filter:drop-shadow(0 0 40px #ff6347)}}
+#gameArea .g5-fx-dragon::after{content:'';position:absolute;width:220px;height:220px;background:radial-gradient(circle,rgba(255,69,0,.6),rgba(255,140,0,.3),transparent 70%);animation:g5fxFire .5s ease-out forwards}
+@keyframes g5fxFire{0%{transform:scale(.5) rotate(0);opacity:1}100%{transform:scale(2.5) rotate(180deg);opacity:0}}
+@media(max-width:640px){#gameArea .g5-map{max-width:100%;gap:3px}#gameArea .g5-cell{padding:2px}#gameArea .g5-cell-label{font-size:9px}#gameArea .g5-players{grid-template-columns:1fr 1fr;max-width:100%}#gameArea .g5-pcard{padding:6px 8px;font-size:11px}#gameArea .g5-pcard-head{font-size:12px}#gameArea .g5-pcard-head img{width:18px;height:18px}}
+/* ===== G6最终机制 ===== */
+.g6-container{max-width:900px;margin:0 auto;padding:10px}
+.g6-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.g6-title{font-size:22px;font-weight:bold;color:var(--gold-light);text-shadow:0 0 15px rgba(255,215,0,.3)}
+.g6-floor-badge{background:linear-gradient(135deg,#8b0000,#4a0000);color:#ffd700;padding:4px 14px;border-radius:20px;font-size:14px;font-weight:bold;border:1px solid #ffd700}
+.g6-round{color:var(--text-dim);font-size:14px}
+.g6-team-turn{padding:4px 12px;border-radius:15px;font-size:13px;font-weight:bold}
+.g6-team-turn.g6-red{background:rgba(255,68,68,.2);color:#ff6666;border:1px solid #ff4444}
+.g6-team-turn.g6-blue{background:rgba(68,136,255,.2);color:#6699ff;border:1px solid #4488ff}
+.g6-my-status{display:flex;align-items:center;gap:10px;background:rgba(26,15,8,.8);border:1px solid var(--gold-dark);border-radius:10px;padding:8px 14px;margin-bottom:12px;flex-wrap:wrap}
+.g6-avatar{width:36px;height:36px;border-radius:50%;border:2px solid var(--gold)}
+.g6-name{font-weight:bold;color:var(--gold-light)}
+.g6-life{color:#ff6b6b;font-weight:bold}
+.g6-hp-bar{color:#44ff44;font-size:12px;letter-spacing:1px}
+.g6-gold{color:#ffd700;font-weight:bold}
+.g6-score{color:var(--text-dim);font-size:13px}
+.g6-teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.g6-team-card{background:rgba(26,15,8,.8);border-radius:10px;padding:10px;border:2px solid}
+.g6-team-red{border-color:#ff4444}
+.g6-team-blue{border-color:#4488ff}
+.g6-team-name{font-weight:bold;font-size:14px;margin-bottom:4px}
+.g6-team-stats{font-size:12px;color:var(--gold);margin-bottom:6px}
+.g6-team-members{display:flex;gap:6px;flex-wrap:wrap}
+.g6-member{display:flex;flex-direction:column;align-items:center;font-size:10px;gap:2px}
+.g6-member.dead{opacity:.4;text-decoration:line-through}
+.g6-member-avatar{width:24px;height:24px;border-radius:50%}
+.g6-map-section{margin-bottom:12px}
+.g6-map-dual{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;max-width:680px;margin:0 auto}
+.g6-map-col{display:flex;flex-direction:column;gap:4px}
+.g6-map-col .g6-route-label{font-size:12px;font-weight:bold;color:var(--gold-light);text-align:center;margin-bottom:2px}
+.g6-route-row{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.g6-lava-v{writing-mode:vertical-rl;text-align:center;padding:8px 4px;background:linear-gradient(to bottom,transparent,#ff4500,transparent);color:#ffd700;font-weight:bold;font-size:11px;border-radius:4px;letter-spacing:2px;display:flex;align-items:center;justify-content:center}
+.g6-cell{background:rgba(0,0,0,.35);border:2px solid #4a3520;border-radius:6px;padding:3px;position:relative;font-size:9px;text-align:center;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1/1}
+.g6-cell::before{content:'';position:absolute;inset:0;font-size:clamp(16px,3vw,32px);display:flex;align-items:center;justify-content:center;opacity:.18;pointer-events:none;z-index:0}
+.g6-cell.start{border-color:#c9a227;background:rgba(201,162,39,.15)}
+.g6-cell.start::before{content:'🏛️';opacity:.4}
+.g6-cell.monster{border-color:#8b0000;background:rgba(139,0,0,.12)}
+.g6-cell.monster::before{content:'💀';opacity:.4}
+.g6-cell.monster.defeated{opacity:.4;border-color:#4a4a4a}
+.g6-cell.chest{border-color:#daa520;background:rgba(218,165,32,.12)}
+.g6-cell.chest::before{content:'📦';opacity:.4}
+.g6-cell.clover{border-color:#228b22;background:rgba(34,139,34,.12)}
+.g6-cell.clover::before{content:'🍀';opacity:.4}
+.g6-cell.spring{border-color:#4169e1;background:rgba(65,105,225,.12)}
+.g6-cell.spring::before{content:'💧';opacity:.4}
+.g6-cell.dragon{border-color:#ff4500;background:rgba(255,69,0,.15)}
+.g6-cell.dragon::before{content:'🐉';opacity:.5}
+.g6-cell.exit{border-color:#ffd700;background:rgba(255,215,0,.15)}
+.g6-cell.exit::before{content:'🏁';opacity:.5}
+.g6-cell-num{font-size:clamp(8px,1.2vw,10px);color:var(--text-dim);font-weight:bold;position:relative;z-index:1}
+.g6-cell-label{font-size:clamp(8px,1.4vw,11px);color:var(--gold-light);font-weight:bold;margin-top:1px;position:relative;z-index:1}
+.g6-cell-dots{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-top:2px;position:relative;z-index:1}
+.g6-pdot{width:clamp(14px,2.5vw,22px);height:clamp(14px,2.5vw,22px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #4a3520}
+.g6-pdot.red{border-color:#e74c3c;background:rgba(231,76,60,.2)}
+.g6-pdot.blue{border-color:#4a90e2;background:rgba(74,144,226,.2)}
+/* G6战斗界面 */
+.g6-combat-area{display:flex;gap:20px;align-items:center;justify-content:center;margin:15px 0;flex-wrap:wrap}
+.g6-monster-card{background:linear-gradient(135deg,#3a1010,#1a0505);border:2px solid #8b0000;border-radius:12px;padding:15px;text-align:center;min-width:140px}
+.g6-monster-icon{font-size:48px;margin-bottom:8px}
+.g6-monster-name{font-size:16px;font-weight:bold;color:#ff6666;margin-bottom:8px}
+.g6-monster-hp{background:#1a0a0a;border-radius:6px;height:20px;overflow:hidden;margin-bottom:6px;border:1px solid #5c2020}
+.g6-mhp-fill{background:linear-gradient(90deg,#ff0000,#cc0000);height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;transition:width .5s}
+.g6-monster-info{font-size:11px;color:#aa8888}
+.g6-target-wrap{text-align:center}
+.g6-target{position:relative;width:200px;height:200px;margin:0 auto}
+.g6-tsvg{width:100%;height:100%;filter:drop-shadow(0 0 10px rgba(255,0,0,.3))}
+.g6-pointer{position:absolute;top:-5px;width:4px;height:210px;background:linear-gradient(180deg,#ffd700,transparent);left:0;transition:none;z-index:10;box-shadow:0 0 8px #ffd700}
+.g6-dice-display{font-size:36px;margin-top:10px;animation:g6DiceSpin .5s ease-out}
+@keyframes g6DiceSpin{0%{transform:rotate(0) scale(1.5)}100%{transform:rotate(360deg) scale(1)}}
+.g6-result-text{font-size:18px;font-weight:bold;margin-top:8px;min-height:24px}
+.g6-combat-log{background:rgba(0,0,0,.4);border-radius:8px;padding:8px 12px;margin:10px 0;font-size:12px;color:var(--text-dim);max-height:80px;overflow-y:auto}
+.g6-combat-log div{margin:2px 0}
+/* G6人物面板 */
+.g6-panels{margin-top:12px}
+.g6-panel-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.g6-panel-tab{padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;background:rgba(0,0,0,.3);border:1px solid #4a3520;color:var(--text-dim)}
+.g6-panel-tab.active{background:rgba(201,162,39,.2);border-color:var(--gold);color:var(--gold-light)}
+.g6-char-panel{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid #5c4033;border-radius:12px;padding:12px;position:relative}
+.g6-panel-hpbar{display:flex;align-items:center;gap:4px;margin-bottom:10px}
+.g6-panel-hpbar .hp-label{font-size:12px;color:#c9a227;font-weight:bold;margin-right:8px}
+.g6-panel-hpbar .hp-ticks{display:flex;gap:2px;flex:1}
+.g6-panel-hpbar .hp-tick{width:18px;height:20px;border-radius:4px;background:#3a2515;border:1px solid #5c4033;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666}
+.g6-panel-hpbar .hp-tick.filled{background:linear-gradient(to bottom,#ff4444,#cc0000);border-color:#ff6666;color:#fff}
+.g6-panel-body{display:flex;gap:12px}
+.g6-panel-avatar{width:100px;height:120px;border-radius:8px;overflow:hidden;border:2px solid #5c4033;background:#1a0f08;flex-shrink:0;position:relative}
+.g6-panel-avatar img{width:100%;height:100%;object-fit:cover}
+.g6-panel-avatar .char-name{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);color:var(--gold-light);font-size:12px;text-align:center;padding:2px}
+.g6-panel-right{flex:1;display:flex;flex-direction:column;gap:8px}
+.g6-panel-equips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.g6-panel-slot{aspect-ratio:1;border:2px solid #8b6914;border-radius:6px;background:linear-gradient(135deg,#d4a574,#c4956a);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#5c4033;font-weight:bold;position:relative;min-height:50px}
+.g6-panel-slot.empty{background:rgba(0,0,0,.2);border-color:#4a3520;color:#666}
+.g6-panel-slot .slot-name{font-size:9px;margin-bottom:2px}
+.g6-panel-skills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.g6-panel-skill{border:2px solid;border-radius:6px;padding:6px;font-size:10px;background:rgba(0,0,0,.3);min-height:70px;display:flex;flex-direction:column}
+.g6-panel-skill .skill-name{font-weight:bold;font-size:11px;margin-bottom:3px}
+.g6-panel-skill .skill-desc{font-size:9px;color:var(--text-dim);flex:1;line-height:1.2}
+.g6-panel-skill.empty{border-color:#4a3520;color:#666;align-items:center;justify-content:center}
+.g6-panel-backpack{margin-top:8px;padding:8px;background:rgba(0,0,0,.3);border-radius:6px;border:1px solid #4a3520}
+.g6-panel-backpack .bp-title{font-size:11px;color:var(--gold-light);margin-bottom:4px}
+.g6-panel-backpack .bp-slots{display:flex;gap:4px}
+.g6-panel-backpack .bp-slot{width:40px;height:40px;border:1px dashed #5c4033;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#666}
+@media(max-width:640px){.g6-panel-body{flex-direction:column}.g6-panel-avatar{width:100%;height:80px}.g6-panel-hpbar .hp-tick{width:12px;height:16px}}
+.g6-cell{background:rgba(0,0,0,.35);border:2px solid #4a3520;border-radius:8px;padding:4px;position:relative;font-size:9px;text-align:center;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.g6-cell::before{content:'';position:absolute;inset:0;font-size:clamp(20px,4.5vw,44px);display:flex;align-items:center;justify-content:center;opacity:.18;pointer-events:none;z-index:0}
+.g6-cell.start{border-color:#c9a227;background:rgba(201,162,39,.15)}
+.g6-cell.start::before{content:'🏛️';opacity:.4}
+.g6-cell.monster{border-color:#8b0000;background:rgba(139,0,0,.12)}
+.g6-cell.monster::before{content:'💀';opacity:.4}
+.g6-cell.monster.defeated{opacity:.4;border-color:#4a4a4a}
+.g6-cell.chest{border-color:#daa520;background:rgba(218,165,32,.12)}
+.g6-cell.chest::before{content:'📦';opacity:.4}
+.g6-cell.clover{border-color:#228b22;background:rgba(34,139,34,.12)}
+.g6-cell.clover::before{content:'🍀';opacity:.4}
+.g6-cell.spring{border-color:#4169e1;background:rgba(65,105,225,.12)}
+.g6-cell.spring::before{content:'💧';opacity:.4}
+.g6-cell.dragon{border-color:#ff4500;background:rgba(255,69,0,.15)}
+.g6-cell.dragon::before{content:'🐉';opacity:.5}
+.g6-cell.exit{border-color:#ffd700;background:rgba(255,215,0,.15)}
+.g6-cell.exit::before{content:'🏁';opacity:.5}
+.g6-cell-num{font-size:clamp(9px,1.4vw,12px);color:var(--text-dim);font-weight:bold;position:relative;z-index:1}
+.g6-cell-label{font-size:clamp(9px,1.6vw,13px);color:var(--gold-light);font-weight:bold;margin-top:2px;position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.g6-cell-dots{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:4px;position:relative;z-index:1}
+.g6-pdot{width:clamp(18px,3vw,30px);height:clamp(18px,3vw,30px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #4a3520}
+.g6-pdot.red{border-color:#e74c3c;background:rgba(231,76,60,.2)}
+.g6-pdot.blue{border-color:#4a90e2;background:rgba(74,144,226,.2)}
+.g6-message{text-align:center;color:var(--gold);font-size:14px;margin-bottom:10px;min-height:24px}
+.g6-buttons{text-align:center;margin-bottom:10px}
+@media(max-width:640px){.g6-teams{grid-template-columns:1fr}.g6-path-cell{min-width:50px}.g6-cell-icon{font-size:18px}.g6-cell-name{font-size:8px}}
+/* ===== 最终决战震撼特效 ===== */
+.final-battle-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.final-battle-overlay .fb-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,#3a0a0a 0%,#1a0505 40%,#000 100%);animation:fbPulse 2s ease-in-out infinite}
+@keyframes fbPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.final-battle-overlay .fb-flames{position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to top,#ff4500 0%,#ff6600 20%,#ffaa00 40%,transparent 100%);opacity:.6;animation:fbFlames 1.5s ease-in-out infinite alternate}
+@keyframes fbFlames{0%{height:150px;opacity:.4}100%{height:250px;opacity:.8}}
+.final-battle-overlay .fb-dragon{font-size:120px;animation:fbDragon 3s ease-in-out infinite;filter:drop-shadow(0 0 30px #ff4500)}
+@keyframes fbDragon{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.1)}}
+.final-battle-overlay .fb-title{position:relative;z-index:10;text-align:center}
+.final-battle-overlay .fb-title h1{font-size:72px;font-weight:bold;color:#ffd700;text-shadow:0 0 20px #ff4500,0 0 40px #ff0000,0 0 60px #ff0000;margin:0;animation:fbTitleIn 1.5s ease-out,fbTitleGlow 1s ease-in-out infinite 1.5s;letter-spacing:10px}
+@keyframes fbTitleIn{0%{opacity:0;transform:scale(3) rotateY(90deg)}100%{opacity:1;transform:scale(1) rotateY(0)}}
+@keyframes fbTitleGlow{0%,100%{text-shadow:0 0 20px #ff4500,0 0 40px #ff0000}50%{text-shadow:0 0 30px #ffd700,0 0 60px #ff4500,0 0 90px #ff0000}}
+.final-battle-overlay .fb-sub{font-size:24px;color:#ff6666;margin-top:20px;animation:fbSubIn 2s ease-out;letter-spacing:5px}
+@keyframes fbSubIn{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:translateY(0)}}
+.final-battle-overlay .fb-shake{animation:fbShake .5s ease-in-out}
+@keyframes fbShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.final-battle-overlay .fb-particles{position:absolute;inset:0;pointer-events:none}
+.final-battle-overlay .fb-particle{position:absolute;width:4px;height:4px;background:#ffd700;border-radius:50%;animation:fbParticle 3s linear infinite}
 
 /* 规则面板 */
 .rules-panel{background:rgba(26,15,8,.92);border:2px solid var(--gold-dark);border-radius:12px;padding:16px;margin:12px 0;font-size:13px;line-height:1.7;max-height:50vh;overflow-y:auto}
@@ -358,6 +571,49 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .ready-badge.yes{background:#2e7d32;color:#fff}
 .ready-badge.no{background:#5d4037;color:#bcaaa4}
 @media(max-width:640px){.game-select-grid{grid-template-columns:repeat(3,1fr)}.game-select-card .gs-icon{font-size:20px}}
+
+/* 猜大小界面 */
+.pregame-container{max-width:500px;margin:0 auto;padding:16px}
+.pregame-teams{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px}
+.pregame-team{flex:1;background:rgba(26,15,8,.8);border-radius:12px;padding:14px;text-align:center;border:2px solid #4a3520}
+.pregame-team.blue{border-color:#1565c0}
+.pregame-team.red{border-color:#c62828}
+.pregame-team-title{font-size:16px;font-weight:bold;margin-bottom:8px}
+.pregame-rep{font-size:12px;color:var(--text-dim);margin-bottom:8px}
+.pregame-guess{min-height:32px;display:flex;align-items:center;justify-content:center}
+.pregame-vs{font-size:24px;font-weight:bold;color:var(--gold)}
+.pregame-dice-area{text-align:center;margin:20px 0}
+.pregame-dice{font-size:64px;display:inline-block}
+.pregame-dice.rolling{animation:diceRoll .15s infinite}
+.pregame-dice.result{font-size:72px}
+@keyframes diceRoll{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.pregame-actions{text-align:center;margin-top:16px}
+.guess-badge{display:inline-block;padding:4px 14px;border-radius:14px;font-weight:bold;font-size:13px}
+.guess-badge.big{background:#1565c0;color:#fff}
+.guess-badge.small{background:#c62828;color:#fff}
+/* 胜负特效 */
+.summary-result-banner{text-align:center;padding:20px 10px;margin-bottom:16px;border-radius:12px;position:relative;overflow:hidden}
+.summary-result-banner.win{background:linear-gradient(135deg,#1a1a08,#2a2008,#1a1a08);border:2px solid #ffd700;box-shadow:0 0 30px rgba(255,215,0,.4),inset 0 0 20px rgba(255,215,0,.1)}
+.summary-result-banner.lose{background:linear-gradient(135deg,#1a0808,#2a0808,#1a0808);border:2px solid #8b0000;box-shadow:0 0 30px rgba(139,0,0,.4),inset 0 0 20px rgba(139,0,0,.1)}
+.summary-result-banner .sr-icon{font-size:48px;display:block;margin-bottom:8px;animation:resultPop .6s ease-out}
+.summary-result-banner .sr-text{font-size:24px;font-weight:bold;letter-spacing:2px}
+.summary-result-banner.win .sr-text{color:#ffd700;text-shadow:0 0 10px #ffd700,0 0 20px #ff8c00}
+.summary-result-banner.lose .sr-text{color:#ff4444;text-shadow:0 0 10px #8b0000,0 0 20px #4a0000}
+.summary-result-banner .sr-sub{font-size:13px;color:var(--text-dim);margin-top:6px}
+@keyframes resultPop{0%{transform:scale(0) rotate(-180deg);opacity:0}60%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.summary-sparkle{position:absolute;width:4px;height:4px;background:#ffd700;border-radius:50%;animation:sparkle 1.5s infinite}
+@keyframes sparkle{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1.5)}}
+.summary-ember{position:absolute;width:3px;height:8px;background:linear-gradient(to top,#ff4400,transparent);border-radius:2px;animation:ember 2s infinite}
+@keyframes ember{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-60px);opacity:0}}
+.summary-team-win{animation:teamGlow 2s infinite}
+@keyframes teamGlow{0%,100%{box-shadow:0 0 5px rgba(255,215,0,.3)}50%{box-shadow:0 0 20px rgba(255,215,0,.6)}}
+.reconnect-code{font-size:12px;color:var(--gold-light);background:rgba(255,215,0,.1);padding:1px 6px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,215,0,.3);margin-left:4px;transition:all .2s}
+.reconnect-code:hover{background:rgba(255,215,0,.25);border-color:var(--gold)}
+.host-reconnect-panel{background:rgba(0,0,0,.5);border:1px solid #4a3520;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px}
+.host-reconnect-panel .hrp-title{color:var(--gold);font-weight:bold;margin-bottom:4px}
+.host-reconnect-panel .hrp-item{display:flex;justify-content:space-between;align-items:center;padding:2px 0}
+.host-reconnect-panel .hrp-code{color:var(--gold-light);cursor:pointer;padding:1px 6px;border-radius:3px;background:rgba(255,215,0,.1)}
+.host-reconnect-panel .hrp-code:hover{background:rgba(255,215,0,.25)}
 </style>
 </head>
 <body>
@@ -408,6 +664,7 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
   </div>
   <div class="game-progress" id="gameProgress"></div>
   <div class="host-controls hidden" id="hostControls"></div>
+  <div class="host-reconnect-panel hidden" id="hostReconnectPanel"></div>
   <div class="host-skip-bar hidden" id="hostSkipBar">
     <button class="btn btn-small btn-gray" onclick="hostSkipGame()">⏭️ 跳过本局（不结算金币）</button>
   </div>
@@ -428,21 +685,22 @@ const CHARACTERS=[
   {id:'yuanyuan',name:'圆圆',img:'https://aka.doubaocdn.com/s/m1e9FU01iN'},
 ];
 const GAMES=[
-  {id:1,name:'小蛇机',icon:'🐍',teamGold:true},
   {id:2,name:'拍词酒杯',icon:'🍺',teamGold:true},
+  {id:1,name:'小蛇机',icon:'🐍',teamGold:true},
   {id:3,name:'酒馆争夺战',icon:'⚔️',teamGold:false},
-  {id:4,name:'冒险王之投了个骰',icon:'🎯',teamGold:true},
+  {id:4,name:'冒险王之投了个骰',icon:'🎯',teamGold:false},
   {id:5,name:'逃生机制',icon:'🏰',teamGold:false},
+  {id:6,name:'最终机制',icon:'🐉',teamGold:false},
 ];
 const GAME_RULES={
-  1:`<h3>🐍 小蛇机规则</h3>
-  <div class="rule-section"><h4>卡牌配置（共42张）</h4><p>🐍蛇头×8、🏆金牌×4（5金币）、🐍蛇身0×8、🧣围脖1×8（1金币）、🧣围脖2×8（2金币）、🧣围脖3×6（3金币）</p></div>
-  <div class="rule-section"><h4>玩法</h4><p>• 每回合投骰子决定翻牌张数（1-6点对应1-6张）</p><p>• 前3回合蛇头保底无效（安全回合）</p><p>• 第4回合起，翻到蛇头即出局</p><p>• 第一个翻到蛇头出局的玩家获"一发入魂"奖励+5金币</p><p>• 8轮结束或全员出局后游戏结束</p></div>
-  <div class="rule-section"><h4>金币结算</h4><p>• 队伍金币制：所有玩家的金币计入队伍总分</p><p>• 总分高的队伍获胜，结束后队伍金币平分</p></div>`,
-  2:`<h3>🍺 拍词酒杯规则</h3>
+  1:`<h3>🍺 拍词酒杯规则</h3>
   <div class="rule-section"><h4>基本设定</h4><p>• 酒杯初始15，上限31</p><p>• 每回合投3颗骰子，选择1颗生效</p></div>
   <div class="rule-section"><h4>骰子效果</h4><p>• ⚀(1)：酒杯+1</p><p>• ⚁(2)：酒杯+2</p><p>• ⚂(3)：酒杯+3</p><p>• ⚃(4)：酒杯-4</p><p>• ⚄(5)：跳过（不加不减）</p><p>• ⚅(6)：反转方向</p></div>
   <div class="rule-section"><h4>胜负</h4><p>• 酒杯≥31时，当前玩家所在队伍输</p><p>• 赢队每人10金币，输队每人6金币</p></div>`,
+  2:`<h3>🐍 小蛇机规则</h3>
+  <div class="rule-section"><h4>卡牌配置（共42张）</h4><p>🐍蛇头×8、🏆金牌×4（5金币）、🐍蛇身0×8、🧣围脖1×8（1金币）、🧣围脖2×8（2金币）、🧣围脖3×6（3金币）</p></div>
+  <div class="rule-section"><h4>玩法</h4><p>• 每回合投骰子决定翻牌张数（1-6点对应1-6张）</p><p>• 前3回合蛇头保底无效（安全回合）</p><p>• 第4回合起，翻到蛇头即出局</p><p>• 第一个翻到蛇头出局的玩家获"一发入魂"奖励+5金币</p><p>• 8轮结束或全员出局后游戏结束</p></div>
+  <div class="rule-section"><h4>金币结算</h4><p>• 队伍金币制：所有玩家的金币计入队伍总分</p><p>• 总分高的队伍获胜，结束后队伍金币平分</p></div>`,
   3:`<h3>⚔️ 酒馆争夺战规则</h3>
   <div class="rule-section"><h4>基本设定</h4><p>• 6个酒馆，上层金币5/7/9/12/15/20，下层2/3/4/5/6/8</p><p>• 每人8个击破指示物</p><p>• 开局比大小决定先手</p></div>
   <div class="rule-section"><h4>玩法</h4><p>• 每回合投N颗骰子（N=剩余指示物数，最多6颗）</p><p>• 选择一个数字，将指示物放到对应酒馆</p><p>• 并列作废：同一酒馆某数字有≥2人选择，全部视为0</p><p>• 1-3号酒馆有守护者小游戏</p></div>
@@ -453,11 +711,19 @@ const GAME_RULES={
   <div class="rule-section"><h4>投掷玩法</h4><p>• 力度条来回移动，点击锁定力度</p><p>• 0-10：脱靶（0伤害）</p><p>• 10-18：黑洞（0伤害）</p><p>• 18-100：对应1-10环伤害（力度越高伤害越高）</p><p>• 随机偏移±6</p></div>
   <div class="rule-section"><h4>胜负</h4><p>• 击败龙蛋的队伍获胜</p><p>• 赢队每人10金币，输队每人5金币</p></div>`,
   5:`<h3>🏰 逃生机制规则</h3>
-  <div class="rule-section"><h4>基本设定</h4><p>• 24格地图，初始9血，先到终点获胜</p><p>• 0/8/16格为技能更换点（各8张技能卡，先到先得）</p><p>• 开局比大小决定先手，然后依次选择初始技能</p></div>
-  <div class="rule-section"><h4>移动</h4><p>• 投骰子：1-2走1格，3-4走2格，5-6走3格</p><p>• 第一阶段（0-7格）：每轮末尾玩家-1血（巨龙吐息）</p><p>• 第二阶段（8-15格）：9/12/15格落石-1血</p><p>• 第三阶段（16-24格）：非队友同格必须决斗</p></div>
-  <div class="rule-section"><h4>决斗</h4><p>• 双方各投1颗骰子比大小</p><p>• 胜者+1格，败者-1血</p><p>• 平局无事发生</p></div>
-  <div class="rule-section"><h4>血量与复活</h4><p>• 血量归零可用1金币抵1血复活</p><p>• 金币不足则淘汰</p></div>
-  <div class="rule-section"><h4>名次金币</h4><p>• 按到达终点顺序：第1名6金币、第2名5、第3名4、第4名3、第5名2、第6名1</p><p>• 个人金币制</p></div>`
+  <div class="rule-section"><h4>基本设定</h4><p>• 24格地图（0起点→24终点），每位玩家初始9血</p><p>• 开局比大小决定先手，然后依次选择初始技能</p></div>
+  <div class="rule-section"><h4>技能选择</h4><p>• 技能更换点位于0格（起点）、8格和16格</p><p>• 移动后经过或停留时触发：丢弃当前技能，从该格技能池选一张未被选走的装备</p><p>• 每个技能池8张牌，每张只能被一人装备（先到先得）</p><p>• 每个更换点只生效一次，再次经过或停留不触发</p></div>
+  <div class="rule-section"><h4>移动</h4><p>• 投掷六面骰：1-2走1格，3-4走2格，5-6走3格</p><p>• 多人可停留在同一格，无碰撞限制</p></div>
+  <div class="rule-section"><h4>地图效果</h4><p>• 第一阶段（0-7格）：每轮末尾玩家-1血（巨龙吐息）</p><p>• 第二阶段（8-15格）：停留在9/12/15巨石格的玩家-1血（落石）</p><p>• 第三阶段（16-24格）：非队友同格必须决斗，拒绝决斗扣5金币</p></div>
+  <div class="rule-section"><h4>决斗</h4><p>• 与其他玩家同格时可选择是否发起决斗，每回合限一次</p><p>• 双方各投1颗骰子比大小</p><p>• 胜者+1格，败者-1血</p><p>• 胜者前进后若与别人同格，不可再发起决斗</p><p>• 平局无事发生</p></div>
+  <div class="rule-section"><h4>技能</h4><p>• 每回合最多使用一次技能，可选择是否使用</p><p>• 可在移动前、移动中或移动后发动</p><p>• "全局持续"技能影响所有玩家；"本回合"技能只在当前回合生效</p><p>• 更换技能时旧技能效果立即终止（如恰好止步酒更换后全局效果消失）</p><p>• 技能是否对队友使用可由玩家自主选择</p></div>
+  <div class="rule-section"><h4>血量与金币代替</h4><p>• 血量归零时，消耗的血量由金币代替（1金币=1血），恢复至1血继续游戏</p><p>• 例：2血受3伤→hp=-1，需2金币恢复至1血</p><p>• 金币不足则淘汰，从地图移除，技能弃入弃牌堆</p><p>• 剩余血量继承到后面地下城机制</p></div>
+  <div class="rule-section"><h4>结束与名次</h4><p>• 先到达终点的玩家为第1名，游戏立即结束</p><p>• 按场上位置结算其余玩家名次</p><p>• 金币奖励：第1名6、第2名5、第3名4、第4名3、第5名2、第6名1</p><p>• 个人金币制，不与队伍平分</p></div>
+  <div class="rule-section"><h4>游戏流程</h4><p>• 第一步：随机决定座次顺序（红1、蓝1、红2、蓝2、红3、蓝3）</p><p>• 第二步：所有玩家从0格开始，按座次依次从0格技能池选技能装备</p><p>• 第三步：按座次轮流回合，每回合含投骰移动、可选使用技能、可选决斗</p><p>• 第四步：进入8或16格时，回合内移动结束后立即更换技能</p><p>• 第五步：有玩家到达或超过24格即获胜，结算名次</p><p>• 游戏结束后血量保持不变，继承到后面机制</p></div>`,
+  6:`<h3>🐉 最终机制规则</h3>
+  <div class="rule-section"><h4>基本设定</h4><p>• 地下城分为两层，第一层两条路线，两队各选一条</p><p>• 上一个通道机制第一名所在分队优先选择路线</p><p>• 继承逃生机制的剩余血量（escapedHP）</p></div>
+  <div class="rule-section"><h4>购买系统</h4><p>• 两次购买机会：第一层起点（雕像格）和第二层起点（雕像格）</p><p>• 可购买主武器、护盾/宝物、道具、个人技能、血量</p><p>• 全程最少拥有：1主武器、1护盾或宝物、1道具、3个人技能</p><p>• 血量尤其重要，一滴血等于一胜利分</p></div>
+  <div class="rule-section"><h4>地图</h4><p>• 上下两层，每层环形路径</p><p>• 格子类型：雕像格（购买）、骷髅格（战斗）、四叶草格（奖励）、龙格（BOSS）、通道格（切换层）</p></div>`
 };
 function toggleRules(){
   const panel=document.getElementById('rulesPanel');
@@ -488,6 +754,16 @@ function loadReconnectCode(roomId){try{return JSON.parse(localStorage.getItem(ST
 function playerName(id){return state&&state.players[id]?state.players[id].name:'?'}
 function charImg(charId){const c=CHARACTERS.find(x=>x.id===charId);return c?c.img:''}
 function charName(charId){const c=CHARACTERS.find(x=>x.id===charId);return c?c.name:'?'}
+// 构建回合顺序，尊重state.firstTeam（猜大小获胜方先手）
+function buildTurnOrder(){
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
+  const first=state.firstTeam==='red'?reds:blues;
+  const second=state.firstTeam==='red'?blues:reds;
+  const order=[];const mx=Math.max(first.length,second.length);
+  for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+  return order;
+}
 
 // ==================== 角色选择UI ====================
 function renderCharPick(){
@@ -581,6 +857,19 @@ function handleHostMsg(peerId,msg){
     if(state.players[peerId]){state.players[peerId].ready=true;broadcastState();renderPublicLobby()}
   }
   else if(msg.type==='playerAction'){
+    // 猜大小阶段的操作单独处理
+    if(state.phase==='preGame'&&msg.action&&msg.action.type==='preGameGuess'){
+      if(state.preGame&&state.preGame.phase==='guess'&&!state.preGame.blueGuess){
+        const p=state.players[peerId];
+        if(p&&p.team==='blue'){
+          state.preGame.blueGuess=msg.action.guess;
+          state.preGame.redGuess=msg.action.guess==='big'?'small':'big';
+          state.preGame.phase='roll';
+          broadcastState();renderPreGame();
+        }
+      }
+      return;
+    }
     if(window.G && window.G.playerAction)window.G.playerAction(peerId,msg.action);
   }
 }
@@ -596,11 +885,10 @@ function renderPublicLobby(){
     let gh='';
     GAMES.forEach((g,i)=>{
       const num=i+1;let cls='game-select-card',label='',icon=g.icon;
-      if(num<state.currentGame){cls+=' done';label='已完成'}
-      else if(num===state.currentGame+1&&state.currentGame<5){cls+=' selected';label='下一局'}
+      if(num<=state.currentGame){cls+=' done';label='已完成'}
+      else if(num===state.currentGame+1&&state.currentGame<6){cls+=' selected';label='下一局'}
       else if(num>state.currentGame+1){cls+=' locked';label='未解锁'}
-      else{cls+=' selected';label='进行中'}
-      if(isHost&&num===state.currentGame+1&&state.currentGame<5)cls+=' selectable';
+      if(isHost&&num===state.currentGame+1&&state.currentGame<6)cls+=' selectable';
       gh+=`<div class="${cls}" ${isHost&&num===state.currentGame+1&&state.currentGame<5?`onclick="hostSelectGame(${num})"`:''}><span class="gs-icon">${icon}</span><div class="gs-name">${g.name}</div><div style="font-size:9px;color:var(--gold);margin-top:2px">${label}</div></div>`;
     });
     grid.innerHTML=gh;
@@ -618,7 +906,7 @@ function renderPublicLobby(){
       rightHtml+=`<span style="font-size:11px;color:var(--gold-light)">💰${p.gold||0}</span>`;
     }
     rightHtml+=readyBadge;
-    d.innerHTML=`<span class="pinfo">${p.character?`<img src="${charImg(p.character)}">`:''}${p.name} <span style="font-size:10px;color:var(--gold)">🔑${p.reconnectCode}</span></span>
+    d.innerHTML=`<span class="pinfo">${p.character?`<img src="${charImg(p.character)}">`:''}${p.name} <span class="reconnect-code" onclick="navigator.clipboard.writeText('${p.reconnectCode}')" title="点击复制重连码">🔑${p.reconnectCode}</span></span>
     <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${rightHtml}</span>`;
     el.appendChild(d);
   });for(let i=list.length;i<3;i++){const d=document.createElement('div');d.className='player-slot empty';d.textContent='空位';el.appendChild(d)}};
@@ -685,23 +973,187 @@ function hostStartNextGame(){
   showGoldConfirm(()=>{
     const nextGame=state.currentGame+1;
     state.currentGame=nextGame;
-    state.phase='playing';
+    state.phase='preGame';
     state.gameSummary=null;
+    // 随机选每队代表
+    const _blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue');
+    const _reds=Object.entries(state.players).filter(([_,p])=>p.team==='red');
+    const _blueRep=_blues.length?_blues[Math.floor(Math.random()*_blues.length)]:null;
+    const _redRep=_reds.length?_reds[Math.floor(Math.random()*_reds.length)]:null;
+    state.preGame={blueGuess:null,redGuess:null,dice:null,winner:null,rolling:false,phase:'guess',blueRepId:_blueRep?_blueRep[0]:null,redRepId:_redRep?_redRep[0]:null};
     Object.values(state.players).forEach(p=>p.ready=false);
-    if(window.G && window.G.init)window.G.init(nextGame);
     broadcastState();
     showScreen('gameScreen');
     document.getElementById('myRoleLabel').textContent='🎩 主持人';
     document.getElementById('hostControls').classList.remove('hidden');
     document.getElementById('hostSkipBar').classList.remove('hidden');
     setConn('online','已连接');
-    if(window.G && window.G.render)window.G.render();
+    document.getElementById('gameTitle').textContent='🎲 猜大小 — '+GAMES[nextGame-1].name;
+    renderPreGame();
+    if(isHost)renderHostReconnectPanel();
   });
+}
+
+// 猜大小阶段渲染
+function renderPreGame(){
+  if(!state.preGame)return;
+  const pg=state.preGame;
+  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue');
+  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red');
+  const blueRep=pg.blueRepId?blues.find(([id])=>id===pg.blueRepId):blues[0];
+  const redRep=pg.redRepId?reds.find(([id])=>id===pg.redRepId):reds[0];
+  let html='<div class="pregame-container">';
+  html+='<h2 style="text-align:center;color:var(--gold-light);margin-bottom:8px">🎲 猜大小决定先手</h2>';
+  html+='<p style="text-align:center;color:var(--text-dim);font-size:13px;margin-bottom:16px">蓝队代表猜大或小，红队自动获得相反结果，投骰决定谁先开始</p>';
+  html+='<div class="pregame-teams">';
+  // 蓝队
+  html+='<div class="pregame-team blue">';
+  html+='<div class="pregame-team-title">🔵 蓝队</div>';
+  if(blueRep){html+='<div class="pregame-rep">代表：'+(blueRep[1].character?'<img src="'+charImg(blueRep[1].character)+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle">':'')+blueRep[1].name+'</div>';}
+  html+='<div class="pregame-guess">'+(pg.blueGuess?'<span class="guess-badge '+(pg.blueGuess==='big'?'big':'small')+'">'+(pg.blueGuess==='big'?'大 (4-6)':'小 (1-3)')+'</span>':'<span style="color:var(--text-dim)">等待猜测...</span>')+'</div>';
+  html+='</div>';
+  // VS
+  html+='<div class="pregame-vs">VS</div>';
+  // 红队
+  html+='<div class="pregame-team red">';
+  html+='<div class="pregame-team-title">🔴 红队</div>';
+  if(redRep){html+='<div class="pregame-rep">代表：'+(redRep[1].character?'<img src="'+charImg(redRep[1].character)+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle">':'')+redRep[1].name+'</div>';}
+  html+='<div class="pregame-guess">'+(pg.redGuess?'<span class="guess-badge '+(pg.redGuess==='big'?'big':'small')+'">'+(pg.redGuess==='big'?'大 (4-6)':'小 (1-3)')+'</span>':'<span style="color:var(--text-dim)">等待蓝队猜测...</span>')+'</div>';
+  html+='</div>';
+  html+='</div>';
+  // 骰子
+  html+='<div class="pregame-dice-area">';
+  if(pg.rolling){
+    html+='<div class="pregame-dice rolling">🎲</div><div style="color:var(--gold)">投掷中...</div>';
+  }else if(pg.dice){
+    const diceEmoji=['⚀','⚁','⚂','⚃','⚄','⚅'][pg.dice-1];
+    html+='<div class="pregame-dice result">'+diceEmoji+'</div><div style="font-size:18px;color:var(--gold-light)">点数：'+pg.dice+' ('+(pg.dice>=4?'大':'小')+')</div>';
+  }else{
+    html+='<div class="pregame-dice">🎲</div><div style="color:var(--text-dim)">等待投骰</div>';
+  }
+  html+='</div>';
+  // 操作区
+  html+='<div class="pregame-actions">';
+  if(pg.phase==='guess'&&!pg.blueGuess){
+    if(isHost){
+      html+='<div style="color:var(--text-dim);text-align:center">等待蓝队代表猜测...</div>';
+    }else if(blueRep&&myPeerId===blueRep[0]){
+      html+='<button class="btn btn-blue" onclick="playerPreGameGuess(\'big\')" style="margin:0 8px">猜 大 (4-6)</button>';
+      html+='<button class="btn btn-red" onclick="playerPreGameGuess(\'small\')" style="margin:0 8px">猜 小 (1-3)</button>';
+    }else{
+      html+='<div style="color:var(--text-dim);text-align:center">等待蓝队代表猜测...</div>';
+    }
+  }else if(pg.phase==='roll'){
+    if(isHost){
+      html+='<button class="btn" onclick="hostPreGameRoll()">🎲 投骰子</button>';
+    }else{
+      html+='<div style="color:var(--gold);text-align:center">等待主持人投骰子...</div>';
+    }
+  }else if(pg.phase==='result'){
+    const winnerName=pg.winner==='blue'?'🔵 蓝队':'🔴 红队';
+    html+='<div style="text-align:center"><div style="font-size:24px;color:var(--gold-light);margin-bottom:12px">🎉 '+winnerName+' 先手！</div>';
+    if(isHost){
+      html+='<button class="btn" onclick="hostStartActualGame()">▶️ 开始游戏</button>';
+    }else{
+      html+='<div style="color:var(--text-dim)">等待主持人开始游戏...</div>';
+    }
+    html+='</div>';
+  }
+  html+='</div></div>';
+  document.getElementById('gameArea').innerHTML=html;
+  // 主持人控制
+  if(isHost){
+    document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-gray" onclick="hostSkipPreGame()">⏭️ 跳过猜大小（蓝队先手）</button>';
+  }
+}
+
+function playerPreGameGuess(guess){
+  if(conn&&conn.open)conn.send({type:'playerAction',action:{type:'preGameGuess',guess}});
+}
+
+function hostPreGameRoll(){
+  if(!state.preGame||state.preGame.phase!=='roll')return;
+  state.preGame.rolling=true;state.preGame.phase='rolling';
+  broadcastState();renderPreGame();
+  setTimeout(()=>{
+    const dice=Math.floor(Math.random()*6)+1;
+    state.preGame.dice=dice;state.preGame.rolling=false;
+    const isBig=dice>=4;
+    const blueWon=(state.preGame.blueGuess==='big'&&isBig)||(state.preGame.blueGuess==='small'&&!isBig);
+    state.preGame.winner=blueWon?'blue':'red';
+    state.preGame.phase='result';
+    state.firstTeam=state.preGame.winner;
+    broadcastState();renderPreGame();
+  },1500);
+}
+
+function hostSkipPreGame(){
+  state.firstTeam='blue';
+  hostStartActualGame();
+}
+
+function hostStartActualGame(){
+  state.phase='playing';
+  state.preGame=null;
+  const gameId=GAMES[state.currentGame-1].id;
+  // G6最终机制播放震撼特效
+  if(gameId===6){
+    playFinalBattleIntro(()=>{
+      if(window.G && window.G.init)window.G.init(gameId);
+      broadcastState();
+      document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
+      if(window.G && window.G.render)window.G.render();
+      if(isHost)renderHostReconnectPanel();
+    });
+    return;
+  }
+  if(window.G && window.G.init)window.G.init(gameId);
+  broadcastState();
+  document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
+  if(window.G && window.G.render)window.G.render();
+  if(isHost)renderHostReconnectPanel();
+}
+
+function playFinalBattleIntro(callback){
+  const overlay=document.createElement('div');
+  overlay.className='final-battle-overlay';
+  overlay.innerHTML=`
+    <div class="fb-bg"></div>
+    <div class="fb-flames"></div>
+    <div class="fb-particles" id="fbParticles"></div>
+    <div class="fb-title">
+      <div class="fb-dragon">🐉</div>
+      <h1>最终决战</h1>
+      <div class="fb-sub">地下城最深处 · 生死之战</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  // 生成粒子
+  const pc=document.getElementById('fbParticles');
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');
+    p.className='fb-particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.bottom='0';
+    p.style.animationDelay=Math.random()*3+'s';
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    pc.appendChild(p);
+  }
+  // 震动效果
+  setTimeout(()=>overlay.classList.add('fb-shake'),500);
+  setTimeout(()=>overlay.classList.remove('fb-shake'),1000);
+  setTimeout(()=>overlay.classList.add('fb-shake'),2000);
+  // 3.5秒后消失
+  setTimeout(()=>{
+    overlay.style.transition='opacity .5s';
+    overlay.style.opacity='0';
+    setTimeout(()=>{overlay.remove();if(callback)callback()},500);
+  },3500);
 }
 
 function hostSelectGame(num){
   // 游戏按顺序进行，点击下一局卡片等同于准备开始
-  if(num===state.currentGame+1&&state.currentGame<5)hostStartNextGame();
+  if(num===state.currentGame+1&&state.currentGame<6)hostStartNextGame();
 }
 
 function showGoldConfirm(onConfirm){
@@ -762,14 +1214,39 @@ function gameOver(summary){
   }
   broadcastState();
   renderGameSummary();
+  if(isHost)renderHostReconnectPanel();
 }
 
 function renderGameSummary(){
   const s=state.gameSummary;if(!s)return;
   const gi=GAMES[state.currentGame-1];
+  // 判断当前玩家胜负
+  let isWin=false,winText=s.winner||'游戏结束';
+  if(s.winner){
+    if(s.winner.includes('蓝队')){isWin=myTeam==='blue';winText='🔵 蓝队获胜！'}
+    else if(s.winner.includes('红队')){isWin=myTeam==='red';winText='🔴 红队获胜！'}
+    else{isWin=true}
+  }
+  if(isHost){isWin=true}
+  const bannerClass=isWin?'win':'lose';
+  const bannerIcon=isWin?'🏆':'💀';
+  const bannerTitle=isWin?'胜 利':'失 败';
+  const bannerSub=isWin?'勇者凯旋，宝藏入袋':'勇者倒下，地牢吞噬...';
+  // 粒子效果
+  let particles='';
+  if(isWin){
+    for(let i=0;i<12;i++){particles+=`<span class="summary-sparkle" style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*1.5}s"></span>`}
+  }else{
+    for(let i=0;i<8;i++){particles+=`<span class="summary-ember" style="left:${Math.random()*100}%;bottom:0;animation-delay:${Math.random()*2}s"></span>`}
+  }
   let html=`<div class="summary-modal"><div class="summary-box">
-    <div class="summary-title">${gi.icon} ${gi.name} · 结算</div>`;
-  if(s.winner){html+=`<div style="font-size:18px;color:var(--gold-light);margin-bottom:12px">${s.winner}</div>`}
+    <div class="summary-title">${gi.icon} ${gi.name} · 结算</div>
+    <div class="summary-result-banner ${bannerClass}">
+      ${particles}
+      <span class="sr-icon">${bannerIcon}</span>
+      <div class="sr-text">${bannerTitle}</div>
+      <div class="sr-sub">${winText} · ${bannerSub}</div>
+    </div>`;
   // 队伍金币
   if(s.teamGold){
     html+=`<div class="summary-section"><h4>队伍金币</h4>`;
@@ -810,6 +1287,8 @@ function renderGameSummary(){
 }
 function closeSummaryAndNext(){
   document.getElementById('gameArea').innerHTML='';
+  // 清理G3守护者弹窗等残留
+  let _gm=document.getElementById('g3GuardianModal');if(_gm)_gm.remove();
   state.phase='lobby';
   showScreen('publicLobby');
   document.getElementById('hostControls').classList.add('hidden');
@@ -824,7 +1303,7 @@ function renderProgress(elId){
   const el=document.getElementById(elId);if(!el)return;
   let html='';
   GAMES.forEach((g,i)=>{
-    const cls=i+1<state.currentGame?'done':i+1===state.currentGame&&state.phase==='playing'?'active':'';
+    const cls=i+1<=state.currentGame?'done':i+1===state.currentGame&&state.phase==='playing'?'active':'';
     html+=`<span class="gp-step ${cls}">${g.icon}${g.name}</span>`;
     if(i<GAMES.length-1)html+='<span class="gp-arrow">›</span>';
   });
@@ -873,7 +1352,7 @@ function handlePlayerMsg(msg){
     if(msg.name)myName=msg.name;if(msg.team)myTeam=msg.team;if(msg.charId)myCharId=msg.charId;
     const roomId=document.getElementById('joinRoomInput').value.trim().toUpperCase();
     saveReconnectCode(roomId,msg.reconnectCode,myName,myCharId);
-    if(msg.reconnected&&msg.state){state=msg.state;if(state.phase==='playing'||state.phase==='gameOver'){enterGameScreen();if(state.phase==='playing'){window.G.gameId=state.currentGame;if(window.G.render)window.G.render()}else if(state.phase==='gameOver'){renderGameSummary()}}else{showScreen('publicLobby');renderPublicLobby()}return}
+    if(msg.reconnected&&msg.state){state=msg.state;if(state.phase==='playing'||state.phase==='preGame'||state.phase==='gameOver'||state.phase==='coinflip'||state.phase==='skillselect'){let _gm=document.getElementById('g3GuardianModal');if(_gm)_gm.remove();enterGameScreen();const _mid=GAMES[state.currentGame-1].id;if(window.G&&window.G.init)window.G.init(_mid);state=msg.state;window._initGameId=_mid;if(state.phase==='playing'||state.phase==='coinflip'||state.phase==='skillselect'){window.G.gameId=_mid;if(window.G.render)window.G.render()}else if(state.phase==='preGame'){renderPreGame()}else if(state.phase==='gameOver'){renderGameSummary()}}else{let _gm=document.getElementById('g3GuardianModal');if(_gm)_gm.remove();showScreen('publicLobby');renderPublicLobby()}return}
     document.getElementById('lobbyTitle').textContent='🎮 游戏大厅';
     document.getElementById('hostRoomId').textContent=roomId;
     showScreen('publicLobby');
@@ -883,22 +1362,55 @@ function handlePlayerMsg(msg){
   else if(msg.type==='teamChanged'){myTeam=msg.team;renderPublicLobby()}
   else if(msg.type==='state'){
     state=msg.state;
-    if(state.phase==='playing'&&document.getElementById('gameScreen').classList.contains('hidden'))enterGameScreen();
+    if((state.phase==='playing'||state.phase==='preGame'||state.phase==='coinflip'||state.phase==='skillselect')&&document.getElementById('gameScreen').classList.contains('hidden')){
+      enterGameScreen();
+    }
+    // 玩家端：进入游戏阶段时需要初始化游戏UI元素（gameInfo等），否则render会报错
+    if((state.phase==='playing'||state.phase==='coinflip'||state.phase==='skillselect')&&window.G&&window.G.init&&window._initGameId!==GAMES[state.currentGame-1].id){
+      let _gm=document.getElementById('g3GuardianModal');if(_gm)_gm.remove();
+      window.G.init(GAMES[state.currentGame-1].id);
+      state=msg.state;
+      window._initGameId=GAMES[state.currentGame-1].id;
+    }
     if(state.phase==='gameOver'){
       if(document.getElementById('gameScreen').classList.contains('hidden'))enterGameScreen();
+      let _gm=document.getElementById('g3GuardianModal');if(_gm)_gm.remove();
       renderGameSummary();
+      if(isHost)renderHostReconnectPanel();
     }
     if(state.phase==='lobby'){
       if(document.getElementById('publicLobby').classList.contains('hidden'))showScreen('publicLobby');
+      let _gm=document.getElementById('g3GuardianModal');if(_gm)_gm.remove();
+      window._initGameId=null;
       renderPublicLobby();
+      document.getElementById('hostReconnectPanel').classList.add('hidden');
     }
-    if(state.phase==='playing'){
-      window.G.gameId=state.currentGame;
+    if(state.phase==='preGame'){
+      window.G.gameId=GAMES[state.currentGame-1].id;
+      renderPreGame();
+      renderProgress('gameProgress');
+      document.getElementById('gameTitle').textContent='🎲 猜大小 — '+GAMES[state.currentGame-1].name;
+      if(isHost)renderHostReconnectPanel();
+    }
+    if(state.phase==='playing'||state.phase==='coinflip'||state.phase==='skillselect'){
+      window.G.gameId=GAMES[state.currentGame-1].id;
       if(window.G.render)window.G.render();
       renderProgress('gameProgress');
       document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
+      if(isHost)renderHostReconnectPanel();
     }
   }
+}
+function renderHostReconnectPanel(){
+  if(!isHost)return;
+  const panel=document.getElementById('hostReconnectPanel');
+  if(!panel)return;
+  panel.classList.remove('hidden');
+  let html='<div class="hrp-title">🔑 玩家重连码（点击复制）</div>';
+  Object.values(state.players).forEach(p=>{
+    html+=`<div class="hrp-item"><span>${p.team==='blue'?'🔵':'🔴'} ${p.name} ${p.online?'':'<span style=\"color:#ff6666\">(离线)</span>'}</span><span class="hrp-code" onclick="navigator.clipboard.writeText('${p.reconnectCode}')">${p.reconnectCode}</span></div>`;
+  });
+  panel.innerHTML=html;
 }
 function enterGameScreen(){
   showScreen('gameScreen');
@@ -938,10 +1450,7 @@ window.G.initG1=function(){
   this.g1Deck=[];G1_DECK.forEach(c=>{for(let i=0;i<c.count;i++)this.g1Deck.push(c.type)});
   for(let i=this.g1Deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[this.g1Deck[i],this.g1Deck[j]]=[this.g1Deck[j],this.g1Deck[i]]}
   // 初始化玩家
-  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
-  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
-  const order=[];const mx=Math.max(blues.length,reds.length);
-  for(let i=0;i<mx;i++){if(blues[i])order.push(blues[i]);if(reds[i])order.push(reds[i])}
+  const order=buildTurnOrder();
   state.turnOrder=order;state.currentIndex=0;state.round=1;
   state.game={firstHead:false,lastCard:null,deckCount:this.g1Deck.length};
   Object.values(state.players).forEach(p=>{p.snake=['tail'];p.g1coins=0;p.failed=false;p.g1title=false});
@@ -980,7 +1489,7 @@ window.G.renderG1=function(){
   html+=`<div class="g1-center"><div class="g1-msg ${state.messageType||''}" id="g1Msg">${state.message||''}</div><div class="g1-rollrow">
     <div><div class="g1-deck">🃏</div><div style="font-size:11px;color:#a5d6a7;margin-top:4px">牌堆 ${g.deckCount}</div></div>
     <div class="g1-dice" id="g1Dice">🎲</div>
-    <button class="btn" id="g1RollBtn" onclick="G.actionG1(myPeerId,'roll')">投掷骰子</button>
+    <button class="btn" id="g1RollBtn" onclick="sendAction({type:'roll'})">投掷骰子</button>
   </div></div>`;
   if(g.lastCard){
     const lc=g.lastCard,ct=G1_CARDS[lc.type];
@@ -1087,10 +1596,7 @@ const G2_EFF={1:'+1酒',2:'+2酒',3:'+3酒',4:'-4酒',5:'跳过',6:'反转'};
 const G2_CUP_INIT=15,G2_CUP_MAX=31;
 
 window.G.initG2=function(){
-  const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
-  const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
-  const order=[];const mx=Math.max(blues.length,reds.length);
-  for(let i=0;i<mx;i++){if(blues[i])order.push(blues[i]);if(reds[i])order.push(reds[i])}
+  const order=buildTurnOrder();
   state.turnOrder=order;state.currentIndex=0;state.round=1;
   state.game={cup:G2_CUP_INIT,direction:1,dice:[null,null,null],diceRolled:false,winner:null};
   Object.values(state.players).forEach(p=>{p.g2coins=0});
@@ -1111,12 +1617,12 @@ window.G.renderG2=function(){
   for(let i=0;i<3;i++){
     const val=g.dice[i];
     const canSelect=!isHost&&curId===myPeerId&&g.diceRolled&&state.phase==='playing'&&state.players[curId]&&state.players[curId].online;
-    html+=`<div class="g2-dice ${g.diceRolled&&val!=null?(canSelect?'selectable':''):'disabled'}" id="g2d${i}" ${canSelect?`onclick="G.actionG2(myPeerId,{type:'select',index:${i}})"`:''}>${g.diceRolled&&val!=null?G2_DICE[val-1]:'🎲'}</div>`;
+    html+=`<div class="g2-dice ${g.diceRolled&&val!=null?(canSelect?'selectable':''):'disabled'}" id="g2d${i}" ${canSelect?`onclick="sendAction({type:'select',index:${i}})"`:''}>${g.diceRolled&&val!=null?G2_DICE[val-1]:'🎲'}</div>`;
   }
   html+='</div><div class="g2-dice-eff">'+(g.diceRolled?g.dice.map((v,i)=>`骰${i+1}:${G2_EFF[v]}`).join(' | '):'')+'</div>';
   html+=`<div class="g2-msg ${state.messageType||''}">${state.message||''}</div>`;
   const canRoll=!isHost&&curId===myPeerId&&!g.diceRolled&&state.phase==='playing'&&state.players[curId]&&state.players[curId].online;
-  html+=`<button class="btn" id="g2RollBtn" onclick="G.actionG2(myPeerId,{type:'roll'})" ${canRoll?'':'disabled'}>${g.diceRolled?'请选择一颗骰子':(curId===myPeerId?'🎲 投掷骰子':'等待对手...')}</button></div>`;
+  html+=`<button class="btn" id="g2RollBtn" onclick="sendAction({type:'roll'})" ${canRoll?'':'disabled'}>${g.diceRolled?'请选择一颗骰子':(curId===myPeerId?'🎲 投掷骰子':'等待对手...')}</button></div>`;
   // 队伍
   html+='<div class="g2-teams">';
   ['blue','red'].forEach(t=>{
@@ -1162,10 +1668,10 @@ window.G.g2DoSelect=function(idx){
     state.game.winner=p.team==='blue'?'red':'blue';
     state.message+=` — 酒杯溢出！${p.team==='blue'?'蓝队':'红队'}输了！`;state.messageType='warn';
     const winTeam=state.game.winner;
-    Object.values(state.players).forEach(pl=>{pl.g2coins=pl.team===winTeam?10:6});
-    let wc=0,lc=0;Object.values(state.players).forEach(pl=>{if(pl.team===winTeam)wc+=10;else lc+=6});
+    const personalGold={};
+    Object.entries(state.players).forEach(([id,pl])=>{pl.g2coins=pl.team===winTeam?10:6;personalGold[id]=pl.team===winTeam?10:6});
     const winner=winTeam==='blue'?'🔵 蓝队获胜！':'🔴 红队获胜！';
-    gameOver({winner,teamGold:{blue:winTeam==='blue'?wc:lc,red:winTeam==='red'?wc:lc}});
+    gameOver({winner,personalGold});
     return;
   }
   state.game.diceRolled=false;state.game.dice=[null,null,null];
@@ -1197,12 +1703,18 @@ window.G.initG3=function(){
   const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
   state._blues=blues;state._reds=reds;
   state.game={taverns:G3_TAVERNS.map(t=>({...t,hits:{}})),dice:[],diceRolled:false,coinflip:null,guardianGame:null,lastAction:null};
-  state.turnOrder=[];state.currentIndex=0;state.round=1;
+  // 使用preGame猜大小的结果，不再内部比大小
+  const firstTeam=state.firstTeam||'blue';
+  const first=firstTeam==='blue'?blues:reds;
+  const second=firstTeam==='blue'?reds:blues;
+  const order=[];const mx=Math.max(first.length,second.length);
+  for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+  state.turnOrder=order;state.currentIndex=0;state.round=1;
   Object.values(state.players).forEach(p=>{p.g3coins=0;p.indicators=G3_INIT_IND});
-  state.phase='coinflip';
-  state.message='开局比大小：两队各投一颗骰子，点数大的先行动';state.messageType='';
+  state.phase='playing';
+  state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+' 先手！'+playerName(order[0])+' 的回合';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g3Round">1</b> 轮</span><span id="g3Turn"></span><span id="g3IndInfo" class="g3-ind-info"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small" id="g3CoinflipBtn" onclick="G.hostActionG3(null,{type:\'coinflip\'})">投骰比大小</button> <button class="btn btn-small btn-red" onclick="G.hostActionG3(null,\'skip\')">跳过断线玩家</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG3(null,\'skip\')">跳过断线玩家</button>';
 };
 
 window.G.renderG3=function(){
@@ -1237,7 +1749,7 @@ window.G.renderG3=function(){
     const maxHit=Math.max(1,...Object.values(tv.hits));
     let hitsHtml='';
     state.turnOrder.forEach(id=>{const p=state.players[id];if(!p)return;const h=tv.hits[id]||0;hitsHtml+=`<div class="g3-hit-row"><span>${p.team==='blue'?'🔵':'🔴'}${p.name}</span><span class="bar"><span class="bar-fill" style="width:${(h/maxHit)*100}%"></span></span><span>${h}</span></div>`});
-    html+=`<div class="g3-tv ${tv.guardian?'guardian':''} ${isMyTurn?'attackable':''}" ${isMyTurn?`onclick="G.actionG3(myPeerId,{type:'attack',tavernId:${tv.id}})"`:''}>
+    html+=`<div class="g3-tv ${tv.guardian?'guardian':''} ${isMyTurn?'attackable':''}" ${isMyTurn?`onclick="sendAction({type:'attack',tavernId:${tv.id}})"`:''}>
       <div class="g3-tv-head"><span>🍺 ${tv.id}号</span>${tv.guardian?'🛡️':''}</div>
       <div class="g3-tv-gold">上<b>${tv.topGold}</b>/下<b>${tv.bottomGold}</b></div>${hitsHtml}</div>`;
   });
@@ -1256,6 +1768,12 @@ window.G.renderG3=function(){
     const la=g.lastAction;
     html+=`<div class="g3-reveal"><div class="rv-name">${la.playerName} → ${la.tavernId}号酒馆</div><div class="rv-eff">${la.effect}</div>${la.guardianEffect?`<div class="rv-g">🛡️ ${la.guardianEffect}</div>`:''}</div>`;
   }
+  // 操作特效
+  if(g.lastEffect){
+    const fx=g.lastEffect;
+    const fxIcon={break:'🍺',gold:'💰',ind:'🔮',fail:'❌'}[fx.type]||'✨';
+    html+=`<div class="g3-fx-overlay"><div class="g3-fx-box g3-fx-${fx.type}"><div class="g3-fx-icon">${fxIcon}</div><div class="g3-fx-text">${fx.text}</div><div class="g3-fx-sub">${fx.playerName} · ${fx.sub}</div></div></div>`;
+  }
   html+=`<div class="g3-msg ${state.messageType||''}">${state.message||''}</div>`;
   html+='<div class="g3-center">';
   if(state.phase==='playing'){
@@ -1264,7 +1782,7 @@ window.G.renderG3=function(){
     else if(!curId||!state.players[curId].online)html+='<button class="btn" disabled>等待重连...</button>';
     else{
       const myTurn=curId===myPeerId;const myInd=state.players[myPeerId]?state.players[myPeerId].indicators:0;
-      if(!g.diceRolled)html+=`<button class="btn" onclick="G.actionG3(myPeerId,{type:'roll'})" ${!myTurn||myInd<=0?'disabled':''}>${myTurn?(myInd<=0?'已用完':'🎲 投掷骰子'):'等待对手...'}</button>`;
+      if(!g.diceRolled)html+=`<button class="btn" onclick="sendAction({type:'roll'})" ${!myTurn||myInd<=0?'disabled':''}>${myTurn?(myInd<=0?'已用完':'🎲 投掷骰子'):'等待对手...'}</button>`;
       else html+=`<button class="btn" ${!myTurn?'disabled':''}>${myTurn?'点击酒馆攻击 ↑':'等待对手...'}</button>`;
     }
   }else html+='<button class="btn" disabled>游戏已结束</button>';
@@ -1323,12 +1841,14 @@ window.G.g3DoAttack=function(tavernId){
   if(baseHits===0){
     state.message=p.name+' 选了'+tavernId+'号酒馆，但该数字未出现，跳过';state.messageType='warn';
     state.game.lastAction={tavernId,playerName:p.name,effect:'跳过回合'};
+    state.game.lastEffect={type:'fail',playerName:p.name,text:'未命中',sub:'该数字未出现'};
     state.game.diceRolled=false;state.game.dice=[];this.g3AfterAttack();return;
   }
   tv.hits[curId]=(tv.hits[curId]||0)+baseHits;
   const cost=Math.min(p.indicators,baseHits);p.indicators-=cost;
   state.message=`${p.name} 攻击${tavernId}号酒馆，打破${baseHits}个酒桶（剩余${p.indicators}指示物）`;state.messageType='good';
   state.game.lastAction={tavernId,playerName:p.name,effect:'打破'+baseHits+'个酒桶',guardian:tv.guardian};
+  state.game.lastEffect={type:'break',playerName:p.name,text:'打破 '+baseHits+' 个酒桶',sub:tavernId+'号酒馆'};
   state.game.diceRolled=false;state.game.dice=[];
   if(tv.guardian){
     const gg={active:true,tavernId,playerId:curId,type:tv.guardian,step:'choose'};
@@ -1353,17 +1873,22 @@ window.G.g3GuardianAction=function(action){
 };
 
 window.G.g3FinishGuardian=function(){
-  const gg=state.game.guardianGame;if(!gg)return;const p=state.players[gg.playerId];let eff='';
-  if(gg.type==='猞猁'){if(gg.guess===gg.actualHand){p.g3coins+=2;eff='猜对！+2金币'}else eff='猜错，无事发生'}
-  else if(gg.type==='乌鸦'){if(gg.playerNum!==gg.guardianGuess){p.indicators+=1;eff='守护者猜错！返还1指示物'}else{p.g3coins+=gg.playerNum;eff='守护者猜对！+'+gg.playerNum+'金币'}}
-  else if(gg.type==='老虎'){p.g3coins+=gg.wins;eff='赢'+gg.wins+'局，+'+gg.wins+'金币'}
+  const gg=state.game.guardianGame;if(!gg)return;const p=state.players[gg.playerId];let eff='';let fx=null;
+  if(gg.type==='猞猁'){if(gg.guess===gg.actualHand){p.g3coins+=2;eff='猜对！+2金币';fx={type:'gold',playerName:p.name,text:'+2 金币',sub:'猞猁守护者'}}else eff='猜错，无事发生'}
+  else if(gg.type==='乌鸦'){if(gg.playerNum!==gg.guardianGuess){p.indicators+=1;eff='守护者猜错！返还1指示物';fx={type:'ind',playerName:p.name,text:'+1 指示物',sub:'乌鸦守护者猜错'}}else{p.g3coins+=gg.playerNum;eff='守护者猜对！+'+gg.playerNum+'金币';fx={type:'gold',playerName:p.name,text:'+'+gg.playerNum+' 金币',sub:'乌鸦守护者猜对'}}}
+  else if(gg.type==='老虎'){p.g3coins+=gg.wins;eff='赢'+gg.wins+'局，+'+gg.wins+'金币';if(gg.wins>0)fx={type:'gold',playerName:p.name,text:'+'+gg.wins+' 金币',sub:'老虎守护者赢'+gg.wins+'局'}}
   state.message+=' | 🛡️'+gg.type+'：'+eff;
   if(state.game.lastAction)state.game.lastAction.guardianEffect=eff;
+  if(fx)state.game.lastEffect=fx;
+  // 关闭守护者弹窗
+  let m=document.getElementById('g3GuardianModal');if(m)m.remove();
   state.game.guardianGame=null;this.g3AfterAttack();
 };
 
 window.G.g3AfterAttack=function(){
   broadcastState();this.renderG3();
+  // 特效2秒后清除
+  if(state.game&&state.game.lastEffect){const fx=state.game.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG3()}},2000)}
   const allDone=state.turnOrder.every(id=>state.players[id].indicators<=0);
   if(allDone){setTimeout(()=>this.g3EndGame(),1500);return}
   setTimeout(()=>{this.g3NextTurn();broadcastState();this.renderG3()},1500);
@@ -1406,22 +1931,22 @@ window.G.g3ShowGuardian=function(gg){
     title='🛡️ 猞猁守护者';
     if(gg.step==='choose')content=`<p>猜金币在哪只手，猜对得2金币！</p><p style="color:${isPlayer?'var(--gold-light)':'#888'}">${isPlayer?'请选择：':pname+' 正在选择...'}</p>
       <div style="display:flex;gap:12px;justify-content:center;margin:14px 0">
-      <button class="btn btn-blue" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{guess:'left'}})">🤚 左手</button>
-      <button class="btn btn-red" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{guess:'right'}})">🤚 右手</button></div>`;
-    else{const ok=gg.guess===gg.actualHand;content=`<div style="font-size:36px;margin:10px">${ok?'🎉':'😅'}</div><p>${pname}猜${gg.guess==='left'?'左':'右'}手，金币在${gg.actualHand==='left'?'左':'右'}手</p><p style="color:${ok?'#a5d6a7':'#ef9a9a'};font-weight:bold">${ok?'猜对！+2金币':'猜错'}</p>${isPlayer?'<button class="btn" onclick="G.actionG3(myPeerId,{type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
+      <button class="btn btn-blue" ${isPlayer?'':'disabled'} onclick="sendAction({type:'guardianAction',action:{guess:'left'}})">🤚 左手</button>
+      <button class="btn btn-red" ${isPlayer?'':'disabled'} onclick="sendAction({type:'guardianAction',action:{guess:'right'}})">🤚 右手</button></div>`;
+    else{const ok=gg.guess===gg.actualHand;content=`<div style="font-size:36px;margin:10px">${ok?'🎉':'😅'}</div><p>${pname}猜${gg.guess==='left'?'左':'右'}手，金币在${gg.actualHand==='left'?'左':'右'}手</p><p style="color:${ok?'#a5d6a7':'#ef9a9a'};font-weight:bold">${ok?'猜对！+2金币':'猜错'}</p>${isPlayer?'<button class="btn" onclick="sendAction({type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
   }else if(gg.type==='乌鸦'){
     title='🛡️ 乌鸦守护者';
     if(gg.step==='choose')content=`<p>放1-3个金币，守护者猜数字。猜错返1指示物，猜对得对应金币。</p><p style="color:${isPlayer?'var(--gold-light)':'#888'}">${isPlayer?'请选择：':pname+' 正在选择...'}</p>
       <div style="display:flex;gap:10px;justify-content:center;margin:14px 0">
-      <button class="btn" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{playerNum:1}})">1个</button>
-      <button class="btn" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{playerNum:2}})">2个</button>
-      <button class="btn" ${isPlayer?'':'disabled'} onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{playerNum:3}})">3个</button></div>`;
-    else{const wrong=gg.playerNum!==gg.guardianGuess;content=`<div style="font-size:36px;margin:10px">${wrong?'🎉':'😅'}</div><p>${pname}放了<b>${gg.playerNum}</b>个，守护者猜<b>${gg.guardianGuess}</b></p><p style="color:${wrong?'#a5d6a7':'#ef9a9a'};font-weight:bold">${wrong?'猜错！返1指示物':'猜对！+'+gg.playerNum+'金币'}</p>${isPlayer?'<button class="btn" onclick="G.actionG3(myPeerId,{type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
+      <button class="btn" ${isPlayer?'':'disabled'} onclick="sendAction({type:'guardianAction',action:{playerNum:1}})">1个</button>
+      <button class="btn" ${isPlayer?'':'disabled'} onclick="sendAction({type:'guardianAction',action:{playerNum:2}})">2个</button>
+      <button class="btn" ${isPlayer?'':'disabled'} onclick="sendAction({type:'guardianAction',action:{playerNum:3}})">3个</button></div>`;
+    else{const wrong=gg.playerNum!==gg.guardianGuess;content=`<div style="font-size:36px;margin:10px">${wrong?'🎉':'😅'}</div><p>${pname}放了<b>${gg.playerNum}</b>个，守护者猜<b>${gg.guardianGuess}</b></p><p style="color:${wrong?'#a5d6a7':'#ef9a9a'};font-weight:bold">${wrong?'猜错！返1指示物':'猜对！+'+gg.playerNum+'金币'}</p>${isPlayer?'<button class="btn" onclick="sendAction({type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
   }else if(gg.type==='老虎'){
     title='🛡️ 老虎守护者';
     let rh='';gg.rounds.forEach((r,i)=>rh+=`<div style="font-size:13px;padding:3px 0">第${i+1}局：${pname} ${G3_DICE[r.player-1]}(${r.player}) vs 守护者 ${G3_DICE[r.guardian-1]}(${r.guardian}) → ${r.win?'赢':'输/平'}</div>`);
-    if(gg.step==='choose')content=`<p>3局赌大小，赢几局得几金币。</p><div style="margin:10px 0">${rh}</div>${isPlayer?`<button class="btn" onclick="G.actionG3(myPeerId,{type:'guardianAction',action:{roll:true}})">投第${gg.rounds.length+1}局</button>`:'<p style="color:#888">等待'+pname+'...</p>'}`;
-    else content=`<p>3局赌大小，赢几局得几金币。</p><div style="margin:10px 0">${rh}</div><div style="color:var(--gold-light);font-weight:bold">共赢${gg.wins}局，+${gg.wins}金币！</div>${isPlayer?'<button class="btn" style="margin-top:10px" onclick="G.actionG3(myPeerId,{type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
+    if(gg.step==='choose')content=`<p>3局赌大小，赢几局得几金币。</p><div style="margin:10px 0">${rh}</div>${isPlayer?`<button class="btn" onclick="sendAction({type:'guardianAction',action:{roll:true}})">投第${gg.rounds.length+1}局</button>`:'<p style="color:#888">等待'+pname+'...</p>'}`;
+    else content=`<p>3局赌大小，赢几局得几金币。</p><div style="margin:10px 0">${rh}</div><div style="color:var(--gold-light);font-weight:bold">共赢${gg.wins}局，+${gg.wins}金币！</div>${isPlayer?'<button class="btn" style="margin-top:10px" onclick="sendAction({type:\'guardianDone\'})">继续</button>':'<p style="color:#888">等待...</p>'}`}
   // 渲染弹窗
   let modal=document.getElementById('g3GuardianModal');
   if(!modal){modal=document.createElement('div');modal.id='g3GuardianModal';modal.className='g3-guardian-modal';document.querySelector('.container').appendChild(modal)}
@@ -1441,11 +1966,17 @@ window.G.initG4=function(){
   const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
   state._blues=blues;state._reds=reds;
   state.game={enemy:{name:'🐉 龙蛋',hp:50,maxHp:50,counter:false},lastAction:null,coinflip:null};
-  state.turnOrder=[];state.currentIndex=0;state.round=1;
-  state.phase='coinflip';
-  state.message='开局比大小：点数大的队伍先行动';state.messageType='';
+  // 使用preGame猜大小的结果
+  const firstTeam=state.firstTeam||'blue';
+  const first=firstTeam==='blue'?blues:reds;
+  const second=firstTeam==='blue'?reds:blues;
+  const order=[];const mx=Math.max(first.length,second.length);
+  for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+  state.turnOrder=order;state.currentIndex=0;state.round=1;
+  state.phase='playing';
+  state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+' 先行动！'+playerName(order[0])+' 的回合';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g4Round">1</b> 轮</span><span id="g4Turn"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small" onclick="G.hostActionG4(null,{type:\'coinflip\'})">投骰比大小</button> <button class="btn btn-small btn-red" onclick="G.hostActionG4(null,\'skip\')">跳过断线玩家</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG4(null,\'skip\')">跳过断线玩家</button>';
   this.g4PowerLocking=false;this.g4Rolling=false;this.g4StopPower();
 };
 
@@ -1537,7 +2068,8 @@ window.G.g4StopPower=function(){if(this.g4PowerTimer){clearInterval(this.g4Power
 window.G.g4Lock=function(){
   this.g4StopPower();this.g4PowerLocking=false;
   const power=Math.round(this.g4PowerPos);
-  this.actionG4(myPeerId,{type:'lockPower',power});
+  if(isHost){this.actionG4(myPeerId,{type:'lockPower',power})}
+  else{sendAction({type:'lockPower',power})}
 };
 
 window.G.actionG4=function(peerId,action){
@@ -1608,40 +2140,63 @@ window.G.g4EndGame=function(){
   const curId=state.turnOrder[state.currentIndex];
   const winTeam=state.players[curId].team;
   const winner=winTeam==='blue'?'🔵 蓝队获胜！':'🔴 红队获胜！';
-  // 队伍金币：赢队每人10，输队每人5
-  const winCount=Object.values(state.players).filter(p=>p.team===winTeam).length;
-  const loseCount=Object.values(state.players).filter(p=>p.team!==winTeam).length;
-  gameOver({winner,teamGold:{blue:winTeam==='blue'?winCount*10:loseCount*5,red:winTeam==='red'?winCount*10:loseCount*5}});
+  gameOver({winner});
 };
 
 // ==================== 游戏5：逃生机制 ====================
 const G5_DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
 const G5_ROCK=[9,12,15],G5_SKILL_POINTS=[0,8,16],G5_FINISH=24;
+const G5_SKILL_FX={
+  '胜者余酿酒':{icon:'👑',color:'#ffd700',name:'胜者余酿酒'},
+  '落井下石酒':{icon:'🪨',color:'#8b4513',name:'落井下石酒'},
+  '狂飙忘忧酒':{icon:'🌪️',color:'#00bcd4',name:'狂飙忘忧酒'},
+  '绊足黑啤':{icon:'🦶',color:'#9e9e9e',name:'绊足黑啤'},
+  '尾灯引路酒':{icon:'🔦',color:'#ffeb3b',name:'尾灯引路酒'},
+  '回收者神酿':{icon:'♻️',color:'#4caf50',name:'回收者神酿'},
+  '再投双杯酿':{icon:'🔄',color:'#2196f3',name:'再投双杯酿'},
+  '恶臭黑啤':{icon:'💀',color:'#9c27b0',name:'恶臭黑啤'},
+  '踏风者烈酿':{icon:'💨',color:'#00acc1',name:'踏风者烈酿'},
+  '恰好止步酒':{icon:'🛑',color:'#f44336',name:'恰好止步酒'},
+  '次席预言酒':{icon:'🔮',color:'#e040fb',name:'次席预言酒'},
+  '投机者特调':{icon:'🎭',color:'#ff9800',name:'投机者特调'},
+  '附影随行酒':{icon:'👤',color:'#607d8b',name:'附影随行酒'},
+  '当关烈酒':{icon:'🛡️',color:'#795548',name:'当关烈酒'},
+  '凑桌传送酒':{icon:'🌀',color:'#3f51b5',name:'凑桌传送酒'},
+  '孤独者陈酿':{icon:'🧍',color:'#78909c',name:'孤独者陈酿'},
+  '错位时空果酒':{icon:'⏳',color:'#7b1fa2',name:'错位时空果酒'},
+  '骄傲兔子酒':{icon:'🐰',color:'#e91e63',name:'骄傲兔子酒'},
+  '有福同享佳酿':{icon:'🎁',color:'#ffc107',name:'有福同享佳酿'},
+  '预言家陈酿':{icon:'🔮',color:'#ab47bc',name:'预言家陈酿'},
+  '蛙跳青柠酒':{icon:'🐸',color:'#8bc34a',name:'蛙跳青柠酒'},
+  '魁首仿酿酒':{icon:'🎭',color:'#ffb300',name:'魁首仿酿酒'},
+  '派对小扎啤':{icon:'🎉',color:'#ff5722',name:'派对小扎啤'},
+  '逆袭苦艾酒':{icon:'💪',color:'#f44336',name:'逆袭苦艾酒'},
+};
 const G5_SKILLS=[
-  {id:'胜者余酿酒',desc:'决斗胜利后复制败方技能（限一次）',type:'passive'},
+  {id:'胜者余酿酒',desc:'决斗后可复制败方技能（限一次）',type:'passive'},
   {id:'落井下石酒',desc:'他人投1时跳过其移动，你+1格',type:'passive'},
-  {id:'狂飙忘忧酒',desc:'步数×2但跳过下回合',type:'active'},
-  {id:'绊足黑啤',desc:'指定他人骰子-1（最小1）',type:'active',needTarget:true},
-  {id:'尾灯引路酒',desc:'放弃移动，末尾+2你+1',type:'active'},
-  {id:'回收者神酿',desc:'从弃牌堆选1张替换',type:'active'},
-  {id:'再投双杯酿',desc:'重投每回合最多2次',type:'active'},
-  {id:'恶臭黑啤',desc:'停留有他人格他们-1血',type:'passive'},
-  {id:'踏风者烈酿',desc:'经过他人他们退后2格',type:'passive'},
-  {id:'恰好止步酒',desc:'必须正好等于剩余格数冲线',type:'global'},
-  {id:'次席预言酒',desc:'预测获胜者他获胜你成第二',type:'passive'},
-  {id:'投机者特调',desc:'他人停你格他后退1格',type:'passive'},
-  {id:'附影随行酒',desc:'同格人移动后你传送',type:'passive'},
-  {id:'当关烈酒',desc:'经过你的玩家必须停',type:'passive'},
-  {id:'凑桌传送酒',desc:'放弃移动传送至2人格',type:'active'},
-  {id:'孤独者陈酿',desc:'他人停1人格你+1',type:'passive'},
-  {id:'错位时空果酒',desc:'移动前将一人传送到你格',type:'active',needTarget:true},
-  {id:'骄傲兔子酒',desc:'步数+2但独自领先跳过',type:'passive'},
-  {id:'有福同享佳酿',desc:'他人投6你+2格',type:'passive'},
-  {id:'预言家陈酿',desc:'预测点数猜对额外回合',type:'active'},
-  {id:'蛙跳青柠酒',desc:'跳过有人格',type:'passive'},
-  {id:'魁首仿酿酒',desc:'复制领先者技能',type:'passive'},
-  {id:'派对小扎啤',desc:'同格人移动+1步数',type:'passive'},
-  {id:'逆袭苦艾酒',desc:'投1移动2格',type:'passive'},
+  {id:'狂飙忘忧酒',desc:'移动步数×2，但跳过下回合',type:'active'},
+  {id:'绊足黑啤',desc:'他人移动前使其骰子-1（最小1）',type:'active',needTarget:true},
+  {id:'尾灯引路酒',desc:'放弃移动，末尾玩家+2格',type:'active'},
+  {id:'回收者神酿',desc:'从弃牌堆选1技能使用（下回合生效）',type:'active'},
+  {id:'再投双杯酿',desc:'不满意可重投，每回合最多2次',type:'active'},
+  {id:'恶臭黑啤',desc:'停留在有人格时，他人-1血',type:'passive'},
+  {id:'踏风者烈酿',desc:'经过他人时使其后退2格',type:'passive'},
+  {id:'恰好止步酒',desc:'必须正好等于剩余格数冲线，大于不能移动',type:'global'},
+  {id:'次席预言酒',desc:'预测获胜者，他胜你直接成第二',type:'passive'},
+  {id:'投机者特调',desc:'他人落地停你格时，他后退1格',type:'passive'},
+  {id:'附影随行酒',desc:'同格人移动后你传送到其落点',type:'passive'},
+  {id:'当关烈酒',desc:'经过你的玩家必须停在你格',type:'passive'},
+  {id:'凑桌传送酒',desc:'放弃移动，传送至恰好2人的格子',type:'active'},
+  {id:'孤独者陈酿',desc:'任何人停在恰好1人格时，你+1格',type:'passive'},
+  {id:'错位时空果酒',desc:'移动前将任意一人传送到你格',type:'active',needTarget:true},
+  {id:'骄傲兔子酒',desc:'步数+2，但若独自领先则跳过本回合',type:'passive'},
+  {id:'有福同享佳酿',desc:'他人投6时你+2格',type:'passive'},
+  {id:'预言家陈酿',desc:'预测投掷点数，猜对额外一回合',type:'active'},
+  {id:'蛙跳青柠酒',desc:'移动时跳过有人的格子',type:'passive'},
+  {id:'魁首仿酿酒',desc:'复制领先者技能（多人可选其一）',type:'passive'},
+  {id:'派对小扎啤',desc:'同格所有人（含自己）移动+1步数',type:'passive'},
+  {id:'逆袭苦艾酒',desc:'投出1点时移动2格',type:'passive'},
 ];
 
 window.G.initG5=function(){
@@ -1649,13 +2204,20 @@ window.G.initG5=function(){
   const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue').map(([id])=>id);
   const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red').map(([id])=>id);
   state._blues=blues;state._reds=reds;
-  state.game={skillPools:{0:shuffled.slice(0,8).map(s=>s.id),8:shuffled.slice(8,16).map(s=>s.id),16:shuffled.slice(16,24).map(s=>s.id)},discarded:[],duel:null,roundSummary:null,globalExactStop:false,coinflip:null,pendingSkillChange:null,pendingTargetChoice:null,pendingPrediction:null,lastRoll:undefined,debuff:null};
-  state.turnOrder=[];state.currentIndex=0;state.round=1;state.skillSelectIndex=0;
+  const _discardPool=[...G5_SKILLS].sort(()=>Math.random()-0.5).slice(0,4).map(s=>s.id);
+  state.game={skillPools:{0:shuffled.slice(0,8).map(s=>s.id),8:shuffled.slice(8,16).map(s=>s.id),16:shuffled.slice(16,24).map(s=>s.id)},discarded:_discardPool,duel:null,roundSummary:null,globalExactStop:false,coinflip:null,pendingSkillChange:null,pendingTargetChoice:null,pendingPrediction:null,lastRoll:undefined,debuff:null};
+  // 使用preGame猜大小的结果
+  const firstTeam=state.firstTeam||'blue';
+  const first=firstTeam==='blue'?blues:reds;
+  const second=firstTeam==='blue'?reds:blues;
+  const order=[];const mx=Math.max(first.length,second.length);
+  for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
+  state.turnOrder=order;state.currentIndex=0;state.round=1;state.skillSelectIndex=0;state.game.skillPoolKey=0;
   Object.values(state.players).forEach(p=>{p.pos=0;p.hp=9;p.skill=null;p.skillUsed=false;p.skipNext=false;p.extraTurn=false;p.predictedWinner=null;p.dead=false;p.skillChangeUsed={};p._rerollCount=0;p._copiedSkill=false;p._shadowTarget=null});
-  state.phase='coinflip';
-  state.message='开局比大小：主持人点击投掷';state.messageType='';
+  state.phase='skillselect';
+  state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g5Round">1</b> 轮</span><span id="g5Turn"></span><span id="g5Phase" class="g5-phase"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small" onclick="G.hostActionG5(null,{type:\'coinflip\'})">投骰比大小</button> <button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button>';
 };
 
 window.G.renderG5=function(){
@@ -1666,27 +2228,46 @@ window.G.renderG5=function(){
   let phaseText='';
   if(state.phase==='playing'&&curId){const pos=state.players[curId].pos;phaseText=pos>=16?'第三阶段·石像守卫':pos>=8?'第二阶段·落石':'第一阶段·巨龙吐息'}
   document.getElementById('g5Phase').textContent=phaseText;
-  let html='<div class="g5-map">';
+  let html='<div class="g5-layout"><div class="g5-map-section"><div class="g5-map">';
   for(let i=0;i<=G5_FINISH;i++){
-    let cls='g5-cell';if(i===0)cls+=' start';if(i===G5_FINISH)cls+=' end';if(G5_SKILL_POINTS.includes(i))cls+=' skillpoint';if(G5_ROCK.includes(i))cls+=' rock';
+    let cls='g5-cell';if(i===0)cls+=' start';if(i===G5_FINISH)cls+=' end';if(G5_SKILL_POINTS.includes(i))cls+=' skillpoint';if(G5_ROCK.includes(i))cls+=' rock';if(!G5_SKILL_POINTS.includes(i)&&!G5_ROCK.includes(i)&&i!==0&&i!==G5_FINISH)cls+=' empty';
     const here=Object.entries(state.players).filter(([_,p])=>!p.dead&&p.pos===i);
     let dots='';here.forEach(([id,p])=>{const c=CHARACTERS.find(ch=>ch.id===p.character);dots+='<div class="g5-pdot '+p.team+'" title="'+p.name+'">'+(c?'<img src="'+c.img+'">':p.name.charAt(0))+'</div>'});
-    let label=i===0?'🏰起点':i===G5_FINISH?'🚪终点':G5_SKILL_POINTS.includes(i)?'📜技能':G5_ROCK.includes(i)?'🪨落石':'';
+    let label=i===0?'🏰 起点':i===G5_FINISH?'🚪 终点':G5_SKILL_POINTS.includes(i)?'📜 技能':G5_ROCK.includes(i)?'🪨 落石':'';
     html+='<div class="'+cls+'"><div class="g5-cell-num">'+i+'</div><div class="g5-cell-label">'+label+'</div><div class="g5-cell-dots">'+dots+'</div></div>';
   }
-  html+='</div><div class="g5-players">';
+  html+='</div></div><div class="g5-players-section"><div class="g5-players">';
   state.turnOrder.forEach(id=>{
     const p=state.players[id];if(!p)return;
     const c=CHARACTERS.find(ch=>ch.id===p.character);
     const sk=p.skill?G5_SKILLS.find(s=>s.id===p.skill):null;
-    html+='<div class="g5-pcard '+(id===curId&&state.phase==='playing'?'active':'')+' '+(p.dead?'dead':'')+'"><div class="g5-pcard-head"><span class="'+p.team+'">'+(c?'<img src="'+c.img+'">':'')+(p.team==='blue'?'🔵':'🔴')+' '+p.name+(id===myPeerId?'(你)':'')+'</span><span>❤️'+p.hp+' 💰'+(p.gold||0)+'</span></div><div>位置：'+p.pos+'格'+(p.dead?' 💀':'')+'</div><div class="g5-pcard-skill">'+(p.skill?'📜'+p.skill+'<br><span>'+(sk?sk.desc:'')+'</span>':'无技能')+'</div></div>';
+    const myTeam=state.players[myPeerId]?state.players[myPeerId].team:null;
+    const canSeeSkill=isHost||p.team===myTeam||id===myPeerId;
+    const skillHtml=p.skill?(canSeeSkill?'📜'+p.skill+'<span>'+(sk?sk.desc:'')+'</span>':'📜 '+p.skill):'无技能';
+    html+='<div class="g5-pcard '+(id===curId&&state.phase==='playing'?'active':'')+' '+(p.dead?'dead':'')+'"><div class="g5-pcard-head"><span class="'+p.team+'">'+(c?'<img src="'+c.img+'">':'')+(p.team==='blue'?'🔵':'🔴')+' '+p.name+(id===myPeerId?'(你)':'')+'</span><span>❤️'+p.hp+' 💰'+(p.gold||0)+'</span></div><div class="g5-pcard-pos">位置：'+p.pos+'格'+(p.dead?' 💀':'')+'</div><div class="g5-pcard-skill">'+skillHtml+'</div></div>';
   });
-  html+='</div><div class="g5-msg '+(state.messageType||'')+'">'+(state.message||'')+'</div><div class="g5-action"><div class="g5-dice-display" id="g5DiceDisplay"></div><div id="g5Buttons"></div></div>';
+  html+='</div></div><div class="g5-msg '+(state.messageType||'')+'">'+(state.message||'')+'</div><div class="g5-action"><div class="g5-dice-display" id="g5DiceDisplay"></div><div id="g5Buttons"></div></div>';
+  // 操作特效
+  if(g.lastEffect){
+    const fx=g.lastEffect;
+    let fxIcon,fxColor,fxClass;
+    if(fx.skillId&&G5_SKILL_FX[fx.skillId]){
+      const s=G5_SKILL_FX[fx.skillId];
+      fxIcon=s.icon;fxColor=s.color;fxClass='g5-fx-skill';
+    }else{
+      fxIcon={damage:'💔',combat:'⚔️',rock:'🪨',dragon:'🐉'}[fx.type]||'✨';
+      fxColor=fx.type==='damage'?'#ff4444':fx.type==='combat'?'#ff9800':fx.type==='rock'?'#a0522d':fx.type==='dragon'?'#ff6347':'#e8c86a';
+      fxClass='g5-fx-'+(fx.type||'normal');
+    }
+    html+=`<div class="g5-fx-overlay"><div class="g5-fx-box ${fxClass}" style="--fx-color:${fxColor}"><div class="g5-fx-icon" style="color:${fxColor}">${fxIcon}</div><div class="g5-fx-text" style="color:${fxColor}">${fx.text}</div><div class="g5-fx-sub">${fx.sub}</div></div></div>`;
+  }
   document.getElementById('gameArea').innerHTML=html;
   this.g5RenderButtons();
   if(g.duel)this.g5RenderDuel();else{let m=document.getElementById('g5DuelModal');if(m)m.remove()}
   if(g.roundSummary)this.g5RenderSummary();else{let m=document.getElementById('g5SumModal');if(m)m.remove()}
   this.g5CheckModals();
+  // 特效2秒后自动清除
+  if(g.lastEffect){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG5()}},2000)}
 };
 
 window.G.g5RenderButtons=function(){
@@ -1709,19 +2290,20 @@ window.G.g5RenderButtons=function(){
   if(typeof g.lastRoll==='number')dice.innerHTML=G5_DICE[g.lastRoll-1]+' <span style="font-size:14px">('+g.lastRoll+')</span>';
   if(g.pendingDuel&&g.pendingDuel.playerId===myPeerId){
     const t=state.players[g.pendingDuel.targetId];
-    btns.innerHTML='<button class="btn btn-red" onclick="G.actionG5(myPeerId,{type:\'duel\',targetId:\''+g.pendingDuel.targetId+'\'})">⚔️ 与'+t.name+'决斗</button>';
-    if(!g.pendingDuel.forced)btns.innerHTML+='<button class="btn btn-gray" style="margin-left:8px" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">跳过</button>';
+    btns.innerHTML='<button class="btn btn-red" onclick="sendAction({type:\'duel\',targetId:\''+g.pendingDuel.targetId+'\'})">⚔️ 与'+t.name+'决斗</button>';
+    if(g.pendingDuel.forced)btns.innerHTML+='<button class="btn btn-gray" style="margin-left:8px" onclick="sendAction({type:\'skipDuel\'})">拒绝决斗(-5💰)</button>';
+    else btns.innerHTML+='<button class="btn btn-gray" style="margin-left:8px" onclick="sendAction({type:\'endTurn\'})">跳过</button>';
     return;
   }
   if(g.pendingSkillChange&&g.pendingSkillChange.playerId===myPeerId){dice.innerHTML='<span style="font-size:13px;color:var(--gold-light)">请选择新技能</span>';return}
   if(!p.skillUsed||(p.skill==='再投双杯酿'&&typeof g.lastRoll==='number'&&(p._rerollCount||0)<2)){
-    if(typeof g.lastRoll!=='number')btns.innerHTML='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'roll\'})">🎲 投掷骰子</button>';
-    else if(p.skill==='再投双杯酿'&&(p._rerollCount||0)<2)btns.innerHTML='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'reroll\'})">🔄 重投('+(2-(p._rerollCount||0))+')</button><button class="btn btn-gray" style="margin-left:8px" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">结束回合</button>';
-    else btns.innerHTML='<button class="btn btn-gray" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">结束回合</button>';
-  }else btns.innerHTML='<button class="btn btn-gray" onclick="G.actionG5(myPeerId,{type:\'endTurn\'})">结束回合</button>';
+    if(typeof g.lastRoll!=='number')btns.innerHTML='<button class="btn" onclick="sendAction({type:\'roll\'})">🎲 投掷骰子</button>';
+    else if(p.skill==='再投双杯酿'&&(p._rerollCount||0)<2)btns.innerHTML='<button class="btn" onclick="sendAction({type:\'reroll\'})">🔄 重投('+(2-(p._rerollCount||0))+')</button><button class="btn btn-gray" style="margin-left:8px" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
+    else btns.innerHTML='<button class="btn btn-gray" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
+  }else btns.innerHTML='<button class="btn btn-gray" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
   if(p.skill&&!p.skillUsed&&typeof g.lastRoll!=='number'){
     const sk=G5_SKILLS.find(s=>s.id===p.skill);
-    if(sk&&sk.type==='active')btns.innerHTML+='<button class="btn btn-small" style="margin-left:8px" onclick="G.actionG5(myPeerId,{type:\'useSkill\',skillId:\''+p.skill+'\'})">📜 '+p.skill+'</button>';
+    if(sk&&sk.type==='active')btns.innerHTML+='<button class="btn btn-small" style="margin-left:8px" onclick="sendAction({type:\'useSkill\',skillId:\''+p.skill+'\'})">📜 '+p.skill+'</button>';
   }
 };
 
@@ -1732,6 +2314,8 @@ window.G.g5CheckModals=function(){
   else if(g.pendingSkillChoice&&g.pendingSkillChoice.playerId===myPeerId&&!isHost)this.g5ShowDiscardSelect();
   else if(g.pendingTargetChoice&&g.pendingTargetChoice.playerId===myPeerId&&!isHost)this.g5ShowTargetChoice();
   else if(g.pendingPrediction&&g.pendingPrediction.playerId===myPeerId&&!isHost)this.g5ShowPrediction();
+  else if(g.pendingWinnerPrediction&&g.pendingWinnerPrediction.playerId===myPeerId&&!isHost)this.g5ShowWinnerPrediction();
+  else if(g.pendingLeaderCopy&&g.pendingLeaderCopy.playerId===myPeerId&&!isHost)this.g5ShowLeaderCopy();
   else this.g5RemoveModal();
 };
 window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
@@ -1760,6 +2344,18 @@ window.G.g5ShowPrediction=function(){
   html+='</div>';this.g5ShowModal('🔮 预言家陈酿',html);
 };
 window.G.g5MakePrediction=function(n){this.g5RemoveModal();state.game.pendingPrediction=null;sendAction({type:'roll',prediction:n})};
+window.G.g5ShowWinnerPrediction=function(){
+  let html='<p style="font-size:12px">预测谁会获胜（他获胜你直接成第二）：</p>';
+  state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.dead||id===myPeerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5PickWinner(\''+id+'\')"><div class="sk-name">'+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</div></div>'});
+  this.g5ShowModal('🔮 次席预言酒',html);
+};
+window.G.g5PickWinner=function(id){this.g5RemoveModal();sendAction({type:'pickWinner',targetId:id})};
+window.G.g5ShowLeaderCopy=function(){
+  const cands=state.game.pendingLeaderCopy.candidates;let html='<p style="font-size:12px">领先者多人，选择复制谁的技能：</p>';
+  cands.forEach(c=>{html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5PickLeader(\''+c.id+'\')"><div class="sk-name">'+c.name+'</div><div class="sk-desc">'+c.skill+'</div></div>'});
+  this.g5ShowModal('🎭 魁首仿酿酒',html);
+};
+window.G.g5PickLeader=function(id){this.g5RemoveModal();sendAction({type:'pickLeader',targetId:id})};
 
 window.G.g5RenderDuel=function(){
   const d=state.game.duel;const pa=state.players[d.playerA],pb=state.players[d.playerB];
@@ -1767,11 +2363,11 @@ window.G.g5RenderDuel=function(){
   if(!m){m=document.createElement('div');m.id='g5DuelModal';m.className='g5-duel-modal';document.querySelector('.container').appendChild(m)}
   let actHtml='';
   if(d.phase==='waitA'){
-    if(myPeerId===d.playerA&&!isHost)actHtml='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'duelRoll\'})">🎲 投骰子</button>';
+    if(myPeerId===d.playerA&&!isHost)actHtml='<button class="btn" onclick="sendAction({type:\'duelRoll\'})">🎲 投骰子</button>';
     else if(isHost)actHtml='<button class="btn" onclick="G.g5HostDuelRoll(\''+d.playerA+'\')">替'+pa.name+'投骰</button>';
     else actHtml='<span style="color:#888">等待'+pa.name+'投骰...</span>';
   }else if(d.phase==='waitB'){
-    if(myPeerId===d.playerB&&!isHost)actHtml='<button class="btn" onclick="G.actionG5(myPeerId,{type:\'duelRoll\'})">🎲 投骰子</button>';
+    if(myPeerId===d.playerB&&!isHost)actHtml='<button class="btn" onclick="sendAction({type:\'duelRoll\'})">🎲 投骰子</button>';
     else if(isHost)actHtml='<button class="btn" onclick="G.g5HostDuelRoll(\''+d.playerB+'\')">替'+pb.name+'投骰</button>';
     else actHtml='<span style="color:#888">等待'+pb.name+'投骰...</span>';
   }else{
@@ -1817,13 +2413,33 @@ window.G.actionG5=function(peerId,action){
   }else if(action.type==='useSkill'){this.g5DoUseSkill(peerId,action.skillId)}
   else if(action.type==='endTurn'){this.g5EndTurn(peerId)}
   else if(action.type==='duel'){this.g5StartDuel(peerId,action.targetId)}
+  else if(action.type==='skipDuel'){
+    const p=state.players[peerId];p.gold=Math.max(0,(p.gold||0)-5);
+    state.game.pendingDuel=null;
+    state.message=playerName(peerId)+' 拒绝决斗，被石像收取5金币！';
+    state.messageType='warn';
+    state.game.lastEffect={type:'damage',playerName:p.name,text:'-5💰 胆小鬼惩罚',sub:'石像惩罚'};
+    this.g5EndTurn(peerId);
+  }
   else if(action.type==='duelRoll'){this.g5DuelRoll(peerId)}
   else if(action.type==='selectSkill'){
     if(state.phase==='skillselect'&&state.turnOrder[state.skillSelectIndex||0]===peerId)this.g5DoSelectSkill(peerId,action.skillId);
+    else if(state.game.pendingSkillChange&&state.game.pendingSkillChange.playerId===peerId)this.g5DoSkillChange(peerId,action.skillId);
     else if(state.game.pendingSkillChoice&&state.game.pendingSkillChoice.playerId===peerId)this.g5DoSelectDiscard(peerId,action.skillId);
   }else if(action.type==='chooseTarget'){
     if(state.game.pendingTargetChoice&&state.game.pendingTargetChoice.playerId===peerId)this.g5ResolveTarget(peerId,action.targetId);
+  }else if(action.type==='pickWinner'){
+    if(state.game.pendingWinnerPrediction&&state.game.pendingWinnerPrediction.playerId===peerId){state.players[peerId].predictedWinner=action.targetId;state.game.pendingWinnerPrediction=null;state.message=playerName(peerId)+' 预测'+playerName(action.targetId)+'获胜';broadcastState();this.renderG5()}
+  }else if(action.type==='pickLeader'){
+    if(state.game.pendingLeaderCopy&&state.game.pendingLeaderCopy.playerId===peerId){const p=state.players[peerId];const src=state.players[action.targetId];if(src&&src.skill){p.skill=src.skill;state.message=playerName(peerId)+' 魁首仿酿酒复制了'+src.name+'的'+src.skill}state.game.pendingLeaderCopy=null;broadcastState();this.renderG5()}
   }
+};
+
+// G6 最终机制动作处理
+window.G.actionG6=function(peerId,action){
+  if(action.type==='g6route'){this.g6SelectRoute(peerId,action.route)}
+  else if(action.type==='g6move'){this.g6Move(peerId)}
+  else if(action.type==='g6combat'){this.g6ResolveCombat(peerId,action)}
 };
 
 window.G.hostActionG5=function(peerId,action){
@@ -1851,8 +2467,7 @@ window.G.g5DoSelectSkill=function(playerId,skillId){
   const p=state.players[playerId];
   if(p.skill)state.game.discarded.push(p.skill);
   p.skill=skillId;state.game.skillPools[poolKey].splice(idx,1);p.skillChangeUsed[poolKey]=true;
-  if(skillId==='次席预言酒'){const alive=state.turnOrder.filter(id=>!state.players[id].dead);p.predictedWinner=alive[Math.floor(Math.random()*alive.length)]}
-  if(skillId==='恰好止步酒')state.game.globalExactStop=true;
+  this.g5OnSkillAcquire(playerId,skillId);
   state.skillSelectIndex=(state.skillSelectIndex||0)+1;
   if(state.skillSelectIndex>=state.turnOrder.length){
     state.phase='playing';state.currentIndex=0;state.round=1;
@@ -1866,31 +2481,84 @@ window.G.g5DoSelectDiscard=function(playerId,skillId){
   const p=state.players[playerId];
   if(p.skill)g.discarded.push(p.skill);
   p.skill=skillId;g.discarded.splice(idx,1);p.skillUsed=true;
+  this.g5OnSkillAcquire(playerId,skillId);
   g.pendingSkillChoice=null;state.message=playerName(playerId)+' 从弃牌堆获得'+skillId;state.messageType='good';
   broadcastState();this.renderG5();
+};
+
+window.G.g5DoSkillChange=function(playerId,skillId){
+  const g=state.game;const poolKey=g.pendingSkillChange.poolKey;const idx=g.skillPools[poolKey].indexOf(skillId);if(idx<0)return;
+  const p=state.players[playerId];
+  p.skill=skillId;g.skillPools[poolKey].splice(idx,1);p.skillChangeUsed[poolKey]=true;
+  this.g5OnSkillAcquire(playerId,skillId);
+  g.pendingSkillChange=null;state.message=playerName(playerId)+' 在'+poolKey+'格更换为'+skillId;state.messageType='good';
+  broadcastState();this.renderG5();this.g5AfterMove(playerId,0);
+};
+
+window.G.g5OnSkillAcquire=function(playerId,skillId){
+  const p=state.players[playerId];const g=state.game;
+  if(skillId==='恰好止步酒'){g.globalExactStop=true;g.lastEffect={skillId:'恰好止步酒',text:'全局：必须正好冲线',sub:p.name+' 获得恰好止步酒'}}
+  if(skillId==='次席预言酒'){g.pendingWinnerPrediction={playerId};state.message=playerName(playerId)+' 请预测获胜者';g.lastEffect={skillId:'次席预言酒',text:'请预测获胜者',sub:p.name+' 获得次席预言酒'}}
+  if(skillId==='魁首仿酿酒'){
+    const alive=Object.values(state.players).filter(pl=>!pl.dead&&pl.skill&&pl!==p);
+    if(alive.length){const maxPos=Math.max(...alive.map(pl=>pl.pos));const leaders=alive.filter(pl=>pl.pos===maxPos);
+      if(leaders.length===1){p.skill=leaders[0].skill;state.message+=' | 魁首仿酿酒复制了'+leaders[0].name+'的技能';g.lastEffect={skillId:'魁首仿酿酒',text:'复制领先者技能：'+leaders[0].skill,sub:p.name+' 魁首仿酿酒生效'}}
+      else{g.pendingLeaderCopy={playerId,candidates:leaders.map(pl=>({id:state.turnOrder.find(tid=>state.players[tid]===pl),name:pl.name,skill:pl.skill}))};state.message=playerName(playerId)+' 魁首仿酿酒：选择复制谁的技能';g.lastEffect={skillId:'魁首仿酿酒',text:'选择复制谁的技能',sub:p.name+' 魁首仿酿酒生效'}}
+    }
+  }
 };
 
 window.G.g5DoRoll=function(playerId,isReroll,prediction){
   const p=state.players[playerId];const g=state.game;
   if(p.skillUsed&&!isReroll)return;
   g.pendingPrediction=null;
+  // 附影随行酒：移动前标记起点同格的附影玩家
+  Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='附影随行酒'&&id!==playerId&&pl.pos===p.pos){pl._shadowTarget=playerId}});
   let roll=1+Math.floor(Math.random()*6);g.lastRoll=roll;
   if(g.debuff&&g.debuff[playerId]){roll=Math.max(1,roll-1);delete g.debuff[playerId]}
   let steps=roll<=2?1:roll<=4?2:3;
-  if(p.skill==='逆袭苦艾酒'&&roll===1)steps=2;
+  if(p.skill==='逆袭苦艾酒'&&roll===1){steps=2;g.lastEffect={skillId:'逆袭苦艾酒',text:'逆袭！投1移动2格',sub:p.name+' 触发逆袭苦艾酒'}}
   if(p.skill==='骄傲兔子酒'){
     const maxPos=Math.max(...Object.values(state.players).filter(pl=>!pl.dead).map(pl=>pl.pos));
     const leaders=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===maxPos);
-    if(leaders.length===1&&leaders[0]===p){state.message=playerName(playerId)+' 独自领先，骄傲兔子酒跳过移动！';state.messageType='warn';g.lastSteps=0;p.skillUsed=true;this.g5AfterMove(playerId,0);return}
-    steps+=2;
+    if(leaders.length===1&&leaders[0]===p){state.message=playerName(playerId)+' 独自领先，骄傲兔子酒跳过移动！';state.messageType='warn';g.lastEffect={skillId:'骄傲兔子酒',text:'独自领先，跳过本回合',sub:p.name+' 骄傲兔子酒生效'};g.lastSteps=0;p.skillUsed=true;this.g5AfterMove(playerId,0);return}
+    steps+=2;g.lastEffect={skillId:'骄傲兔子酒',text:'步数+2',sub:p.name+' 骄傲兔子酒生效'};
   }
-  if(p.skill==='派对小扎啤'){const same=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos&&pl!==p).length;if(same>0)steps+=1}
+  if(p.skill==='派对小扎啤'||Object.values(state.players).some(pl=>!pl.dead&&pl.skill==='派对小扎啤'&&pl.pos===p.pos&&pl!==p)){const same=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos).length;if(same>=2){steps+=1;g.lastEffect={skillId:'派对小扎啤',text:'同格加成+1步',sub:p.name+' 派对小扎啤生效'}}}
   if(p.skill==='狂飙忘忧酒'&&p.skillActive){steps*=2;p.skipNext=true}
-  if(roll===1)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='落井下石酒'&&id!==playerId){pl.pos=Math.min(G5_FINISH,pl.pos+1);state.message+=' | '+playerName(id)+' 落井下石+1格'}});
-  if(roll===6)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='有福同享佳酿'&&id!==playerId)pl.pos=Math.min(G5_FINISH,pl.pos+2)});
+  const hasLuoXia=Object.values(state.players).some(pl=>!pl.dead&&pl.skill==='落井下石酒'&&pl!==p);
+  let extraMsg='';
+  if(roll===1&&hasLuoXia){
+    steps=0;
+    Object.entries(state.players).forEach(([id,pl])=>{
+      if(!pl.dead&&pl.skill==='落井下石酒'&&id!==playerId){
+        pl.pos=Math.min(G5_FINISH,pl.pos+1);
+        extraMsg+=' | '+playerName(id)+'落井下石+1格，'+playerName(playerId)+'被跳过';
+        g.lastEffect={skillId:'落井下石酒',text:playerName(playerId)+'被跳过，'+playerName(id)+'+1格',sub:playerName(id)+' 落井下石酒生效'};
+      }
+    });
+  }else if(roll===1){
+    Object.entries(state.players).forEach(([id,pl])=>{
+      if(!pl.dead&&pl.skill==='落井下石酒'&&id!==playerId){
+        pl.pos=Math.min(G5_FINISH,pl.pos+1);
+        extraMsg+=' | '+playerName(id)+'落井下石+1格';
+        g.lastEffect={skillId:'落井下石酒',text:playerName(id)+'+1格',sub:playerName(id)+' 落井下石酒生效'};
+      }
+    });
+  }
+  if(roll===6){
+    Object.entries(state.players).forEach(([id,pl])=>{
+      if(!pl.dead&&pl.skill==='有福同享佳酿'&&id!==playerId){
+        pl.pos=Math.min(G5_FINISH,pl.pos+2);
+        extraMsg+=' | '+playerName(id)+'有福同享+2格';
+        g.lastEffect={skillId:'有福同享佳酿',text:playerName(id)+'+2格',sub:playerName(id)+' 有福同享佳酿生效'};
+      }
+    });
+  }
   if(prediction&&prediction===roll)p.extraTurn=true;
-  g.lastSteps=steps;p.skillUsed=true;
-  state.message=playerName(playerId)+' 投出 '+G5_DICE[roll-1]+'('+roll+')，移动'+steps+'格';state.messageType='';
+  g.lastSteps=steps;
+  if(!(p.skill==='再投双杯酿'&&roll===6))p.skillUsed=true;
+  state.message=playerName(playerId)+' 投出 '+G5_DICE[roll-1]+'('+roll+')，移动'+steps+'格'+extraMsg;state.messageType='';
   this.g5ExecuteMove(playerId,steps);this.g5AfterMove(playerId,steps);
 };
 
@@ -1898,25 +2566,46 @@ window.G.g5ExecuteMove=function(playerId,steps){
   const p=state.players[playerId];const startPos=p.pos;let targetPos=p.pos+steps;
   if(state.game.globalExactStop&&targetPos>G5_FINISH){state.message+='（恰好止步酒生效）';return}
   targetPos=Math.min(G5_FINISH,targetPos);
-  if(p.skill==='蛙跳青柠酒'){let pos=p.pos;for(let i=0;i<steps;i++){pos++;if(pos>G5_FINISH)break;if(Object.values(state.players).some(pl=>!pl.dead&&pl.pos===pos&&pl!==p))pos++}targetPos=Math.min(G5_FINISH,pos)}
+  if(p.skill==='蛙跳青柠酒'){let pos=p.pos;for(let i=0;i<steps;i++){pos++;if(pos>G5_FINISH)break;if(Object.values(state.players).some(pl=>!pl.dead&&pl.pos===pos&&pl!==p))pos++}targetPos=Math.min(G5_FINISH,pos);state.game.lastEffect={skillId:'蛙跳青柠酒',text:'跳过有人格',sub:p.name+' 蛙跳青柠酒生效'}}
   const passed=[];
-  for(let pos=startPos+1;pos<targetPos;pos++)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.pos===pos&&id!==playerId){passed.push(id);if(pl.skill==='当关烈酒')targetPos=pos}});
-  if(p.skill==='踏风者烈酿'){passed.forEach(id=>{state.players[id].pos=Math.max(0,state.players[id].pos-2)});if(passed.length)state.message+=' | 踏风者：'+passed.map(id=>playerName(id)).join('、')+'退后2格'}
+  for(let pos=startPos+1;pos<targetPos;pos++){
+    Object.entries(state.players).forEach(([id,pl])=>{
+      if(!pl.dead&&pl.pos===pos&&id!==playerId){
+        passed.push(id);
+        if(pl.skill==='当关烈酒'){
+          targetPos=pos;
+          state.game.lastEffect={skillId:'当关烈酒',text:'被当关烈酒拦下',sub:pl.name+' 当关烈酒生效'};
+        }
+        if(pl.skill==='踏风者烈酿'){
+          targetPos=Math.max(startPos,targetPos-2);
+          state.message+=' | 踏风者：'+playerName(playerId)+'被'+pl.name+'退后2格';
+          state.game.lastEffect={skillId:'踏风者烈酿',text:playerName(playerId)+'退后2格',sub:pl.name+' 踏风者烈酿生效'};
+        }
+      }
+    });
+  }
   p.pos=targetPos;
 };
 
 window.G.g5AfterMove=function(playerId,steps){
   const p=state.players[playerId];const g=state.game;
-  if(p.skill==='恶臭黑啤'){const others=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos&&pl!==p);others.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});if(others.length)state.message+=' | 恶臭黑啤：同格-1血'}
-  Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='投机者特调'&&id!==playerId&&pl.pos===p.pos){p.pos=Math.max(0,p.pos-1);state.message+=' | 投机者：'+playerName(id)+'使你后退1格'}});
+  const stinkyPlayers=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos&&pl!==p&&pl.skill==='恶臭黑啤');
+  if(stinkyPlayers.length){p.hp-=1;this.g5CheckDeathObj(p);state.message+=' | 恶臭黑啤：同格-1血';state.game.lastEffect={skillId:'恶臭黑啤',text:p.name+' -1血',sub:stinkyPlayers.map(pl=>pl.name).join('、')+' 恶臭黑啤生效',type:'damage',playerName:p.name}}
+  Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='投机者特调'&&id!==playerId&&pl.pos===p.pos){p.pos=Math.max(0,p.pos-1);state.message+=' | 投机者：'+playerName(id)+'使你后退1格';state.game.lastEffect={skillId:'投机者特调',text:'落地者后退1格',sub:pl.name+' 投机者特调生效'}}});
   const cellCount=Object.values(state.players).filter(pl=>!pl.dead&&pl.pos===p.pos).length;
-  if(cellCount===1)Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='孤独者陈酿'&&id!==playerId)pl.pos=Math.min(G5_FINISH,pl.pos+1)});
+  if(cellCount===1){
+    Object.entries(state.players).forEach(([id,pl])=>{
+      if(!pl.dead&&pl.skill==='孤独者陈酿'&&id!==playerId){
+        pl.pos=Math.min(G5_FINISH,pl.pos+1);
+        state.game.lastEffect={skillId:'孤独者陈酿',text:'独占格+1',sub:pl.name+' 孤独者陈酿生效'};
+      }
+    });
+  }
   const poolKey=G5_SKILL_POINTS.find(c=>p.pos===c);
   if(poolKey!==undefined&&g.skillPools[poolKey]&&g.skillPools[poolKey].length>0&&!p.skillChangeUsed[poolKey]){
     g.pendingSkillChange={playerId,poolKey};state.message=playerName(playerId)+' 到达技能更换点！';state.messageType='good';broadcastState();this.renderG5();return;
   }
   if(p.pos>=G5_FINISH){this.g5EndGame(playerId);return}
-  if(p.pos>=8&&p.pos<=15&&G5_ROCK.includes(p.pos)){p.hp-=1;state.message+=' | 落石！-1血';this.g5CheckDeath(playerId)}
   const enemies=Object.entries(state.players).filter(([id,pl])=>!pl.dead&&pl.pos===p.pos&&pl.team!==p.team&&id!==playerId);
   if(enemies.length>0){
     const inPhase3=p.pos>=16;
@@ -1928,7 +2617,9 @@ window.G.g5AfterMove=function(playerId,steps){
 
 window.G.g5StartDuel=function(playerId,targetId){
   state.game.duel={playerA:playerId,playerB:targetId,rollA:null,rollB:null,phase:'waitA',winner:null};
-  state.game.pendingDuel=null;broadcastState();this.renderG5();
+  state.game.pendingDuel=null;
+  state.game.lastEffect={type:'combat',playerName:playerName(playerId),text:'⚔️ 决斗开始！',sub:playerName(playerId)+' VS '+playerName(targetId)};
+  broadcastState();this.renderG5();
 };
 window.G.g5DuelRoll=function(peerId){
   const d=state.game.duel;if(!d)return;
@@ -1938,20 +2629,20 @@ window.G.g5DuelRoll=function(peerId){
 window.G.g5HostDuelRoll=function(id){this.g5DuelRoll(id)};
 window.G.g5ResolveDuel=function(){
   const d=state.game.duel;const a=state.players[d.playerA],b=state.players[d.playerB];
-  if(d.rollA>d.rollB){a.pos=Math.min(G5_FINISH,a.pos+1);b.hp-=1;d.winner=d.playerA;state.message=playerName(d.playerA)+' 决斗胜利！('+d.rollA+'vs'+d.rollB+') +1格，'+playerName(d.playerB)+'-1血';state.messageType='good';if(a.skill==='胜者余酿酒'&&b.skill&&!a._copiedSkill){a.skill=b.skill;a._copiedSkill=true}this.g5CheckDeath(d.playerB)}
-  else if(d.rollB>d.rollA){b.pos=Math.min(G5_FINISH,b.pos+1);a.hp-=1;d.winner=d.playerB;state.message=playerName(d.playerB)+' 决斗胜利！('+d.rollB+'vs'+d.rollA+') +1格，'+playerName(d.playerA)+'-1血';state.messageType='warn';this.g5CheckDeath(d.playerA)}
+  if(d.rollA>d.rollB){a.pos=Math.min(G5_FINISH,a.pos+1);b.hp-=1;d.winner=d.playerA;state.message=playerName(d.playerA)+' 决斗胜利！('+d.rollA+'vs'+d.rollB+') +1格，'+playerName(d.playerB)+'-1血';state.messageType='good';state.game.lastEffect={type:'damage',playerName:playerName(d.playerB),text:'-1 血量',sub:playerName(d.playerA)+' 决斗击败 '+playerName(d.playerB)};if(a.skill==='胜者余酿酒'&&b.skill&&!a._copiedSkill){a.skill=b.skill;a._copiedSkill=true;this.g5OnSkillAcquire(d.playerA,b.skill);state.game.lastEffect={skillId:'胜者余酿酒',text:'复制败方技能：'+b.skill,sub:a.name+' 胜者余酿酒生效'}}this.g5CheckDeath(d.playerB)}
+  else if(d.rollB>d.rollA){b.pos=Math.min(G5_FINISH,b.pos+1);a.hp-=1;d.winner=d.playerB;state.message=playerName(d.playerB)+' 决斗胜利！('+d.rollB+'vs'+d.rollA+') +1格，'+playerName(d.playerA)+'-1血';state.messageType='warn';state.game.lastEffect={type:'damage',playerName:playerName(d.playerA),text:'-1 血量',sub:playerName(d.playerB)+' 决斗击败 '+playerName(d.playerA)};this.g5CheckDeath(d.playerA)}
   else state.message='决斗平局('+d.rollA+'vs'+d.rollB+')';
 };
 
 window.G.g5DoUseSkill=function(playerId,skillId){
   const p=state.players[playerId];const g=state.game;if(p.skillUsed)return;
-  if(skillId==='再投双杯酿'){if(g.lastRoll===undefined)return;p.skillUsed=true;p._rerollCount=(p._rerollCount||0)+1;if(p._rerollCount>2)return;this.g5DoRoll(playerId,true);return}
-  if(skillId==='尾灯引路酒'){const alive=Object.entries(state.players).filter(([_,pl])=>!pl.dead);const minPos=Math.min(...alive.map(([_,pl])=>pl.pos));alive.filter(([_,pl])=>pl.pos===minPos).forEach(([id])=>{state.players[id].pos=Math.min(G5_FINISH,state.players[id].pos+2)});p.pos=Math.min(G5_FINISH,p.pos+1);p.skillUsed=true;state.message=playerName(playerId)+' 尾灯引路：末尾+2你+1';state.messageType='good';this.g5AfterMove(playerId,0);return}
-  if(skillId==='凑桌传送酒'){const counts={};Object.values(state.players).forEach(pl=>{if(!pl.dead)counts[pl.pos]=(counts[pl.pos]||0)+1});const valid=Object.entries(counts).filter(([_,c])=>c===2).map(([pos])=>parseInt(pos));if(!valid.length)return;p.pos=valid[Math.floor(Math.random()*valid.length)];p.skillUsed=true;state.message=playerName(playerId)+' 凑桌传送至'+p.pos+'格';state.messageType='good';this.g5AfterMove(playerId,0);return}
-  if(skillId==='回收者神酿'){if(!g.discarded.length)return;g.pendingSkillChoice={playerId};state.message=playerName(playerId)+' 从弃牌堆选技能';broadcastState();this.renderG5();return}
-  if(skillId==='错位时空果酒'||skillId==='绊足黑啤'){g.pendingTargetChoice={playerId,skillId};state.message=playerName(playerId)+' 选择目标';broadcastState();this.renderG5();return}
-  if(skillId==='预言家陈酿'){g.pendingPrediction={playerId};state.message=playerName(playerId)+' 预测点数';broadcastState();this.renderG5();return}
-  if(skillId==='狂飙忘忧酒'){p.skillActive=true;p.skillUsed=true;state.message=playerName(playerId)+' 狂飙忘忧：步数×2，下回合跳过';state.messageType='good';broadcastState();this.renderG5();return}
+  if(skillId==='再投双杯酿'){if(g.lastRoll===undefined)return;p.skillUsed=true;p._rerollCount=(p._rerollCount||0)+1;if(p._rerollCount>2)return;g.lastEffect={skillId:'再投双杯酿',text:'重新投掷',sub:p.name+' 再投双杯酿生效'};this.g5DoRoll(playerId,true);return}
+  if(skillId==='尾灯引路酒'){const alive=Object.entries(state.players).filter(([_,pl])=>!pl.dead);const minPos=Math.min(...alive.map(([_,pl])=>pl.pos));alive.filter(([_,pl])=>pl.pos===minPos).forEach(([id])=>{state.players[id].pos=Math.min(G5_FINISH,state.players[id].pos+2)});p.skillUsed=true;state.message=playerName(playerId)+' 尾灯引路：放弃移动，末尾玩家+2';state.messageType='good';g.lastEffect={skillId:'尾灯引路酒',text:'末尾玩家+2格',sub:p.name+' 尾灯引路酒生效'};broadcastState();this.renderG5();return}
+  if(skillId==='凑桌传送酒'){const counts={};Object.values(state.players).forEach(pl=>{if(!pl.dead)counts[pl.pos]=(counts[pl.pos]||0)+1});const valid=Object.entries(counts).filter(([_,c])=>c===2).map(([pos])=>parseInt(pos));if(!valid.length)return;p.pos=valid[Math.floor(Math.random()*valid.length)];p.skillUsed=true;state.message=playerName(playerId)+' 凑桌传送至'+p.pos+'格';state.messageType='good';g.lastEffect={skillId:'凑桌传送酒',text:'传送至2人格',sub:p.name+' 凑桌传送酒生效'};this.g5AfterMove(playerId,0);return}
+  if(skillId==='回收者神酿'){if(!g.discarded.length)return;g.pendingSkillChoice={playerId};state.message=playerName(playerId)+' 从弃牌堆选技能';g.lastEffect={skillId:'回收者神酿',text:'选择弃牌堆技能',sub:p.name+' 回收者神酿生效'};broadcastState();this.renderG5();return}
+  if(skillId==='错位时空果酒'||skillId==='绊足黑啤'){g.pendingTargetChoice={playerId,skillId};state.message=playerName(playerId)+' 选择目标';g.lastEffect={skillId:skillId,text:'选择目标',sub:p.name+' '+skillId+'生效'};broadcastState();this.renderG5();return}
+  if(skillId==='预言家陈酿'){g.pendingPrediction={playerId};state.message=playerName(playerId)+' 预测点数';g.lastEffect={skillId:'预言家陈酿',text:'预测投掷点数',sub:p.name+' 预言家陈酿生效'};broadcastState();this.renderG5();return}
+  if(skillId==='狂飙忘忧酒'){p.skillActive=true;state.message=playerName(playerId)+' 狂飙忘忧：步数×2，下回合跳过';state.messageType='good';g.lastEffect={skillId:'狂飙忘忧酒',text:'步数×2，下回合跳过',sub:p.name+' 狂飙忘忧酒生效'};broadcastState();this.renderG5();return}
 };
 
 window.G.g5ResolveTarget=function(playerId,targetId){
@@ -1965,10 +2656,15 @@ window.G.g5EndTurn=function(playerId){
   const p=state.players[playerId];const g=state.game;
   p.skillUsed=false;p.skillActive=false;p._rerollCount=0;
   g.pendingDuel=null;g.lastRoll=undefined;g.pendingSkillChange=null;g.pendingTargetChoice=null;g.pendingPrediction=null;
-  Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='附影随行酒'&&id!==playerId&&pl._shadowTarget===playerId){pl.pos=p.pos;pl._shadowTarget=null}});
+  Object.entries(state.players).forEach(([id,pl])=>{
+      if(!pl.dead&&pl.skill==='附影随行酒'&&id!==playerId&&pl._shadowTarget===playerId){
+        pl.pos=p.pos;
+        pl._shadowTarget=null;
+        state.game.lastEffect={skillId:'附影随行酒',text:'传送至目标落点',sub:pl.name+' 附影随行酒生效'};
+      }
+    });
   const alive=Object.values(state.players).filter(pl=>!pl.dead);
-  if(alive.length){const minPos=Math.min(...alive.map(pl=>pl.pos));if(minPos<=7)alive.filter(pl=>pl.pos===minPos).forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl);state.message+=' | 巨龙吐息！末尾-1血'})}
-  const aliveCount=Object.values(state.players).filter(pl=>!pl.dead).length;
+  const aliveCount=alive.length;
   if(aliveCount<=1){const w=Object.entries(state.players).find(([_,pl])=>!pl.dead);if(w)this.g5EndGame(w[0]);return}
   if(p.extraTurn){p.extraTurn=false;state.message=playerName(playerId)+' 额外回合！';state.messageType='good';broadcastState();this.renderG5();return}
   this.g5NextTurn();broadcastState();this.renderG5();
@@ -1983,6 +2679,13 @@ window.G.g5NextTurn=function(){
   state.currentIndex=nextIdx;
   if(nextIdx<=idx){
     state.round++;
+    // 大回合结束：巨龙吐息（第一阶段末尾-1血）
+    const alive=Object.values(state.players).filter(pl=>!pl.dead);
+    if(alive.length){const minPos=Math.min(...alive.map(pl=>pl.pos));if(minPos<=7){const victims=alive.filter(pl=>pl.pos===minPos);victims.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});state.message+=' | 巨龙吐息！末尾-1血';state.game.lastEffect={type:'dragon',playerName:victims.map(pl=>pl.name).join('、'),text:'🐉 巨龙吐息 -1血',sub:'末尾玩家被吐息击中'}}}
+    // 大回合结束：落石（第二阶段9/12/15格-1血）
+    const rockVictims=alive.filter(pl=>pl.pos>=8&&pl.pos<=15&&G5_ROCK.includes(pl.pos));
+    rockVictims.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});
+    if(rockVictims.length){state.message+=' | 落石！'+rockVictims.map(pl=>pl.name).join('、')+'-1血';state.game.lastEffect={type:'rock',playerName:rockVictims.map(pl=>pl.name).join('、'),text:'🪨 落石 -1血',sub:'巨石砸中玩家'}}
     const summary=[];
     state.turnOrder.forEach(id=>{const pl=state.players[id];if(!pl)return;summary.push('<div class="g5-sum-player"><span class="'+pl.team+'">'+(pl.team==='blue'?'🔵':'🔴')+' '+pl.name+'</span><span>位置'+pl.pos+' · ❤️'+pl.hp+' · 💰'+(pl.gold||0)+(pl.dead?' · 💀':'')+(pl.skill?' · 📜'+pl.skill:'')+'</span></div>')});
     g.roundSummary={round:state.round-1,html:summary.join('')};
@@ -2004,18 +2707,820 @@ window.G.g5CheckDeath=function(playerId){
     else{p.dead=true;if(p.skill)state.game.discarded.push(p.skill);p.skill=null;if(p.gold)p.gold=0;state.message+=' | '+playerName(playerId)+' 被淘汰！';state.messageType='warn'}
   }
 };
-window.G.g5CheckDeathObj=function(p){if(p.hp<=0&&!p.dead){p.dead=true;if(p.skill)state.game.discarded.push(p.skill);p.skill=null}};
+window.G.g5CheckDeathObj=function(p){
+  if(p.hp<=0&&!p.dead){
+    const needed=1-p.hp;
+    if((p.gold||0)>=needed){p.gold-=needed;p.hp=1;state.message+=' | '+p.name+' 消耗'+needed+'金币代替血量（恢复1血）';state.game.lastEffect={type:'damage',playerName:p.name,text:'-'+needed+'💰 恢复1❤️',sub:p.name+' 金币代替血量'}}
+    else{p.dead=true;if(p.skill)state.game.discarded.push(p.skill);p.skill=null;if(p.gold)p.gold=0;state.message+=' | '+p.name+' 血量归零且金币不足，被淘汰！';state.game.lastEffect={type:'damage',playerName:p.name,text:'💀 淘汰',sub:p.name+' 血量归零'}}
+  }
+};
 
 window.G.g5EndGame=function(winnerId){
   state.phase='ended';state.winner=winnerId;
-  const rankings=Object.entries(state.players).filter(([_,p])=>!p.dead).sort((a,b)=>b[1].pos-a[1].pos);
+  let rankings=Object.entries(state.players).filter(([_,p])=>!p.dead).sort((a,b)=>b[1].pos-a[1].pos);
+  // 次席预言酒：预测获胜者正确则直接成为第二名
+  const predictor=Object.entries(state.players).find(([id,p])=>p.predictedWinner===winnerId&&!p.dead&&id!==winnerId);
+  if(predictor){rankings=rankings.filter(([id])=>id!==predictor[0]);rankings.splice(1,0,predictor);state.message+=' | '+predictor[1].name+' 次席预言酒生效，成为第二名！'}
   const goldMap=[6,5,4,3,2,1];
   const personalGold={};
   rankings.forEach(([id,p],i)=>{const gg=goldMap[i]||0;personalGold[id]=gg});
-  // 次席预言：预测获胜者正确额外+2
-  Object.entries(state.players).forEach(([id,p])=>{if(p.predictedWinner===winnerId&&!p.dead&&id!==winnerId)personalGold[id]=(personalGold[id]||0)+2});
+  // 保存最终血量，继承到后面地下城机制
+  Object.entries(state.players).forEach(([id,p])=>{p.escapedHP=p.dead?0:Math.max(0,p.hp)});
+  state.g5FinalHP={};
+  Object.entries(state.players).forEach(([id,p])=>{state.g5FinalHP[id]=p.escapedHP});
   const winner=state.players[winnerId];
   gameOver({winner:'🎉 '+winner.name+' 逃出地下城！',personalGold});
+};
+
+// ==================== G6 最终机制 ====================
+const G6_CELL_TYPES={
+  start:{icon:'🏛️',name:'雕像格',color:'#c9a227',desc:'商店：购买装备/技能/血量'},
+  monster:{icon:'💀',name:'怪兽格',color:'#8b0000',desc:'自动战斗，击败后可通过'},
+  chest:{icon:'📦',name:'宝箱格',color:'#daa520',desc:'每人获得一件装备'},
+  clover:{icon:'🍀',name:'三叶草',color:'#228b22',desc:'触发随机事件'},
+  spring:{icon:'💧',name:'泉水',color:'#4169e1',desc:'回复血量'},
+  dragon:{icon:'🐉',name:'龙BOSS',color:'#ff4500',desc:'守关BOSS'},
+  exit:{icon:'🏁',name:'出口',color:'#ffd700',desc:'到达即胜利'}
+};
+// 第一层：两条路线，汇合到龙BOSS
+const G6_FLOOR1={
+  top:[{type:'start'},{type:'monster'},{type:'monster'},{type:'monster'}],
+  bottom:[{type:'start'},{type:'clover'},{type:'monster'},{type:'clover'}],
+  boss:{type:'dragon'}
+};
+// 第二层：两条路线，汇合到最终龙BOSS
+const G6_FLOOR2={
+  top:[{type:'start'},{type:'monster'},{type:'spring'},{type:'monster'}],
+  bottom:[{type:'start'},{type:'clover'},{type:'monster'},{type:'chest'}],
+  boss:{type:'dragon'}
+};
+
+// G6角色自带技能
+const G6_CHAR_SKILLS={
+  adou:{name:'阿兜',equip:['主武器','护盾','道具'],skills:[
+    {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true},
+    {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false}
+  ]},
+  duolin:{name:'多琳',equip:['主武器','宝物','道具'],skills:[
+    {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false},
+    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true}
+  ]},
+  lier:{name:'莉尔',equip:['主武器','宝物','道具'],skills:[
+    {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true},
+    {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true}
+  ]},
+  muen:{name:'沐恩',equip:['主武器','副武器','道具'],skills:[
+    {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false},
+    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true}
+  ]},
+  xiupa:{name:'休帕',equip:['主武器','副武器','道具'],skills:[
+    {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true},
+    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true}
+  ]},
+  yuanyuan:{name:'圆圆',equip:['主武器','护盾','道具'],skills:[
+    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false},
+    {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false}
+  ]}
+};
+
+// G6怪物数据
+const G6_MONSTERS={
+  skeleton:{name:'骷髅兵',icon:'💀',hp:8,atk:2,gold:3,isDragon:false,skill:'普通攻击'},
+  goblin:{name:'哥布林',icon:'👺',hp:6,atk:1,gold:2,isDragon:false,skill:'偷袭'},
+  slime:{name:'史莱姆',icon:'🟢',hp:10,atk:1,gold:2,isDragon:false,skill:'分裂'},
+  bat:{name:'蝙蝠',icon:'🦇',hp:5,atk:2,gold:2,isDragon:false,skill:'吸血'},
+  ghost:{name:'幽灵',icon:'👻',hp:7,atk:3,gold:4,isDragon:false,skill:'恐惧'},
+  orc:{name:'兽人',icon:'👹',hp:12,atk:3,gold:5,isDragon:false,skill:'狂暴'},
+  dragon1:{name:'幼龙',icon:'🐲',hp:20,atk:4,gold:10,isDragon:true,skill:'龙息'},
+  dragon2:{name:'远古巨龙',icon:'🐉',hp:35,atk:5,gold:20,isDragon:true,skill:'毁灭吐息'}
+};
+
+// G6投骰状态
+window.G.g6Rolling=false;window.G.g6Pointer=0;window.G.g6Dir=1;window.G.g6Timer=null;window.G.g6Locked=false;
+
+// G6靶盘HTML（比G4难：指针快速移动）
+window.G.g6TargetHTML=function(combat){
+  if(!combat)return '';
+  const c=combat;
+  let pointerStyle='';
+  let diceContent='🎲';
+  let resultText='';
+  if(c.rolling){
+    pointerStyle=`left:${c.pointer||0}%`;
+  }else if(c.resolved){
+    pointerStyle=`left:${c.pointer||0}%`;
+    diceContent=['⚀','⚁','⚂','⚃','⚄','⚅'][c.dice-1];
+    if(c.ring===0){
+      resultText='<span style="color:#ff4444">脱靶！</span>';
+    }else{
+      resultText=`<span style="color:#ffd700">${c.ring}环</span>`;
+      if(c.crit)resultText+=' <span style="color:#ff0000">💥暴击！</span>';
+    }
+  }
+  return `<div class="g6-combat-area">
+    <div class="g6-monster-card">
+      <div class="g6-monster-icon">${c.monster.icon}</div>
+      <div class="g6-monster-name">${c.monster.name}</div>
+      <div class="g6-monster-hp"><div class="g6-mhp-fill" style="width:${Math.max(0,(c.monsterHp/c.monster.hp)*100)}%">${c.monsterHp}/${c.monster.hp}</div></div>
+      <div class="g6-monster-info">攻击:${c.monster.atk} | 金币:${c.monster.gold}</div>
+    </div>
+    <div class="g6-target-wrap">
+      <div class="g6-target">
+        <svg viewBox="0 0 200 200" class="g6-tsvg">
+          <circle cx="100" cy="100" r="95" fill="#1a0a0a" stroke="#8b0000" stroke-width="2"/>
+          <circle cx="100" cy="100" r="80" fill="#2a1515" stroke="#a00" stroke-width="1"/>
+          <circle cx="100" cy="100" r="65" fill="#3a1a1a" stroke="#c00" stroke-width="1"/>
+          <circle cx="100" cy="100" r="50" fill="#4a2020" stroke="#e00" stroke-width="1"/>
+          <circle cx="100" cy="100" r="35" fill="#5a2525" stroke="#ff3333" stroke-width="1"/>
+          <circle cx="100" cy="100" r="20" fill="#6a2a2a" stroke="#ff5555" stroke-width="1"/>
+          <circle cx="100" cy="100" r="8" fill="#ffd700" stroke="#ffaa00" stroke-width="2"/>
+          <text x="100" y="104" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">5</text>
+          <text x="100" y="75" text-anchor="middle" fill="#aaa" font-size="9">4</text>
+          <text x="100" y="55" text-anchor="middle" fill="#999" font-size="9">3</text>
+          <text x="100" y="38" text-anchor="middle" fill="#888" font-size="9">2</text>
+          <text x="100" y="22" text-anchor="middle" fill="#777" font-size="9">1</text>
+        </svg>
+        <div class="g6-pointer" style="${pointerStyle}"></div>
+      </div>
+      <div class="g6-dice-display">${diceContent}</div>
+      <div class="g6-result-text">${resultText}</div>
+    </div>
+  </div>`;
+};
+
+// 开始投骰（玩家端）
+window.G.g6StartRoll=function(){
+  if(this.g6Rolling||!state.game||state.game.phase!=='combat')return;
+  const c=state.game.combat;
+  if(!c||c.resolved||c.rolling)return;
+  if(c.attacker!==myPeerId)return;
+  this.g6Rolling=true;
+  this.g6Pointer=0;this.g6Dir=1;this.g6Locked=false;
+  c.rolling=true;c.pointer=0;
+  broadcastState();this.renderG6();
+  // 快速移动指针（比G4难）
+  this.g6Timer=setInterval(()=>{
+    this.g6Pointer+=this.g6Dir*3;
+    if(this.g6Pointer>=100){this.g6Pointer=100;this.g6Dir=-1}
+    if(this.g6Pointer<=0){this.g6Pointer=0;this.g6Dir=1}
+    c.pointer=this.g6Pointer;
+    const p=document.querySelector('.g6-pointer');
+    if(p)p.style.left=this.g6Pointer+'%';
+  },20);
+};
+
+// 锁定投骰（玩家端）
+window.G.g6Lock=function(){
+  if(!this.g6Rolling)return;
+  clearInterval(this.g6Timer);
+  this.g6Rolling=false;this.g6Locked=true;
+  const c=state.game.combat;
+  c.rolling=false;
+  // 计算环数：指针位置决定
+  const p=this.g6Pointer;
+  let ring=0;
+  if(p>=85)ring=5;
+  else if(p>=70)ring=4;
+  else if(p>=52)ring=3;
+  else if(p>=34)ring=2;
+  else if(p>=16)ring=1;
+  else ring=0; // 脱靶
+  c.ring=ring;
+  c.dice=Math.floor(Math.random()*6)+1;
+  c.isEven=c.dice%2===0;
+  c.crit=ring===5&&c.isEven&&!c.monster.isDragon;
+  // 不设置resolved，等待主持人端确认
+  sendAction({type:'g6combat',ring:ring,dice:c.dice,crit:c.crit});
+};
+
+// 计算血量剩余分：(生命数-1)*9 + 当前血量
+function g6HpScore(p){return ((p.life||1)-1)*9+(p.hp||0)}
+
+window.G.initG6=function(){
+  G.gameId=6; // 确保动作路由正确
+  state.game={
+    floor:1,
+    teamPos:{red:{route:null,pos:0},blue:{route:null,pos:0}}, // 两队位置和路线
+    lastEffect:null,
+    round:1,
+    phase:'routeselect', // routeselect/moving/combat/shop/event
+    currentTeam:'red', // 当前行动队伍
+    combat:null,
+    shop:null,
+    event:null,
+    cloverUsed:[],
+    monstersDefeated:{red:[],blue:[]},
+    bossDefeated:false
+  };
+  Object.entries(state.players).forEach(([id,p])=>{
+    p.floor=1;
+    // G6初始血量 = G5继承escapedHP + G6给的3条命(27血)
+    const totalHp=(p.escapedHP||0)+27;
+    p.life=Math.ceil(totalHp/9);
+    p.hp=totalHp%9;
+    if(p.hp===0)p.hp=9;
+    p.gold=p.gold||0;
+    p.dead=false;
+    // 分配角色自带技能
+    const charData=G6_CHAR_SKILLS[p.character];
+    if(charData){
+      p.skills=charData.skills.map(s=>({...s,used:false}));
+      p.equipSlots=charData.equip;
+    }else{
+      p.skills=[];
+      p.equipSlots=['主武器','副武器','道具'];
+    }
+    p.equipment=[]; // 已装备的物品
+    p.backpack=[]; // 背包（最多2件）
+    p.skillSlots=3;
+  });
+  state.turnOrder=Object.keys(state.players);
+  state.message='🐉 最终机制开始！请两队选择路线（上路/下路）';
+  state.messageType='';
+};
+
+window.G.renderG6=function(){
+  const g=state.game;
+  const myP=state.players[myPeerId];
+  let html='<div class="g6-container">';
+  // 顶部信息
+  html+='<div class="g6-header"><span class="g6-title">🐉 最终机制</span>';
+  html+='<span class="g6-floor-badge">第'+g.floor+'层</span>';
+  html+='<span class="g6-round">第'+g.round+'轮</span>';
+  if(g.phase!=='routeselect')html+='<span class="g6-team-turn g6-'+g.currentTeam+'">'+(g.currentTeam==='red'?'🔴红队行动':'🔵蓝队行动')+'</span>';
+  html+='</div>';
+  // 我的状态
+  if(myP&&!myP.dead){
+    html+='<div class="g6-my-status">';
+    html+='<img src="'+CHARACTERS.find(c=>c.id===myP.character).img+'" class="g6-avatar">';
+    html+='<span class="g6-name">'+myP.name+'</span>';
+    html+='<span class="g6-life">❤️命'+(myP.life||1)+'/3</span>';
+    html+='<span class="g6-hp-bar">'+('█'.repeat(myP.hp||0))+('░'.repeat(9-(myP.hp||0)))+' '+(myP.hp||0)+'/9</span>';
+    html+='<span class="g6-gold">💰'+(myP.gold||0)+'</span>';
+    html+='<span class="g6-score">分数:'+g6HpScore(myP)+'</span>';
+    if(g.teamPos[myP.team]?.route)html+='<span>路线:'+(g.teamPos[myP.team].route==='top'?'上路':'下路')+'</span>';
+    html+='</div>';
+  }
+  // 队伍状态
+  html+='<div class="g6-teams">';
+  ['red','blue'].forEach(team=>{
+    const members=Object.values(state.players).filter(p=>p.team===team);
+    const totalScore=members.reduce((s,p)=>s+g6HpScore(p),0);
+    const totalGold=members.reduce((s,p)=>(s+(p.gold||0)),0);
+    const tp=g.teamPos[team];
+    html+='<div class="g6-team-card g6-team-'+team+'">';
+    html+='<div class="g6-team-name">'+(team==='red'?'🔴红队':'🔵蓝队');
+    if(tp?.route)html+=' ('+(tp.route==='top'?'上路':'下路')+' 格'+tp.pos+')';
+    html+='</div>';
+    html+='<div class="g6-team-stats">总分:'+(totalScore+totalGold)+' (血'+totalScore+'+金'+totalGold+')</div>';
+    html+='<div class="g6-team-members">';
+    members.forEach(p=>{
+      html+='<div class="g6-member'+(p.dead?' dead':'')+'">';
+      html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" class="g6-member-avatar">';
+      html+='<span>'+p.name+'</span>';
+      html+='<span>命'+(p.life||1)+' 血'+(p.hp||0)+'</span>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+  });
+  html+='</div>';
+
+  // 路线选择阶段
+  if(g.phase==='routeselect'){
+    html+='<div class="g6-route-select">';
+    html+='<h3>🗺️ 选择路线</h3>';
+    html+='<p style="text-align:center;color:var(--text-dim);font-size:13px">两队各选一条路线，第一名队伍优先选择</p>';
+    ['red','blue'].forEach(team=>{
+      const tp=g.teamPos[team];
+      html+='<div class="g6-route-team g6-team-'+team+'">';
+      html+='<span>'+(team==='red'?'🔴红队':'🔵蓝队')+'</span>';
+      if(tp.route){
+        html+='<span>已选: '+(tp.route==='top'?'上路':'下路')+'</span>';
+      }else if(myP&&myP.team===team){
+        html+='<button class="btn btn-small" onclick="sendAction({type:\'g6route\',route:\'top\'})">⬆️ 上路</button>';
+        html+='<button class="btn btn-small" onclick="sendAction({type:\'g6route\',route:\'bottom\'})">⬇️ 下路</button>';
+      }else{
+        html+='<span style="color:var(--text-dim)">等待选择...</span>';
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  }else if(g.phase==='combat'&&g.combat){
+    // 战斗阶段：显示靶盘
+    html+=this.g6TargetHTML(g.combat);
+    // 战斗日志
+    if(g.combat.log&&g.combat.log.length){
+      html+='<div class="g6-combat-log">';
+      g.combat.log.slice(-3).forEach(l=>{html+='<div>'+l+'</div>'});
+      html+='</div>';
+    }
+  }else{
+    // 地图：上下两条路线
+    const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+    html+='<div class="g6-map-section">';
+    // 上路
+    html+='<div class="g6-route-label">⬆️ 上路</div>';
+    html+='<div class="g6-map g6-map-route">';
+    floorData.top.forEach((cell,i)=>{
+      const cellType=G6_CELL_TYPES[cell.type];
+      const teamsHere=Object.entries(g.teamPos).filter(([_,tp])=>tp.route==='top'&&tp.pos===i);
+      const defeated=g.monstersDefeated[g.currentTeam]?.includes('top-'+i);
+      let cls='g6-cell g6-'+cell.type;
+      if(defeated)cls+=' defeated';
+      html+='<div class="'+cls+'">';
+      html+='<div class="g6-cell-num">'+i+'</div>';
+      html+='<div class="g6-cell-label">'+cellType.name+'</div>';
+      html+='<div class="g6-cell-dots">';
+      teamsHere.forEach(([team])=>{html+='<div class="g6-pdot '+team+'">'+(team==='red'?'🔴':'🔵')+'</div>'});
+      html+='</div></div>';
+    });
+    // BOSS/出口格
+    const bossType=G6_CELL_TYPES[floorData.boss.type];
+    const bossTeams=Object.entries(g.teamPos).filter(([_,tp])=>tp.pos>=floorData.top.length);
+    html+='<div class="g6-cell g6-'+floorData.boss.type+' g6-boss-cell">';
+    html+='<div class="g6-cell-num">BOSS</div>';
+    html+='<div class="g6-cell-label">'+bossType.name+'</div>';
+    html+='<div class="g6-cell-dots">';
+    bossTeams.forEach(([team])=>{html+='<div class="g6-pdot '+team+'">'+(team==='red'?'🔴':'🔵')+'</div>'});
+    html+='</div></div>';
+    html+='</div>';
+    // 熔岩分隔
+    html+='<div class="g6-lava">🔥 熔岩区域 🔥</div>';
+    // 下路
+    html+='<div class="g6-route-label">⬇️ 下路</div>';
+    html+='<div class="g6-map g6-map-route">';
+    floorData.bottom.forEach((cell,i)=>{
+      const cellType=G6_CELL_TYPES[cell.type];
+      const teamsHere=Object.entries(g.teamPos).filter(([_,tp])=>tp.route==='bottom'&&tp.pos===i);
+      const defeated=g.monstersDefeated[g.currentTeam]?.includes('bottom-'+i);
+      let cls='g6-cell g6-'+cell.type;
+      if(defeated)cls+=' defeated';
+      html+='<div class="'+cls+'">';
+      html+='<div class="g6-cell-num">'+i+'</div>';
+      html+='<div class="g6-cell-label">'+cellType.name+'</div>';
+      html+='<div class="g6-cell-dots">';
+      teamsHere.forEach(([team])=>{html+='<div class="g6-pdot '+team+'">'+(team==='red'?'🔴':'🔵')+'</div>'});
+      html+='</div></div>';
+    });
+    html+='<div class="g6-cell g6-'+floorData.boss.type+' g6-boss-cell">';
+    html+='<div class="g6-cell-num">BOSS</div>';
+    html+='<div class="g6-cell-label">'+bossType.name+'</div>';
+    html+='<div class="g6-cell-dots">';
+    bossTeams.forEach(([team])=>{html+='<div class="g6-pdot '+team+'">'+(team==='red'?'🔴':'🔵')+'</div>'});
+    html+='</div></div>';
+    html+='</div></div>';
+  }
+
+  // 消息
+  html+='<div class="g6-message">'+state.message+'</div>';
+
+  // 人物面板（仅同队伍和主持人可见技能详情）
+  html+='<div class="g6-panels">';
+  html+='<div class="g6-panel-tabs">';
+  const visiblePlayers=Object.entries(state.players).filter(([id,p])=>{
+    if(p.dead)return false;
+    if(isHost)return true; // 主持人可见所有
+    const myP=state.players[myPeerId];
+    return myP&&p.team===myP.team; // 同队伍可见
+  });
+  visiblePlayers.forEach(([id,p],idx)=>{
+    const active=idx===0?'active':'';
+    html+='<div class="g6-panel-tab '+active+'" onclick="g6SwitchPanel(\''+id+'\')" id="panelTab-'+id+'">'+p.name+'</div>';
+  });
+  // 对方队伍玩家（仅显示基本信息，无技能）
+  const hiddenPlayers=Object.entries(state.players).filter(([id,p])=>{
+    if(p.dead)return false;
+    if(isHost)return false;
+    const myP=state.players[myPeerId];
+    return myP&&p.team!==myP.team;
+  });
+  if(hiddenPlayers.length){
+    html+='<span style="color:var(--text-dim);font-size:11px;margin-left:8px;align-self:center">对方队伍技能不可见</span>';
+  }
+  html+='</div>';
+  if(visiblePlayers.length){
+    html+=this.g6RenderCharPanel(visiblePlayers[0][1]);
+  }
+  html+='</div>';
+
+  // 操作按钮
+  html+='<div id="g6Buttons" class="g6-buttons"></div>';
+  html+='</div>';
+  // 特效
+  if(g.lastEffect){
+    const fx=g.lastEffect;
+    const fxIcon={damage:'💔',combat:'⚔️',gold:'💰',heal:'💚',dragon:'🐉',crit:'💥'}[fx.type]||'✨';
+    const fxColor=fx.type==='damage'?'#ff4444':fx.type==='gold'?'#ffd700':fx.type==='heal'?'#44ff44':fx.type==='crit'?'#ff0000':'#e8c86a';
+    html+='<div class="g5-fx-overlay"><div class="g5-fx-box g5-fx-'+(fx.type||'normal')+'" style="--fx-color:'+fxColor+'"><div class="g5-fx-icon" style="color:'+fxColor+'">'+fxIcon+'</div><div class="g5-fx-text" style="color:'+fxColor+'">'+fx.text+'</div><div class="g5-fx-sub">'+fx.sub+'</div></div></div>';
+  }
+  document.getElementById('gameArea').innerHTML=html;
+  this.g6RenderButtons();
+  if(g.lastEffect){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG6()}},2000)}
+};
+
+// 渲染人物面板
+window.G.g6RenderCharPanel=function(p){
+  const charData=G6_CHAR_SKILLS[p.character]||{equip:['主武器','副武器','道具']};
+  let html='<div class="g6-char-panel" id="g6CharPanel">';
+  // 血量条
+  html+='<div class="g6-panel-hpbar"><span class="hp-label">⚙️ 血量</span><div class="hp-ticks">';
+  for(let i=0;i<=9;i++){
+    const filled=i<=p.hp?'filled':'';
+    html+='<div class="hp-tick '+filled+'">'+i+'</div>';
+  }
+  html+='</div><span style="color:#ff6666;font-size:12px;margin-left:8px">命'+(p.life||1)+' 血'+(p.hp||0)+'</span></div>';
+  // 面板主体
+  html+='<div class="g6-panel-body">';
+  // 头像
+  html+='<div class="g6-panel-avatar"><img src="'+CHARACTERS.find(c=>c.id===p.character).img+'"><div class="char-name">'+p.name+'</div></div>';
+  // 右侧
+  html+='<div class="g6-panel-right">';
+  // 装备槽
+  html+='<div class="g6-panel-equips">';
+  (p.equipSlots||charData.equip).forEach((slotName,i)=>{
+    const item=p.equipment?.[i];
+    html+='<div class="g6-panel-slot'+(item?'':' empty')+'"><div class="slot-name">'+slotName+'</div>'+(item?item.name:'')+'</div>';
+  });
+  html+='</div>';
+  // 技能槽
+  html+='<div class="g6-panel-skills">';
+  for(let i=0;i<3;i++){
+    const skill=p.skills?.[i];
+    if(skill){
+      html+='<div class="g6-panel-skill" style="border-color:'+skill.color+'">';
+      html+='<div class="skill-name" style="color:'+skill.color+'">'+skill.name+'</div>';
+      html+='<div class="skill-desc">'+skill.desc+'</div>';
+      html+='</div>';
+    }else{
+      html+='<div class="g6-panel-skill empty">技能槽'+(i+1)+'</div>';
+    }
+  }
+  html+='</div>';
+  // 背包
+  html+='<div class="g6-panel-backpack"><div class="bp-title">🎒 背包（最多2件装备/技能）</div><div class="bp-slots">';
+  for(let i=0;i<2;i++){
+    const item=p.backpack?.[i];
+    html+='<div class="bp-slot">'+(item?item.name:'空')+'</div>';
+  }
+  html+='</div></div>';
+  html+='</div></div></div>';
+  return html;
+};
+
+// 切换人物面板
+function g6SwitchPanel(playerId){
+  const p=state.players[playerId];
+  if(!p)return;
+  // 权限检查：只能看同队伍或主持人
+  if(!isHost){
+    const myP=state.players[myPeerId];
+    if(!myP||p.team!==myP.team)return;
+  }
+  document.querySelectorAll('.g6-panel-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panelTab-'+playerId)?.classList.add('active');
+  const panel=document.getElementById('g6CharPanel');
+  if(panel)panel.outerHTML=G.g6RenderCharPanel(p);
+}
+
+window.G.g6RenderButtons=function(){
+  const g=state.game;const btns=document.getElementById('g6Buttons');
+  if(!btns)return;
+  const myP=state.players[myPeerId];
+  if(!myP||myP.dead){btns.innerHTML='';return}
+  if(g.phase==='routeselect'){btns.innerHTML='';return}
+  if(myP.team!==g.currentTeam){btns.innerHTML='<span style="color:var(--text-dim)">等待'+(g.currentTeam==='red'?'红队':'蓝队')+'行动...</span>';return}
+  if(g.phase==='moving'){
+    btns.innerHTML='<button class="btn" onclick="sendAction({type:\'g6move\'})">🚶 队伍前进1格</button>';
+  }else if(g.phase==='combat'){
+    const c=g.combat;
+    if(c.attacker===myPeerId&&!c.resolved){
+      if(c.rolling){
+        btns.innerHTML='<button class="btn btn-red" onclick="G.g6Lock()">🎯 锁定！</button>';
+      }else{
+        btns.innerHTML='<button class="btn" onclick="G.g6StartRoll()">🎲 投骰攻击</button>';
+      }
+    }else if(c.resolved){
+      btns.innerHTML='<span style="color:var(--gold)">结算中...</span>';
+    }else{
+      const attacker=state.players[c.attacker];
+      btns.innerHTML='<span style="color:var(--text-dim)">等待'+(attacker?attacker.name:'')+'投骰...</span>';
+    }
+  }else{
+    btns.innerHTML='';
+  }
+};
+
+// 选择路线
+window.G.g6SelectRoute=function(peerId,route){
+  const p=state.players[peerId];const g=state.game;
+  if(g.phase!=='routeselect')return;
+  if(g.teamPos[p.team].route)return; // 已选择
+  g.teamPos[p.team].route=route;
+  state.message=(p.team==='red'?'红队':'蓝队')+'选择了'+(route==='top'?'上路':'下路');
+  // 检查两队是否都选好了
+  if(g.teamPos.red.route&&g.teamPos.blue.route){
+    g.phase='moving';
+    state.message+=' | 两队路线已确定，开始探索！';
+  }
+  broadcastState();this.renderG6();
+};
+
+// 队伍移动
+window.G.g6Move=function(peerId){
+  const p=state.players[peerId];const g=state.game;
+  if(p.team!==g.currentTeam||g.phase!=='moving')return;
+  const team=p.team;
+  const tp=g.teamPos[team];
+  if(!tp.route)return;
+  const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+  const routeData=floorData[tp.route];
+  let newPos=tp.pos+1;
+  // 到达BOSS/出口
+  if(newPos>=routeData.length){
+    // 触发BOSS/出口
+    this.g6TriggerBoss(team);
+    return;
+  }
+  tp.pos=newPos;
+  const cell=routeData[newPos];
+  const cellType=G6_CELL_TYPES[cell.type];
+  state.message=(team==='red'?'红队':'蓝队')+'前进到'+(tp.route==='top'?'上路':'下路')+newPos+'格（'+cellType.icon+cellType.name+'）';
+  this.g6TriggerCell(team,tp.route,newPos,cell);
+};
+
+// 触发格子效果
+window.G.g6TriggerCell=function(team,route,pos,cell){
+  const g=state.game;
+  const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+  const cellKey=route+'-'+pos;
+  switch(cell.type){
+    case 'spring':
+      members.forEach(p=>{p.hp=Math.min(9,(p.hp||0)+(g.floor===1?2:3))});
+      g.lastEffect={type:'heal',text:(team==='red'?'红队':'蓝队')+'每人+'+(g.floor===1?2:3)+'血',sub:'💧泉水'};
+      state.message+=' | 泉水回复'+(g.floor===1?2:3)+'血';
+      this.g6EndTeamTurn();
+      break;
+    case 'chest':
+      g.lastEffect={type:'gold',text:(team==='red'?'红队':'蓝队')+'发现宝箱！',sub:'📦宝箱'};
+      state.message+=' | 宝箱格（装备系统开发中）';
+      this.g6EndTeamTurn();
+      break;
+    case 'clover':
+      if(!g.cloverUsed.includes(g.floor+'-'+cellKey)){
+        g.cloverUsed.push(g.floor+'-'+cellKey);
+        g.lastEffect={type:'gold',text:(team==='red'?'红队':'蓝队')+'触发三叶草事件！',sub:'🍀三叶草'};
+        state.message+=' | 三叶草随机事件（开发中）';
+      }else{
+        state.message+=' | 三叶草事件已触发过';
+      }
+      this.g6EndTeamTurn();
+      break;
+    case 'monster':
+      if(g.monstersDefeated[team].includes(cellKey)){
+        state.message+=' | 怪兽已被击败，可通过';
+        this.g6EndTeamTurn();
+      }else{
+        g.phase='combat';
+        // 随机选择怪物
+        const monsterKeys=Object.keys(G6_MONSTERS).filter(k=>!G6_MONSTERS[k].isDragon);
+        const monsterKey=monsterKeys[Math.floor(Math.random()*monsterKeys.length)];
+        const monster={...G6_MONSTERS[monsterKey]};
+        // 选择当前队伍第一个存活玩家作为攻击者
+        const attackerEntry=Object.entries(state.players).find(([id,p])=>p.team===team&&!p.dead);
+        g.combat={
+          monster:monster,
+          monsterHp:monster.hp,
+          cellKey:cellKey,
+          team:team,
+          attacker:attackerEntry?attackerEntry[0]:null,
+          attackerIndex:0,
+          rolling:false,
+          resolved:false,
+          ring:0,
+          dice:0,
+          pointer:0,
+          crit:false,
+          round:1,
+          log:[]
+        };
+        state.message+=' | ⚔️ 遭遇'+monster.name+'！'+(attackerEntry?attackerEntry[1].name:'')+'投骰攻击';
+        g.lastEffect={type:'combat',text:'遭遇'+monster.name+'！',sub:'💀怪兽格'};
+      }
+      break;
+    case 'start':
+      state.message+=' | 雕像格商店（开发中）';
+      this.g6EndTeamTurn();
+      break;
+    default:
+      this.g6EndTeamTurn();
+  }
+  broadcastState();this.renderG6();
+};
+
+// 触发BOSS/出口
+window.G.g6TriggerBoss=function(team){
+  const g=state.game;
+  const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+  if(floorData.boss.type==='exit'){
+    this.g6EndGame(team);return;
+  }
+  // 龙BOSS
+  if(g.bossDefeated){
+    // 已击败，直接通过
+    if(g.floor===1){
+      g.floor=2;
+      g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
+      g.phase='routeselect';
+      g.bossDefeated=false;
+      Object.values(state.players).forEach(p=>{p.floor=2});
+      state.message='🎉 进入第二层！请重新选择路线';
+    }
+    this.g6EndTeamTurn();
+    return;
+  }
+  g.phase='combat';
+  state.message=(team==='red'?'红队':'蓝队')+'挑战🐉龙BOSS！';
+  g.lastEffect={type:'dragon',text:'🐉 龙BOSS出现！',sub:'守关BOSS'};
+  broadcastState();this.renderG6();
+  setTimeout(()=>this.g6AutoCombat(team,'boss',true),2000);
+};
+
+// 战斗结算（玩家投骰后）
+window.G.g6ResolveCombat=function(peerId,action){
+  const g=state.game;const c=g.combat;
+  if(!c||c.resolved)return;
+  const attacker=state.players[peerId];
+  if(!attacker||c.attacker!==peerId)return;
+  
+  c.ring=action.ring;c.dice=action.dice;c.crit=action.crit;c.resolved=true;
+  const isEven=c.dice%2===0;
+  const monster=c.monster;
+  
+  let log=[];
+  log.push(attacker.name+' 投出 '+c.dice+'点 '+(isEven?'(双数)':'(单数)'));
+  
+  // 计算伤害
+  let damage=0;
+  if(c.ring>0){
+    // 武器数值：暂时主武器+1，副武器+0
+    const weaponBonus=1;
+    damage=c.ring+weaponBonus;
+    log.push('命中 '+c.ring+'环，伤害='+c.ring+'+'+weaponBonus+'='+damage);
+    
+    // 暴击：5环+双数=一击毙命（非龙族）
+    if(c.crit){
+      damage=999;
+      log.push('💥 暴击！一击毙命！');
+      g.lastEffect={type:'crit',text:attacker.name+' 暴击一击毙命！',sub:'💥暴击'};
+    }
+    
+    c.monsterHp=Math.max(0,c.monsterHp-damage);
+    log.push(monster.name+' 剩余 '+c.monsterHp+' 血');
+  }else{
+    log.push('脱靶！未命中');
+    // 未上靶受怪物反击
+    const counterDmg=monster.atk;
+    attacker.hp=(attacker.hp||0)-counterDmg;
+    log.push(monster.name+' 反击！'+attacker.name+' -'+counterDmg+'血');
+    this.g6CheckDeath(attacker);
+    g.lastEffect={type:'damage',text:attacker.name+' 脱靶被反击 -'+counterDmg+'血',sub:'❌脱靶'};
+  }
+  
+  c.log=log;
+  
+  // 检查怪物是否死亡
+  if(c.monsterHp<=0){
+    log.push('🎉 '+monster.name+' 被击败！');
+    // 给金币
+    const team=c.team;
+    const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+    const goldPer=Math.ceil(monster.gold/members.length);
+    members.forEach(p=>{p.gold=(p.gold||0)+goldPer});
+    log.push('每人 +'+goldPer+' 金币');
+    g.monstersDefeated[team].push(c.cellKey);
+    g.lastEffect={type:'gold',text:'击败'+monster.name+'！每人+'+goldPer+'金',sub:'🏆胜利'};
+    
+    // BOSS处理
+    if(monster.isDragon){
+      g.bossDefeated=true;
+      if(g.floor===1){
+        g.floor=2;
+        g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
+        g.phase='routeselect';
+        g.bossDefeated=false;
+        Object.values(state.players).forEach(p=>{p.floor=2});
+        state.message='🎉 第一层通关！传送到第二层起点，请重新选择路线';
+        g.lastEffect={type:'dragon',text:'🐉 第一层龙击败！进入第二层！',sub:'第一层通关'};
+      }else{
+        state.message='🎉🎉 最终龙BOSS击败！游戏结束！';
+        g.lastEffect={type:'dragon',text:'🐉 最终龙BOSS击败！',sub:'游戏胜利'};
+        g.combat=null;
+        broadcastState();this.renderG6();
+        setTimeout(()=>this.g6EndGame(c.team),2000);
+        return;
+      }
+    }else{
+      g.phase='moving';
+      state.message=(c.team==='red'?'红队':'蓝队')+'击败'+monster.name+'！继续前进';
+    }
+    g.combat=null;
+  }else{
+    // 怪物未死，切换到下一个攻击者
+    const teamEntries=Object.entries(state.players).filter(([id,p])=>p.team===c.team&&!p.dead);
+    const nextIdx=(c.attackerIndex+1)%teamEntries.length;
+    c.attackerIndex=nextIdx;
+    c.attacker=teamEntries[nextIdx][0];
+    c.resolved=false;c.rolling=false;
+    log.push('轮到 '+teamEntries[nextIdx][1].name+' 攻击');
+    state.message='⚔️ '+monster.name+' 剩余'+c.monsterHp+'血，'+teamEntries[nextIdx][1].name+'投骰';
+  }
+  
+  c.log=log;
+  broadcastState();this.renderG6();
+};
+
+// 简化版自动战斗（BOSS用）
+window.G.g6AutoCombat=function(team,cellKey,isDragon){
+  const g=state.game;
+  const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+  const dmg=isDragon?3:2;
+  members.forEach(p=>{
+    p.hp=(p.hp||0)-dmg;
+    this.g6CheckDeath(p);
+  });
+  g.monstersDefeated[team].push(cellKey);
+  const gold=isDragon?10:3;
+  members.forEach(p=>{p.gold=(p.gold||0)+Math.ceil(gold/members.length)});
+  g.lastEffect={type:'damage',text:'战斗胜利！每人-'+dmg+'血 +'+Math.ceil(gold/members.length)+'金',sub:isDragon?'🐉龙BOSS击败':'💀怪兽击败'};
+  state.message=(team==='red'?'红队':'蓝队')+'击败'+(isDragon?'龙BOSS':'怪兽')+'！每人-'+dmg+'血+'+Math.ceil(gold/members.length)+'金';
+  if(isDragon){
+    g.bossDefeated=true;
+    if(g.floor===1){
+      g.floor=2;
+      g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
+      g.phase='routeselect';
+      g.bossDefeated=false;
+      Object.values(state.players).forEach(p=>{p.floor=2});
+      state.message+=' | 🎉 第一层通关！传送到第二层起点，请重新选择路线';
+      g.lastEffect={type:'dragon',text:'🐉 第一层龙击败！进入第二层！',sub:'第一层通关'};
+    }else{
+      // 第二层龙击败，游戏结束
+      state.message+=' | 🎉🎉 最终龙BOSS击败！游戏结束！';
+      g.lastEffect={type:'dragon',text:'🐉 最终龙BOSS击败！',sub:'游戏胜利'};
+      broadcastState();this.renderG6();
+      setTimeout(()=>this.g6EndGame(team),2000);
+      return;
+    }
+  }
+  g.phase=g.phase==='routeselect'?'routeselect':'moving';
+  this.g6EndTeamTurn();
+};
+
+// 检查死亡（3条生命系统）
+window.G.g6CheckDeath=function(p){
+  if(p.hp<=0){
+    p.life=(p.life||1)-1;
+    p.skillSlots=Math.max(1,(p.skillSlots||3)-1); // 损失一条命封印一个技能槽
+    if(p.life<=0){
+      p.dead=true;
+      p.hp=0;p.life=0;
+      state.message+=' | '+p.name+'生命耗尽，被淘汰！';
+    }else{
+      p.hp=9; // 新的一条命满血
+      state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能槽-1';
+    }
+  }
+};
+
+// 结束队伍回合，切换到另一队
+window.G.g6EndTeamTurn=function(){
+  const g=state.game;
+  g.currentTeam=g.currentTeam==='red'?'blue':'red';
+  if(g.currentTeam==='red')g.round++;
+  // 检查是否全队淘汰
+  const redAlive=Object.values(state.players).some(p=>p.team==='red'&&!p.dead);
+  const blueAlive=Object.values(state.players).some(p=>p.team==='blue'&&!p.dead);
+  if(!redAlive){this.g6EndGame('blue');return}
+  if(!blueAlive){this.g6EndGame('red');return}
+  state.message+=' | '+(g.currentTeam==='red'?'红队':'蓝队')+'回合';
+  broadcastState();this.renderG6();
+};
+
+window.G.g6EndGame=function(winnerTeam){
+  state.phase='ended';
+  // 计算总分
+  const redMembers=Object.values(state.players).filter(p=>p.team==='red');
+  const blueMembers=Object.values(state.players).filter(p=>p.team==='blue');
+  const redScore=redMembers.reduce((s,p)=>s+g6HpScore(p)+(p.gold||0),0);
+  const blueScore=blueMembers.reduce((s,p)=>s+g6HpScore(p)+(p.gold||0),0);
+  const winTeam=redScore>blueScore?'red':blueScore>redScore?'blue':winnerTeam;
+  state.winner=winTeam;
+  const personalGold={};
+  Object.entries(state.players).forEach(([id,p])=>{personalGold[id]=p.team===winTeam?5:2});
+  gameOver({
+    winner:'🎉 '+(winTeam==='red'?'红队':'蓝队')+'胜利！(红'+redScore+' vs 蓝'+blueScore+')',
+    personalGold
+  });
 };
 
 // ==================== 初始化 ====================
