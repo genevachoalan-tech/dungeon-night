@@ -428,6 +428,19 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-member{display:flex;flex-direction:column;align-items:center;font-size:10px;gap:2px}
 .g6-member.dead{opacity:.4;text-decoration:line-through}
 .g6-member-avatar{width:24px;height:24px;border-radius:50%}
+.g6-position-select{background:rgba(0,0,0,.4);border:2px solid #6b4423;border-radius:12px;padding:16px;margin-bottom:12px}
+.g6-position-select h3{text-align:center;color:var(--gold);margin:0 0 8px}
+.g6-position-team{display:flex;align-items:center;gap:8px;margin:8px 0;padding:8px;background:rgba(0,0,0,.2);border-radius:8px}
+.g6-position-team.g6-team-red{border-left:4px solid #ef5350}
+.g6-position-team.g6-team-blue{border-left:4px solid #42a5f5}
+.g6-position-slot{display:flex;align-items:center;gap:6px;flex:1;justify-content:center;padding:4px;background:rgba(255,255,255,.05);border-radius:6px;min-height:40px}
+.g6-pos-num{font-weight:bold;color:var(--gold-light);font-size:12px;min-width:36px}
+.g6-pos-avatar{width:28px;height:28px;border-radius:50%;border:2px solid var(--gold);object-fit:cover}
+.g6-position-my{text-align:center;margin:12px 0}
+.g6-position-my h4{color:var(--gold-light);margin:0 0 8px}
+.g6-position-my .btn{margin:0 4px}
+.g6-position-done{text-align:center;color:#4ade80;padding:8px;background:rgba(74,222,128,.1);border-radius:8px;margin:8px 0}
+.g6-position-confirm{text-align:center;margin-top:12px}
 .g6-map-section{margin-bottom:12px}
 .g6-map-route{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
 .g6-route-label{font-size:14px;font-weight:bold;color:var(--gold-light);text-align:center;margin:8px 0 4px;text-shadow:0 0 10px rgba(255,215,0,.3)}
@@ -478,6 +491,108 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-result-text{font-size:18px;font-weight:bold;margin-top:8px;min-height:24px}
 .g6-combat-log{background:rgba(0,0,0,.4);border-radius:8px;padding:8px 12px;margin:10px 0;font-size:12px;color:var(--text-dim);max-height:80px;overflow-y:auto}
 .g6-combat-log div{margin:2px 0}
+/* G6宝箱选择 */
+.g6-chest-select{background:linear-gradient(135deg,#3a2515,#2a1810);border:2px solid #c9a227;border-radius:12px;padding:16px;margin:12px 0}
+.g6-chest-select h3{text-align:center;color:#ffd700;margin:0 0 12px 0;font-size:18px}
+.g6-chest-status{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.g6-chest-player{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px;background:rgba(0,0,0,.3);border-radius:8px;min-width:80px}
+.g6-chest-player.done{border:2px solid #22c55e}
+.g6-chest-avatar{width:36px;height:36px;border-radius:50%;border:2px solid #c9a227}
+.g6-chest-player span{font-size:11px;color:var(--text-dim)}
+.g6-chest-player.done span:last-child{color:#22c55e;font-weight:bold}
+.g6-chest-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.g6-chest-item{background:linear-gradient(135deg,#d4a574,#c4956a);border:2px solid #8b6914;border-radius:8px;padding:10px;cursor:pointer;text-align:center;transition:all .2s}
+.g6-chest-item:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(255,215,0,.4);border-color:#ffd700}
+.g6-chest-item-icon{font-size:32px;margin-bottom:4px}
+.g6-chest-item-name{font-size:14px;font-weight:bold;color:#5c4033;margin-bottom:2px}
+.g6-chest-item-slot{font-size:11px;color:#8b6914;margin-bottom:4px}
+.g6-chest-item-desc{font-size:10px;color:#5c4033;line-height:1.3}
+.g6-chest-empty{text-align:center;color:var(--text-dim);padding:20px;font-size:14px}
+/* G6商店 */
+.g6-shop{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid #c9a227;border-radius:12px;padding:16px;margin:12px 0}
+.g6-shop h3{text-align:center;color:#ffd700;margin:0 0 12px 0;font-size:18px}
+.g6-shop-status{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.g6-shop-player{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px;background:rgba(0,0,0,.3);border-radius:8px;min-width:90px}
+.g6-shop-player.done{border:2px solid #22c55e}
+.g6-shop-avatar{width:36px;height:36px;border-radius:50%;border:2px solid #c9a227}
+.g6-shop-player span{font-size:11px;color:var(--text-dim)}
+.g6-shop-player.done span:last-child{color:#22c55e;font-weight:bold}
+.g6-shop-my{margin-top:12px}
+.g6-shop-info{text-align:center;color:#ffd700;font-size:13px;margin-bottom:12px;padding:8px;background:rgba(0,0,0,.3);border-radius:6px}
+.g6-shop-section{margin-bottom:16px}
+.g6-shop-section h4{color:#c9a227;font-size:14px;margin:0 0 8px 0}
+.g6-shop-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.g6-shop-item{background:linear-gradient(135deg,#d4a574,#c4956a);border:2px solid #8b6914;border-radius:8px;padding:8px;cursor:pointer;text-align:center;transition:all .2s;position:relative}
+.g6-shop-item:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,215,0,.4);border-color:#ffd700}
+.g6-shop-item.disabled{opacity:.5;cursor:not-allowed}
+.g6-shop-item-icon{font-size:28px;margin-bottom:2px}
+.g6-shop-item-name{font-size:13px;font-weight:bold;color:#5c4033;margin-bottom:2px}
+.g6-shop-item-slot{font-size:10px;color:#8b6914;margin-bottom:2px}
+.g6-shop-item-desc{font-size:9px;color:#5c4033;line-height:1.2;margin-bottom:4px}
+.g6-shop-item-price{font-size:12px;font-weight:bold;color:#c9a227;background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;display:inline-block}
+.g6-shop-done{text-align:center;margin-top:16px}
+.g6-shop-wait{text-align:center;color:#22c55e;padding:20px;font-size:16px}
+/* G6道具掉落 */
+.g6-item-drop{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid #c9a227;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+.g6-item-drop h3{color:#ffd700;margin:0 0 12px 0;font-size:18px}
+.g6-item-drop-card{background:linear-gradient(135deg,#d4a574,#c4956a);border:2px solid #8b6914;border-radius:8px;padding:16px;max-width:300px;margin:0 auto 16px auto}
+.g6-item-drop-icon{font-size:48px;margin-bottom:8px}
+.g6-item-drop-name{font-size:18px;font-weight:bold;color:#5c4033;margin-bottom:4px}
+.g6-item-drop-type{font-size:14px;font-weight:bold;color:#8b0000;margin-bottom:8px}
+.g6-item-drop-desc{font-size:12px;color:#5c4033;line-height:1.4}
+.g6-item-drop-select{margin-top:12px}
+.g6-item-drop-select h4{color:#c9a227;font-size:14px;margin:0 0 8px 0}
+.g6-item-drop-select button{margin:4px;padding:8px 12px;font-size:13px}
+/* G6道具目标选择 */
+.g6-item-target{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid #c9a227;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+.g6-item-target h3{color:#ffd700;margin:0 0 8px 0;font-size:18px}
+.g6-item-target-desc{color:var(--text-dim);font-size:13px;margin-bottom:12px}
+.g6-item-target-select{margin-top:12px}
+.g6-item-target-select h4{color:#c9a227;font-size:14px;margin:0 0 8px 0}
+.g6-item-target-select button{margin:4px;padding:8px 12px;font-size:13px}
+/* 可使用道具样式 */
+.g6-panel-slot.usable{cursor:pointer;border-color:#22c55e;animation:usableGlow 2s ease-in-out infinite}
+.g6-panel-slot.usable:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(34,197,94,.5)}
+@keyframes usableGlow{0%,100%{box-shadow:0 0 5px rgba(34,197,94,.3)}50%{box-shadow:0 0 15px rgba(34,197,94,.6)}}
+.g6-panel-slot .use-hint{font-size:10px;color:#22c55e;margin-top:2px}
+/* G6战斗技能按钮 */
+.g6-skill-buttons{margin-top:12px;padding:12px;background:rgba(0,0,0,.3);border-radius:8px;border:1px solid #444}
+.g6-skill-title{color:#ffd700;font-size:14px;font-weight:bold;margin-bottom:8px;text-align:center}
+.g6-skill-warning{color:#ff4444;font-size:12px;text-align:center;margin-bottom:8px;padding:4px;background:rgba(255,68,68,.1);border-radius:4px}
+.g6-skill-btn{display:block;width:100%;margin:4px 0;padding:8px 12px;background:rgba(0,0,0,.5);border:2px solid;border-radius:6px;text-align:left;cursor:pointer;transition:all .2s}
+.g6-skill-btn:hover:not(.disabled){background:rgba(255,255,255,.1);transform:translateX(4px)}
+.g6-skill-btn.disabled{opacity:.4;cursor:not-allowed}
+.g6-skill-name{font-size:14px;font-weight:bold;display:block}
+.g6-skill-desc{font-size:11px;color:var(--text-dim);display:block;margin-top:2px}
+.g6-skill-lock{font-size:10px;color:#ff4444;display:block;margin-top:2px}
+/* G6三叶草事件 */
+.g6-clover-event{background:linear-gradient(135deg,#1a3a1a,#0f2a0f);border:2px solid #228b22;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
+.g6-clover-title{color:#32cd32;font-size:20px;font-weight:bold;margin-bottom:8px}
+.g6-clover-player{display:flex;align-items:center;justify-content:center;gap:8px;color:#ffd700;font-size:16px;margin-bottom:12px}
+.g6-clover-avatar{width:32px;height:32px;border-radius:50%;border:2px solid #228b22}
+.g6-clover-story{color:var(--text-dim);font-size:13px;margin-bottom:8px;line-height:1.5}
+.g6-clover-action{color:#ffd700;font-size:13px;margin-bottom:4px}
+.g6-clover-quote{color:#90ee90;font-size:14px;font-weight:bold;margin:8px 0;padding:8px;background:rgba(0,0,0,.3);border-radius:6px}
+.g6-quote-title{color:#ffd700;font-size:13px;margin-bottom:6px}
+.g6-quote-line{color:#90ee90;font-size:13px;margin:4px 0;padding:4px 8px;background:rgba(34,139,34,.1);border-radius:4px;text-align:left}
+.g6-quote-num{color:#ffd700;font-weight:bold;margin-right:4px}
+.g6-clover-timer{color:#ff6b6b;font-size:14px;margin-top:8px;animation:timerPulse 1s ease-in-out infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.6}}
+.g6-clover-reward{color:#ffd700;font-size:13px;margin-top:8px}
+/* G6结束特效 */
+@keyframes g6FadeIn{from{opacity:0}to{opacity:1}}
+@keyframes g6TitlePulse{0%,100%{transform:scale(1);text-shadow:0 0 20px currentColor}50%{transform:scale(1.1);text-shadow:0 0 40px currentColor}}
+@keyframes g6ParticleFall{0%{transform:translateY(-100vh) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes g6SkullFloat{0%,100%{transform:translateY(0) scale(1);opacity:.3}50%{transform:translateY(-20px) scale(1.2);opacity:.8}}
+.g6-end-title{font-size:72px;font-weight:bold;margin-bottom:20px;letter-spacing:20px}
+.g6-end-team{font-size:32px;margin-bottom:16px}
+.g6-end-score{font-size:24px;color:#ddd;margin-bottom:12px}
+.g6-end-sub{font-size:18px;margin-bottom:30px;font-style:italic}
+.g6-end-loading{font-size:14px;color:#888;animation:g6TitlePulse 1.5s ease-in-out infinite}
+.g6-particle{position:absolute;width:8px;height:8px;border-radius:50%;animation:g6ParticleFall 3s linear infinite;top:-10px}
+.g6-skull{position:absolute;font-size:24px;animation:g6SkullFloat 2s ease-in-out infinite;opacity:.5}
+.g6-clover-host{margin-top:12px;display:flex;gap:8px;justify-content:center}
+.g6-clover-host .btn{padding:8px 16px;font-size:14px}
 /* G6人物面板 */
 .g6-panels{margin-top:12px}
 .g6-panel-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
@@ -494,13 +609,13 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-panel-avatar img{width:100%;height:100%;object-fit:cover}
 .g6-panel-avatar .char-name{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);color:var(--gold-light);font-size:12px;text-align:center;padding:2px}
 .g6-panel-right{flex:1;display:flex;flex-direction:column;gap:8px}
-.g6-panel-equips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.g6-panel-slot{aspect-ratio:1;border:2px solid #8b6914;border-radius:6px;background:linear-gradient(135deg,#d4a574,#c4956a);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#5c4033;font-weight:bold;position:relative;min-height:50px}
+.g6-panel-equips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.g6-panel-slot{aspect-ratio:1;border:2px solid #8b6914;border-radius:6px;background:linear-gradient(135deg,#d4a574,#c4956a);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;color:#5c4033;font-weight:bold;position:relative;min-height:90px;padding:10px}
 .g6-panel-slot.empty{background:rgba(0,0,0,.2);border-color:#4a3520;color:#666}
 .g6-panel-slot.exclusive{border-color:#ffd700;background:linear-gradient(135deg,#d4a574,#e8c87a);box-shadow:0 0 8px rgba(255,215,0,.4);animation:exclusiveGlow 2s ease-in-out infinite}
 @keyframes exclusiveGlow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.4)}50%{box-shadow:0 0 16px rgba(255,215,0,.7)}}
-.g6-panel-slot .item-name{font-size:9px;text-align:center;line-height:1.2}
-.g6-panel-slot .slot-name{font-size:9px;margin-bottom:2px}
+.g6-panel-slot .item-name{font-size:20px;text-align:center;line-height:1.3;font-weight:bold}
+.g6-panel-slot .slot-name{font-size:14px;margin-bottom:6px;opacity:.8}
 .g6-panel-skills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .g6-panel-skill{border:2px solid;border-radius:6px;padding:6px;font-size:10px;background:rgba(0,0,0,.3);min-height:70px;display:flex;flex-direction:column}
 .g6-panel-skill .skill-name{font-weight:bold;font-size:11px;margin-bottom:3px}
@@ -560,6 +675,26 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 @keyframes fbShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
 .final-battle-overlay .fb-particles{position:absolute;inset:0;pointer-events:none}
 .final-battle-overlay .fb-particle{position:absolute;width:4px;height:4px;background:#ffd700;border-radius:50%;animation:fbParticle 3s linear infinite}
+.final-battle-overlay .fb-lightning{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.3) 0%,transparent 30%);opacity:0;transition:opacity .05s;pointer-events:none}
+.final-battle-overlay .fb-teams{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:40px;margin-top:30px;animation:fbTeamsIn 1.5s ease-out .5s both}
+@keyframes fbTeamsIn{0%{opacity:0;transform:translateY(40px)}100%{opacity:1;transform:translateY(0)}}
+.final-battle-overlay .fb-team{text-align:center}
+.final-battle-overlay .fb-team-label{font-size:20px;font-weight:bold;margin-bottom:10px}
+.final-battle-overlay .fb-red .fb-team-label{color:#ef9a9a;text-shadow:0 0 10px #ff4444}
+.final-battle-overlay .fb-blue .fb-team-label{color:#64b5f6;text-shadow:0 0 10px #4488ff}
+.final-battle-overlay .fb-chars{display:flex;gap:8px;justify-content:center}
+.final-battle-overlay .fb-char{display:flex;flex-direction:column;align-items:center;animation:fbCharFloat 2s ease-in-out infinite}
+.final-battle-overlay .fb-char:nth-child(2){animation-delay:.3s}
+.final-battle-overlay .fb-char:nth-child(3){animation-delay:.6s}
+@keyframes fbCharFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.final-battle-overlay .fb-char img{width:50px;height:50px;border-radius:50%;border:3px solid #ffd700;object-fit:cover;box-shadow:0 0 15px rgba(255,215,0,.5)}
+.final-battle-overlay .fb-red .fb-char img{border-color:#ef9a9a;box-shadow:0 0 15px rgba(239,154,154,.5)}
+.final-battle-overlay .fb-blue .fb-char img{border-color:#64b5f6;box-shadow:0 0 15px rgba(100,181,246,.5)}
+.final-battle-overlay .fb-char span{font-size:11px;color:#ddd;margin-top:4px;white-space:nowrap}
+.final-battle-overlay .fb-vs{font-size:48px;font-weight:bold;color:#ffd700;text-shadow:0 0 20px #ff4500;animation:fbVSPulse 1s ease-in-out infinite}
+@keyframes fbVSPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.8}}
+.final-battle-overlay .fb-countdown{position:relative;z-index:10;font-size:80px;font-weight:bold;color:#ff4444;text-shadow:0 0 30px #ff0000;margin-top:20px;animation:fbCountdown 1s ease-in-out infinite}
+@keyframes fbCountdown{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
 
 /* 规则面板 */
 .rules-panel{background:rgba(26,15,8,.92);border:2px solid var(--gold-dark);border-radius:12px;padding:16px;margin:12px 0;font-size:13px;line-height:1.7;max-height:50vh;overflow-y:auto}
@@ -741,9 +876,20 @@ const GAME_RULES={
   <div class="rule-section"><h4>结束与名次</h4><p>• 先到达终点的玩家为第1名，游戏立即结束</p><p>• 按场上位置结算其余玩家名次</p><p>• 金币奖励：第1名6、第2名5、第3名4、第4名3、第5名2、第6名1</p><p>• 个人金币制，不与队伍平分</p></div>
   <div class="rule-section"><h4>游戏流程</h4><p>• 第一步：随机决定座次顺序（红1、蓝1、红2、蓝2、红3、蓝3）</p><p>• 第二步：所有玩家从0格开始，按座次依次从0格技能池选技能装备</p><p>• 第三步：按座次轮流回合，每回合含投骰移动、可选使用技能、可选决斗</p><p>• 第四步：进入8或16格时，回合内移动结束后立即更换技能</p><p>• 第五步：有玩家到达或超过24格即获胜，结算名次</p><p>• 游戏结束后血量保持不变，继承到后面机制</p></div>`,
   6:`<h3>🐉 最终机制规则</h3>
-  <div class="rule-section"><h4>基本设定</h4><p>• 地下城分为两层，第一层两条路线，两队各选一条</p><p>• 上一个通道机制第一名所在分队优先选择路线</p><p>• 继承逃生机制的剩余血量（escapedHP）</p></div>
-  <div class="rule-section"><h4>购买系统</h4><p>• 两次购买机会：第一层起点（雕像格）和第二层起点（雕像格）</p><p>• 可购买主武器、护盾/宝物、道具、个人技能、血量</p><p>• 全程最少拥有：1主武器、1护盾或宝物、1道具、3个人技能</p><p>• 血量尤其重要，一滴血等于一胜利分</p></div>
-  <div class="rule-section"><h4>地图</h4><p>• 上下两层，每层环形路径</p><p>• 格子类型：雕像格（购买）、骷髅格（战斗）、四叶草格（奖励）、龙格（BOSS）、通道格（切换层）</p></div>`
+  <div class="rule-section"><h4>🎯 胜利条件</h4><p>• 击败第二层的龙BOSS即为胜利</p><p>• 两队各自选择路线，各自击败自己路线上的龙BOSS</p><p>• 先击败第二层龙BOSS的队伍获胜</p></div>
+  <div class="rule-section"><h4>⚔️ 号位选择（游戏开始时）</h4><p>• 进入游戏后，每位玩家选择自己的战斗号位（1/2/3号位）</p><p>• 同队伍号位不能重复，由玩家自己决定</p><p>• 号位一旦选定，整个游戏过程中不会更改</p><p>• 战斗攻击顺序严格按：1号位→2号位→3号位循环</p><p>• 全部选好后，主持人点击"进入路线选择"</p></div>
+  <div class="rule-section"><h4>🗺️ 路线选择</h4><p>• 第一层：上一个游戏（G5逃生机制）的胜者队伍👑优先选择路线</p><p>• 优先队伍选完后，另一队才能选择</p><p>• 第二层：第一层先通关（先击败龙BOSS）的队伍👑优先选择路线</p><p>• 每条路线有上路和下路可选，格子数量和类型不同</p></div>
+  <div class="rule-section"><h4>❤️ 血量规则</h4><p>• 每位玩家初始3条命，每条命9点血（共27血）</p><p>• 加上从G5继承的剩余血量（escapedHP）</p><p>• 总血量 = G5继承血量 + 27血</p><p>• 血量归零后失去一条命，技能槽-1，血量恢复至9</p><p>• 3条命全部失去则淘汰</p><p>• 例：G5继承9血 + 27血 = 36血 = 4条命</p></div>
+  <div class="rule-section"><h4>🚶 移动规则</h4><p>• 队伍轮流行动：红队行动→蓝队行动</p><p>• 每回合队伍前进1格</p><p>• 遇到怪物格必须击败怪物才能继续前进</p><p>• 怪物未击败时不能移动</p><p>• 到达龙BOSS格触发BOSS战</p></div>
+  <div class="rule-section"><h4>🗺️ 地图格子效果</h4><p>• 🏛️ <b>雕像格（商店）</b>：可购买装备、技能、血量</p><p>• 💀 <b>怪兽格</b>：遭遇随机怪物，必须击败才能通过</p><p>• 📦 <b>宝箱格</b>：每人选择一件装备（必须是面板上能装备的）</p><p>• 🍀 <b>三叶草格</b>：小队三人一起触发事件，语音表演台词，主持人判定通过后全队奖励</p><p>• 💧 <b>泉水格</b>：全队回血（第一层+2血，第二层+3血）</p><p>• 🐉 <b>龙BOSS格</b>：击败后进入下一层（第一层）或获胜（第二层）</p></div>
+  <div class="rule-section"><h4>🎲 战斗规则</h4><p>• 遇到怪物后进入战斗，按1→2→3号位轮流攻击</p><p>• 攻击者点击"投骰攻击"，指针快速移动，点击"锁定"确定环数</p><p>• 环数：5环（中心）>4环>3环>2环>1环>脱靶（0环）</p><p>• 同时投出1-6点骰子</p><p>• <b>上靶伤害</b>：伤害 = 环数 + 主武器加成 + 副武器加成 + 宝物加成</p><p>• <b>脱靶</b>：0伤害，受到怪物反击（怪物攻击力伤害）</p><p>• <b>5环+双数骰子=暴击</b>：一击毙命（非龙族怪物）</p><p>• 锁定后可选择使用技能，然后点击"确认结算"</p><p>• 大回合结束时，未击败的怪物主动攻击小队所有成员</p></div>
+  <div class="rule-section"><h4>⚡ 技能规则</h4><p>• 每个角色自带2个技能，可在商店额外购买技能（最多另购2个）</p><p>• 技能发动条件：<b>骰子双数</b>才能发动</p><p>• 普通技能还需要<b>上靶</b>（环数>0）</p><p>• 标注"即使未上靶"的技能，只需双数，脱靶也能发动</p><p>• 技能可在移动前、移动中、移动后使用</p><p>• 每个技能每局游戏只能使用一次</p></div>
+  <div class="rule-section"><h4>⚔️ 装备系统</h4><p>• 每位角色自动装备<b>专属武器</b>（不可更换）</p><p>• 装备槽位按角色不同：</p><p>&nbsp;&nbsp;- 阿兜/圆圆：专属武器 + 主武器 + 护盾 + 道具</p><p>&nbsp;&nbsp;- 休帕/沐恩：专属武器 + 主武器 + 副武器 + 道具</p><p>&nbsp;&nbsp;- 多琳/莉尔：专属武器 + 主武器 + 宝物 + 道具</p><p>• 购买新装备会替换旧装备，旧装备进入弃置堆</p><p>• 弃置堆中的装备可被其他玩家购买（刷回商店）</p></div>
+  <div class="rule-section"><h4>🏛️ 商店规则</h4><p>• 在雕像格（起点）可购买</p><p>• 装备：3金币/件，每人每雕像格最多买3件</p><p>• 技能：4金币/个，每人最多另购2个</p><p>• 血量：1金币回1血</p><p>• 只能购买角色面板上有对应槽位的装备</p></div>
+  <div class="rule-section"><h4>📦 宝箱规则</h4><p>• 到达宝箱格，每人获得一件装备</p><p>• 玩家任选一件（必须是面板上能装备的）</p><p>• 替换旧装备时，旧装备进入弃置堆</p></div>
+  <div class="rule-section"><h4>🎁 道具规则</h4><p>• 击败怪物后投骰子：单数=损人道具，双数=利己道具</p><p>• 道具可分配给小队任意成员</p><p>• 利己道具：对自己或队友使用的增益道具</p><p>• 损人道具：对敌方使用的减益道具</p></div>
+  <div class="rule-section"><h4>🐉 怪物特殊效果</h4><p>• 😈 <b>魅魔</b>：禁用红色技能（商店购买的技能）</p><p>• 🥚 <b>龙蛋</b>：脱靶无反击</p><p>• 👺 <b>贪财哥布林</b>：脱靶扣1金币，没金币则-1血</p><p>• 🐲 <b>幼龙</b>：1环视为脱靶</p><p>• 🔥 <b>火焰核心</b>：脱靶时怪物回复1血</p><p>• 🦏 <b>火爆犀牛王</b>：脱靶时全队受到反击</p></div>
+  <div class="rule-section"><h4>🏰 第二层规则</h4><p>• 击败第一层龙BOSS后传送到第二层起点</p><p>• 第一层先通关的队伍优先选择第二层路线</p><p>• 第二层泉水回复+3血（比第一层多）</p><p>• 击败第二层龙BOSS即为最终胜利</p></div>`
 };
 function toggleRules(){
   const panel=document.getElementById('rulesPanel');
@@ -1137,38 +1283,71 @@ function hostStartActualGame(){
 function playFinalBattleIntro(callback){
   const overlay=document.createElement('div');
   overlay.className='final-battle-overlay';
+  // 两队玩家头像
+  const redPlayers=Object.values(state.players).filter(p=>p.team==='red');
+  const bluePlayers=Object.values(state.players).filter(p=>p.team==='blue');
+  const renderTeam=(players,color)=>players.map(p=>{
+    const c=CHARACTERS.find(ch=>ch.id===p.character);
+    return `<div class="fb-char ${color}"><img src="${c?c.img:''}" onerror="this.style.display='none'"><span>${p.name}</span></div>`;
+  }).join('');
   overlay.innerHTML=`
     <div class="fb-bg"></div>
     <div class="fb-flames"></div>
     <div class="fb-particles" id="fbParticles"></div>
+    <div class="fb-lightning" id="fbLightning"></div>
     <div class="fb-title">
       <div class="fb-dragon">🐉</div>
       <h1>最终决战</h1>
       <div class="fb-sub">地下城最深处 · 生死之战</div>
     </div>
+    <div class="fb-teams">
+      <div class="fb-team fb-red">
+        <div class="fb-team-label">🔴 红队</div>
+        <div class="fb-chars">${renderTeam(redPlayers,'red')}</div>
+      </div>
+      <div class="fb-vs">VS</div>
+      <div class="fb-team fb-blue">
+        <div class="fb-team-label">🔵 蓝队</div>
+        <div class="fb-chars">${renderTeam(bluePlayers,'blue')}</div>
+      </div>
+    </div>
+    <div class="fb-countdown" id="fbCountdown">3</div>
   `;
   document.body.appendChild(overlay);
   // 生成粒子
   const pc=document.getElementById('fbParticles');
-  for(let i=0;i<30;i++){
+  for(let i=0;i<50;i++){
     const p=document.createElement('div');
     p.className='fb-particle';
     p.style.left=Math.random()*100+'%';
     p.style.bottom='0';
     p.style.animationDelay=Math.random()*3+'s';
-    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.animationDuration=(1.5+Math.random()*2.5)+'s';
+    p.style.background=['#ff4444','#ff8800','#ffcc00','#ff6600'][Math.floor(Math.random()*4)];
     pc.appendChild(p);
   }
+  // 闪电效果
+  const lc=document.getElementById('fbLightning');
+  setInterval(()=>{if(lc){lc.style.opacity='.8';setTimeout(()=>{if(lc)lc.style.opacity='0'},100)}},800);
   // 震动效果
   setTimeout(()=>overlay.classList.add('fb-shake'),500);
   setTimeout(()=>overlay.classList.remove('fb-shake'),1000);
   setTimeout(()=>overlay.classList.add('fb-shake'),2000);
-  // 3.5秒后消失
+  setTimeout(()=>overlay.classList.add('fb-shake'),3000);
+  // 倒计时
+  const cd=document.getElementById('fbCountdown');
+  let count=3;
+  const cdInterval=setInterval(()=>{
+    count--;
+    if(cd)cd.textContent=count>0?count:'⚔️';
+    if(count<=0)clearInterval(cdInterval);
+  },1000);
+  // 4秒后消失
   setTimeout(()=>{
     overlay.style.transition='opacity .5s';
     overlay.style.opacity='0';
     setTimeout(()=>{overlay.remove();if(callback)callback()},500);
-  },3500);
+  },4000);
 }
 
 function hostSelectGame(num){
@@ -2362,14 +2541,36 @@ window.G.g5RenderButtons=function(){
 
 window.G.g5CheckModals=function(){
   const g=state.game;
-  if(state.phase==='skillselect'){const selector=state.turnOrder[state.skillSelectIndex||0];if(selector===myPeerId&&!isHost)this.g5ShowSkillSelect(g.skillPoolKey||0);else this.g5RemoveModal()}
-  else if(g.pendingSkillChange&&g.pendingSkillChange.playerId===myPeerId&&!isHost)this.g5ShowSkillSelect(g.pendingSkillChange.poolKey);
-  else if(g.pendingSkillChoice&&g.pendingSkillChoice.playerId===myPeerId&&!isHost)this.g5ShowDiscardSelect();
-  else if(g.pendingTargetChoice&&g.pendingTargetChoice.playerId===myPeerId&&!isHost)this.g5ShowTargetChoice();
-  else if(g.pendingPrediction&&g.pendingPrediction.playerId===myPeerId&&!isHost)this.g5ShowPrediction();
-  else if(g.pendingWinnerPrediction&&g.pendingWinnerPrediction.playerId===myPeerId&&!isHost)this.g5ShowWinnerPrediction();
-  else if(g.pendingLeaderCopy&&g.pendingLeaderCopy.playerId===myPeerId&&!isHost)this.g5ShowLeaderCopy();
-  else this.g5RemoveModal();
+  if(state.phase==='skillselect'){
+    const selector=state.turnOrder[state.skillSelectIndex||0];
+    if(selector===myPeerId&&!isHost)this.g5ShowSkillSelect(g.skillPoolKey||0);
+    else if(isHost)this.g5ShowSkillSelectHost(selector,g.skillPoolKey||0);
+    else this.g5RemoveModal();
+  }else if(g.pendingSkillChange){
+    if(g.pendingSkillChange.playerId===myPeerId&&!isHost)this.g5ShowSkillSelect(g.pendingSkillChange.poolKey);
+    else if(isHost)this.g5ShowSkillSelectHost(g.pendingSkillChange.playerId,g.pendingSkillChange.poolKey);
+    else this.g5RemoveModal();
+  }else if(g.pendingSkillChoice){
+    if(g.pendingSkillChoice.playerId===myPeerId&&!isHost)this.g5ShowDiscardSelect();
+    else if(isHost)this.g5ShowDiscardSelectHost(g.pendingSkillChoice.playerId);
+    else this.g5RemoveModal();
+  }else if(g.pendingTargetChoice){
+    if(g.pendingTargetChoice.playerId===myPeerId&&!isHost)this.g5ShowTargetChoice();
+    else if(isHost)this.g5ShowTargetChoiceHost(g.pendingTargetChoice.playerId,g.pendingTargetChoice.skillId);
+    else this.g5RemoveModal();
+  }else if(g.pendingPrediction){
+    if(g.pendingPrediction.playerId===myPeerId&&!isHost)this.g5ShowPrediction();
+    else if(isHost)this.g5ShowPredictionHost(g.pendingPrediction.playerId);
+    else this.g5RemoveModal();
+  }else if(g.pendingWinnerPrediction){
+    if(g.pendingWinnerPrediction.playerId===myPeerId&&!isHost)this.g5ShowWinnerPrediction();
+    else if(isHost)this.g5ShowWinnerPredictionHost(g.pendingWinnerPrediction.playerId);
+    else this.g5RemoveModal();
+  }else if(g.pendingLeaderCopy){
+    if(g.pendingLeaderCopy.playerId===myPeerId&&!isHost)this.g5ShowLeaderCopy();
+    else if(isHost)this.g5ShowLeaderCopyHost(g.pendingLeaderCopy.playerId);
+    else this.g5RemoveModal();
+  }else this.g5RemoveModal();
 };
 window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
 window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}m.innerHTML='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+'</div>';m.style.display='flex';m.style.zIndex='950'};
@@ -2382,6 +2583,17 @@ window.G.g5ShowSkillSelect=function(poolKey){
   this.g5ShowModal('📜 选择技能（'+poolKey+'格池）',html);
 };
 window.G.g5SelectSkill=function(sid){this.g5RemoveModal();sendAction({type:'selectSkill',skillId:sid})};
+// 主持人看技能选择（只读）
+window.G.g5ShowSkillSelectHost=function(playerId,poolKey){
+  const pool=state.game.skillPools[poolKey]||[];
+  const p=state.players[playerId];
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">👁️ 主持人视角：'+(p?p.name:'?')+' 正在选择技能（'+poolKey+'格池）</p>';
+  html+='<table class="g5-skill-table"><thead><tr><th style="width:35%">技能名</th><th>技能介绍</th></tr></thead><tbody>';
+  pool.forEach(sid=>{const sk=G5_SKILLS.find(s=>s.id===sid);html+='<tr class="g5-skill-row" style="cursor:default;opacity:.8"><td class="sk-name">'+sk.id+'</td><td class="sk-desc">'+sk.desc+'</td></tr>'});
+  html+='</tbody></table>';
+  html+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">⏳ 等待玩家选择...</p>';
+  this.g5ShowModal('📜 技能选择（主持人视角）',html);
+};
 window.G.g5ShowDiscardSelect=function(){
   let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">从弃牌堆选一张：</p>';
   html+='<table class="g5-skill-table"><thead><tr><th style="width:35%">技能名</th><th>技能介绍</th></tr></thead><tbody>';
@@ -2390,24 +2602,60 @@ window.G.g5ShowDiscardSelect=function(){
   this.g5ShowModal('📜 回收者神酿',html);
 };
 window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();sendAction({type:'selectDiscard',skillId:sid})};
+// 主持人看弃牌选择（只读）
+window.G.g5ShowDiscardSelectHost=function(playerId){
+  const p=state.players[playerId];
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">👁️ 主持人视角：'+(p?p.name:'?')+' 正在从弃牌堆选技能</p>';
+  html+='<table class="g5-skill-table"><thead><tr><th style="width:35%">技能名</th><th>技能介绍</th></tr></thead><tbody>';
+  state.game.discarded.forEach(sid=>{const sk=G5_SKILLS.find(s=>s.id===sid);html+='<tr class="g5-skill-row" style="cursor:default;opacity:.8"><td class="sk-name">'+sk.id+'</td><td class="sk-desc">'+sk.desc+'</td></tr>'});
+  html+='</tbody></table>';
+  html+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">⏳ 等待玩家选择...</p>';
+  this.g5ShowModal('📜 回收者神酿（主持人视角）',html);
+};
 window.G.g5ShowTargetChoice=function(){
   const skill=state.game.pendingTargetChoice.skillId;let html='<p style="font-size:12px">使用【'+skill+'】选择目标：</p>';
   state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.dead||id===myPeerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5ChooseTarget(\''+id+'\')"><div class="sk-name">'+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</div><div class="sk-desc">位置'+p.pos+'格 · 血量'+p.hp+'</div></div>'});
   this.g5ShowModal('🎯 选择目标',html);
 };
 window.G.g5ChooseTarget=function(id){this.g5RemoveModal();sendAction({type:'chooseTarget',targetId:id})};
+// 主持人看目标选择（只读）
+window.G.g5ShowTargetChoiceHost=function(playerId,skillId){
+  const p=state.players[playerId];
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">👁️ 主持人视角：'+(p?p.name:'?')+' 使用【'+skillId+'】选择目标</p>';
+  state.turnOrder.forEach(id=>{const tp=state.players[id];if(!tp||tp.dead||id===playerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px;opacity:.8"><div class="sk-name">'+(tp.team==='blue'?'🔵':'🔴')+' '+tp.name+'</div><div class="sk-desc">位置'+tp.pos+'格 · 血量'+tp.hp+'</div></div>'});
+  html+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">⏳ 等待玩家选择目标...</p>';
+  this.g5ShowModal('🎯 选择目标（主持人视角）',html);
+};
 window.G.g5ShowPrediction=function(){
   let html='<p style="font-size:12px">预测投掷点数：</p><div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">';
   for(let i=1;i<=6;i++)html+='<button class="btn" style="font-size:18px;padding:8px 14px" onclick="G.g5MakePrediction('+i+')">'+G5_DICE[i-1]+'</button>';
   html+='</div>';this.g5ShowModal('🔮 预言家陈酿',html);
 };
 window.G.g5MakePrediction=function(n){this.g5RemoveModal();state.game.pendingPrediction=null;sendAction({type:'roll',prediction:n})};
+// 主持人看预测（只读）
+window.G.g5ShowPredictionHost=function(playerId){
+  const p=state.players[playerId];
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">👁️ 主持人视角：'+(p?p.name:'?')+' 正在预测投掷点数</p>';
+  html+='<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;opacity:.5">';
+  for(let i=1;i<=6;i++)html+='<button class="btn" style="font-size:18px;padding:8px 14px" disabled>'+G5_DICE[i-1]+'</button>';
+  html+='</div>';
+  html+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">⏳ 等待玩家预测...</p>';
+  this.g5ShowModal('🔮 预言家陈酿（主持人视角）',html);
+};
 window.G.g5ShowWinnerPrediction=function(){
   let html='<p style="font-size:12px">预测谁会获胜（他获胜你直接成第二）：</p>';
   state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.dead||id===myPeerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5PickWinner(\''+id+'\')"><div class="sk-name">'+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</div></div>'});
   this.g5ShowModal('🔮 次席预言酒',html);
 };
 window.G.g5PickWinner=function(id){this.g5RemoveModal();sendAction({type:'pickWinner',targetId:id})};
+// 主持人看胜负预测（只读）
+window.G.g5ShowWinnerPredictionHost=function(playerId){
+  const p=state.players[playerId];
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">👁️ 主持人视角：'+(p?p.name:'?')+' 正在预测谁会获胜</p>';
+  state.turnOrder.forEach(id=>{const tp=state.players[id];if(!tp||tp.dead||id===playerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px;opacity:.8"><div class="sk-name">'+(tp.team==='blue'?'🔵':'🔴')+' '+tp.name+'</div></div>'});
+  html+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">⏳ 等待玩家选择...</p>';
+  this.g5ShowModal('🔮 次席预言酒（主持人视角）',html);
+};
 window.G.g5ShowLeaderCopy=function(){
   const cands=state.game.pendingLeaderCopy.candidates;
   let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">领先者多人，选择复制谁的技能：</p>';
@@ -2417,6 +2665,17 @@ window.G.g5ShowLeaderCopy=function(){
   this.g5ShowModal('🎭 魁首仿酿酒',html);
 };
 window.G.g5PickLeader=function(id){this.g5RemoveModal();sendAction({type:'pickLeader',targetId:id})};
+// 主持人看领袖复制（只读）
+window.G.g5ShowLeaderCopyHost=function(playerId){
+  const p=state.players[playerId];
+  const cands=state.game.pendingLeaderCopy.candidates;
+  let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">👁️ 主持人视角：'+(p?p.name:'?')+' 正在选择复制谁的技能</p>';
+  html+='<table class="g5-skill-table"><thead><tr><th style="width:35%">玩家</th><th>技能</th></tr></thead><tbody>';
+  cands.forEach(c=>{html+='<tr class="g5-skill-row" style="cursor:default;opacity:.8"><td class="sk-name">'+c.name+'</td><td class="sk-desc">'+c.skill+'</td></tr>'});
+  html+='</tbody></table>';
+  html+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">⏳ 等待玩家选择...</p>';
+  this.g5ShowModal('🎭 魁首仿酿酒（主持人视角）',html);
+};
 
 window.G.g5RenderDuel=function(){
   const d=state.game.duel;const pa=state.players[d.playerA],pb=state.players[d.playerB];
@@ -2498,9 +2757,19 @@ window.G.actionG5=function(peerId,action){
 
 // G6 最终机制动作处理
 window.G.actionG6=function(peerId,action){
-  if(action.type==='g6route'){this.g6SelectRoute(peerId,action.route)}
+  if(action.type==='g6position'){this.g6SelectPosition(peerId,action.position)}
+  else if(action.type==='g6positiondone'){this.g6PositionDone(peerId)}
+  else if(action.type==='g6route'){this.g6SelectRoute(peerId,action.route)}
   else if(action.type==='g6move'){this.g6Move(peerId)}
+  else if(action.type==='g6lock'){this.g6PlayerLock(peerId,action)}
   else if(action.type==='g6combat'){this.g6ResolveCombat(peerId,action)}
+  else if(action.type==='g6chest'){this.g6SelectChestItem(peerId,action.itemType,action.itemId)}
+  else if(action.type==='g6shop'){this.g6ShopBuy(peerId,action.buyType,action.itemId)}
+  else if(action.type==='g6shopdone'){this.g6ShopDone(peerId)}
+  else if(action.type==='g6itemassign'){this.g6AssignItem(peerId,action.targetId)}
+  else if(action.type==='g6useitem'){this.g6UseItem(peerId,action.targetId)}
+  else if(action.type==='g6skill'){this.g6UseSkill(peerId,action.skillIndex)}
+  else if(action.type==='g6confirm'){this.g6ResolveCombat(peerId,{confirm:true})}
 };
 
 window.G.hostActionG5=function(peerId,action){
@@ -2864,44 +3133,88 @@ const G6_FLOOR2={
   boss:{type:'dragon'}
 };
 
+// G6三叶草事件（每角色1个，3人各一句台词）
+const G6_CLOVER_EVENTS={
+  muen:{name:'沐恩',story:'沐恩你看到你成为了最伟大的牛族战士，所有人都在膜拜你。',action:'站在凳子上掐着腰"哈哈大笑"，三人一起模仿牛叫',quotes:['我是牛我最牛，牛气冲天哞哞哞！','斧头一挥谁不怕，哞～','牛牛牛，我是斗牛士，哞哞哞哞哞哞哞！'],reward:'gold2'},
+  lier:{name:'莉尔',story:'你看到身边一个酒桶突然长出了腿开始奔跑，你赶紧站在凳子上对酒桶施加魔法。',action:'一手叉腰一手指前方，三人一起做施法动作',quotes:['兔子急了也咬人！','咕噜咕噜变猪猪！变变变！','酒桶快停下，不然把你变兔子！'],reward:'gold2'},
+  adou:{name:'阿兜',story:'阿兜你看到一颗大树拔地而起，撒下了无数个金币，你现在要把所有的金币都藏起来。',action:'三人一起做捡钱动作，把东西都收到面前',quotes:['钱钱钱，都是我的钱！','谁也别想抢，抢钱的是小狗！','汪汪汪~发财啦发财啦！'],reward:'gold3'},
+  duolin:{name:'多琳',story:'多琳你看到一棵大树突然拔地而起，你看到树爷爷垂垂老矣，生命即将走到尽头。',action:'三人一起摇晃身体，做哭哭的样子',quotes:['大自然的力量啊！','赐予我外卖吧，披萨披萨快快来~','树爷爷你别死啊，我还没点外卖呢！'],reward:'heal2'},
+  yuanyuan:{name:'圆圆',story:'你看到你身边一个巨大竹筒饭突然跑了起来，你迫不及待的想吃上一口。',action:'三人一起做追东西的动作，假装在追竹筒饭',quotes:['竹子竹子我爱你！','就像熊猫爱打滚，滚~滚~滚~','竹筒饭你别跑，让我吃一口！'],reward:'heal2'},
+  xiupa:{name:'休帕',story:'你看到你背后的刺突然变得又长又软，十分飘逸。',action:'三人一起拿东西挥舞，做飘逸的动作',quotes:['嗖的一箭，射中你的心！','biubiubiu~我好飘逸啊~','不要抓我的刺，会扎手的哦！'],reward:'gold2'}
+};
+
+// G6商店购买的专属技能卡（红色技能，12个，每角色2个）
+const G6_SHOP_SKILLS={
+  adou:[
+    {id:'zhandoushige',name:'战斗诗歌',desc:'技能发动后，每消耗2枚金币额外增加1点伤害。（上限3点伤害）',color:'#ff6b6b',evenMiss:false,effect:'goldDamage'},
+    {id:'cuimianqu',name:'催眠曲',desc:'技能发动后，跳过怪物的下一次行动回合。（反击或主动攻击二选一）',color:'#ff6b6b',evenMiss:true,effect:'skipMonster'}
+  ],
+  yuanyuan:[
+    {id:'lianmin',name:'怜悯',desc:'此次战斗的目标怪物伤害-1（包括反击与主动攻击）',color:'#ff6b6b',evenMiss:false,effect:'monsterAtkDown'},
+    {id:'qidao',name:'祈祷',desc:'造成上靶伤害后，额外造成2点伤害。并且获得1枚金币。',color:'#ff6b6b',evenMiss:false,effect:'extraDamageGold'}
+  ],
+  xiupa:[
+    {id:'qiweibuzhuo',name:'气味捕捉',desc:'技能发动后，造成3点伤害。（即使未上靶）',color:'#ff6b6b',evenMiss:true,effect:'fixedDamage3'},
+    {id:'ruodianbiaoji',name:'弱点标记',desc:'技能发动后，如果命中3环视为4环，命中4环视为5环（享受暴击效果）',color:'#ff6b6b',evenMiss:false,effect:'ringUpgrade'}
+  ],
+  muen:[
+    {id:'shunshizhan',name:'顺势斩',desc:'造成上靶伤害后可进行二次攻击。（每回合限一次）',color:'#ff6b6b',evenMiss:false,effect:'secondAttack'},
+    {id:'wulai',name:'无赖',desc:'可以用手指再弹一次进攻骰子（即使未上靶）',color:'#ff6b6b',evenMiss:true,effect:'reroll'}
+  ],
+  duolin:[
+    {id:'xuruo',name:'虚弱',desc:'虚弱当前目标怪物，使其之后受到的所有伤害+1。',color:'#ff6b6b',evenMiss:false,effect:'monsterDefDown'},
+    {id:'ziranzhili',name:'自然之力',desc:'技能发动后，选择一名友方（可自己），本次战斗伤害+2。',color:'#ff6b6b',evenMiss:false,effect:'allyDamageUp'}
+  ],
+  lier:[
+    {id:'huoqianshu',name:'火球术',desc:'技能发动后，当前目标怪物承受持续灼烧伤害，每大回合血量-2。',color:'#ff6b6b',evenMiss:true,effect:'burn'},
+    {id:'mofayaoshui',name:'魔法药水',desc:'技能发动后，放弃上靶伤害，可获得一个道具（损人或利己道具任选一个）',color:'#ff6b6b',evenMiss:true,effect:'getItem'}
+  ]
+};
+
 // G6角色自带技能和专属武器
 const G6_CHAR_SKILLS={
-  adou:{name:'阿兜',equip:['主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',img:'https://aka.doubaocdn.com/s/Js4lAdezcV',bonus:1},skills:[
+  adou:{name:'阿兜',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',img:'https://aka.doubaocdn.com/s/Js4lAdezcV',bonus:1,exclusive:true},skills:[
     {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true},
     {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false}
   ]},
-  duolin:{name:'多琳',equip:['主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/vSOQ9520fU',bonus:1},skills:[
+  duolin:{name:'多琳',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/vSOQ9520fU',bonus:1,exclusive:true},skills:[
     {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false},
     {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true}
   ]},
-  lier:{name:'莉尔',equip:['主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/rA7ewqqiMT',bonus:1},skills:[
+  lier:{name:'莉尔',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/rA7ewqqiMT',bonus:1,exclusive:true},skills:[
     {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true},
     {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true}
   ]},
-  muen:{name:'沐恩',equip:['主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',img:'https://aka.doubaocdn.com/s/tI6h5YxosE',bonus:1},skills:[
+  muen:{name:'沐恩',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',img:'https://aka.doubaocdn.com/s/tI6h5YxosE',bonus:1,exclusive:true},skills:[
     {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false},
     {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true}
   ]},
-  xiupa:{name:'休帕',equip:['主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',img:'https://aka.doubaocdn.com/s/f7QArSVwTj',bonus:1},skills:[
+  xiupa:{name:'休帕',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',img:'https://aka.doubaocdn.com/s/f7QArSVwTj',bonus:1,exclusive:true},skills:[
     {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true},
     {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true}
   ]},
-  yuanyuan:{name:'圆圆',equip:['主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',img:'https://aka.doubaocdn.com/s/qZoID6Dodt',bonus:1},skills:[
+  yuanyuan:{name:'圆圆',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',img:'https://aka.doubaocdn.com/s/qZoID6Dodt',bonus:1,exclusive:true},skills:[
     {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false},
     {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false}
   ]}
 };
 
-// G6怪物数据
+// G6怪物数据（含特殊规则）
 const G6_MONSTERS={
-  skeleton:{name:'骷髅兵',icon:'💀',hp:8,atk:2,gold:3,isDragon:false,skill:'普通攻击'},
-  goblin:{name:'哥布林',icon:'👺',hp:6,atk:1,gold:2,isDragon:false,skill:'偷袭'},
-  slime:{name:'史莱姆',icon:'🟢',hp:10,atk:1,gold:2,isDragon:false,skill:'分裂'},
-  bat:{name:'蝙蝠',icon:'🦇',hp:5,atk:2,gold:2,isDragon:false,skill:'吸血'},
-  ghost:{name:'幽灵',icon:'👻',hp:7,atk:3,gold:4,isDragon:false,skill:'恐惧'},
-  orc:{name:'兽人',icon:'👹',hp:12,atk:3,gold:5,isDragon:false,skill:'狂暴'},
-  dragon1:{name:'幼龙',icon:'🐲',hp:20,atk:4,gold:10,isDragon:true,skill:'龙息'},
-  dragon2:{name:'远古巨龙',icon:'🐉',hp:35,atk:5,gold:20,isDragon:true,skill:'毁灭吐息'}
+  succubus:{name:'魅魔',icon:'😈',hp:15,atk:4,gold:8,isDragon:false,skill:'魅惑',rule:'你不能使用红色技能',ruleType:'noRedSkill'},
+  lanternMan:{name:'提灯人',icon:'🏮',hp:12,atk:3,gold:6,isDragon:false,skill:'普通攻击',rule:'投掷时由右边的人抓住你的手腕进行投掷',ruleType:'flavor'},
+  mutantRat:{name:'变异老鼠',icon:'🐀',hp:6,atk:1,gold:3,isDragon:false,skill:'偷袭',rule:'投掷时需要远离桌子一臂距离投掷',ruleType:'flavor'},
+  frogBounce:{name:'青蛙蹦蹦',icon:'🐸',hp:7,atk:1,gold:3,isDragon:false,skill:'跳跃',rule:'投掷时需要踮着脚投骰子',ruleType:'flavor'},
+  redDragon:{name:'红龙',icon:'🐉',hp:28,atk:4,gold:20,isDragon:true,skill:'龙息',rule:'掷骰子放在手上并吹出骰子',ruleType:'flavor'},
+  dragonEgg:{name:'龙蛋',icon:'🥚',hp:16,atk:2,gold:10,isDragon:false,skill:'坚硬外壳',rule:'进攻失误时，不会受到反击伤害',ruleType:'noCounter'},
+  greedyGoblin:{name:'贪财哥布林',icon:'👺',hp:8,atk:3,gold:5,isDragon:false,skill:'偷袭',rule:'进攻失误时损失1金币（如果没有金币额外掉1血）',ruleType:'missGold'},
+  youngDragon:{name:'幼龙',icon:'🐲',hp:12,atk:3,gold:8,isDragon:false,skill:'龙息',rule:'当骰子停留在1环区域，视为攻击失败',ruleType:'ring1Miss'},
+  flameCore:{name:'火焰核心',icon:'🔥',hp:11,atk:3,gold:7,isDragon:false,skill:'烈焰',rule:'当你进攻失败后怪物回复1点血量',ruleType:'missHeal'},
+  shapeless:{name:'不可形状',icon:'🐙',hp:10,atk:3,gold:6,isDragon:false,skill:'变形',rule:'投掷时，需要使用非惯用手',ruleType:'flavor'},
+  rhinoKing:{name:'火爆犀牛王',icon:'🦏',hp:9,atk:2,gold:7,isDragon:false,skill:'冲撞',rule:'进攻失误时，小队成员都要承受反击伤害',ruleType:'missTeamDmg'},
+  medusa:{name:'美杜莎',icon:'🐍',hp:10,atk:3,gold:8,isDragon:false,skill:'石化',rule:'投掷时，需要闭上眼睛',ruleType:'flavor'},
+  dragonBoss1:{name:'第一层龙BOSS',icon:'🐉',hp:30,atk:5,gold:25,isDragon:true,skill:'毁灭吐息',rule:'BOSS战',ruleType:'boss'},
+  dragonBoss2:{name:'最终龙BOSS',icon:'🐲',hp:40,atk:6,gold:50,isDragon:true,skill:'终极毁灭',rule:'最终BOSS',ruleType:'boss'}
 };
 
 // G6宝物/道具
@@ -2910,6 +3223,58 @@ const G6_TREASURES={
   healingPotion:{name:'治疗药剂',icon:'🧪',img:'https://aka.doubaocdn.com/s/RNB7brl4dJ',type:'passive',desc:'每回合自动回复1点血量',trigger:'每回合开始时自动回复1点血量',effect:'autoHeal'},
   goldPouch:{name:'金币钱袋',icon:'💰',img:'https://aka.doubaocdn.com/s/JoAXsBeDOD',type:'passive',desc:'每回合开始时，可以投掷一颗骰子，投掷结果4~6可获得1枚金币。',trigger:'每回合开始时投骰，4~6获得1金币',effect:'goldDice'},
   emptyBottle:{name:'空酒瓶',icon:'🍾',img:'https://aka.doubaocdn.com/s/lSlP5WVbXK',type:'passive',desc:'进攻前不知道哪里飞来一个酒瓶，砸向敌人，造成1点额外伤害。',trigger:'每次进攻前额外造成1点伤害',effect:'extraDamage'}
+};
+
+// G6护盾/护甲
+const G6_SHIELDS={
+  hardLeather:{name:'硬皮甲',icon:'🛡️',img:'https://aka.doubaocdn.com/s/dy0kF8L6sT',slot:'护盾',desc:'受到怪物主动攻击伤害-1或使其损失1点血量。',effect:'reduceMonsterDmg',value:1},
+  thornArmor:{name:'荆棘甲',icon:'🌵',img:'https://aka.doubaocdn.com/s/hvmxeh2Il1',slot:'护盾',desc:'受到伤害后，对怪物造成1点反伤。',effect:'reflectDmg',value:1},
+  chainMail:{name:'锁子甲',icon:'⛓️',img:'https://aka.doubaocdn.com/s/A6RSXWFtiC',slot:'护盾',desc:'被动效果：所有受到的伤害-1（最低为1）',effect:'reduceAllDmg',value:1},
+  steelVest:{name:'钢背心',icon:'🦺',img:'https://aka.doubaocdn.com/s/efQJn0aqMR',slot:'护盾',desc:'每次受到的怪物反击伤害-2',effect:'reduceCounterDmg',value:2}
+};
+
+// G6副武器（+1伤害，有角色扮演要求）
+const G6_SECONDARY_WEAPONS={
+  tribalBanner:{name:'部落战旗',icon:'🚩',slot:'副武器',bonus:1,desc:'高喊一句自创口号"为了_____"。示例：为了部落！为了不用洗碗！',requirement:'高喊自创口号'},
+  tauntMask:{name:'嘲讽面具',icon:'🎭',slot:'副武器',bonus:1,desc:'做一个鬼脸，同时发出一种怪声。',requirement:'做鬼脸+怪声'},
+  clownNose:{name:'小丑的假鼻子',icon:'🤡',slot:'副武器',bonus:1,desc:'投掷完成前需持续发出一种怪异的笑声。',requirement:'持续怪异笑声'},
+  musicBox:{name:'传奇八音盒',icon:'🎵',slot:'副武器',bonus:1,desc:'唱一首儿歌（至少两句，每回合不能重复）',requirement:'唱儿歌两句以上'}
+};
+
+// G6可购买的主武器（统一3金币，+2伤害，线上语音版）
+const G6_MAIN_WEAPONS={
+  arcaneStaff:{name:'奥术法杖',icon:'🪄',slot:'主武器',bonus:2,price:3,desc:'奥术之力，伤害+2'},
+  executionerBlade:{name:'斩首者之刃',icon:'🗡️',slot:'主武器',bonus:2,price:3,desc:'锋利之刃，伤害+2'},
+  rotatingAxe:{name:'旋转战斧',icon:'🪓',slot:'主武器',bonus:2,price:3,desc:'重型战斧，伤害+2'},
+  flameOrb:{name:'炎爆宝珠',icon:'🔥',slot:'主武器',bonus:2,price:3,desc:'烈焰宝珠，伤害+2'},
+  triDart:{name:'三棱飞镖',icon:'🎯',slot:'主武器',bonus:2,price:3,desc:'精准飞镖，伤害+2'},
+  cloudBow:{name:'穿云弓',icon:'🏹',slot:'主武器',bonus:2,price:3,desc:'穿云长弓，伤害+2'},
+  shadowDart:{name:'暗影镖',icon:'🌑',slot:'主武器',bonus:2,price:3,desc:'暗影飞镖，伤害+2'},
+  timeHourglass:{name:'时空沙漏',icon:'⏳',slot:'主武器',bonus:2,price:3,desc:'时空之力，伤害+2'},
+  moonDagger:{name:'月华匕首',icon:'🌙',slot:'主武器',bonus:2,price:3,desc:'月华匕首，伤害+2'},
+  falconEye:{name:'猎鹰之眼',icon:'🦅',slot:'主武器',bonus:2,price:3,desc:'精准之眼，伤害+2'},
+  echoBoomerang:{name:'回音镖',icon:'🔊',slot:'主武器',bonus:2,price:3,desc:'回音飞镖，伤害+2'},
+  lightningGlove:{name:'闪电指套',icon:'⚡',slot:'主武器',bonus:2,price:3,desc:'闪电之力，伤害+2'}
+};
+
+// G6利己道具（击败怪兽双数获得）
+const G6_ITEMS_SELF={
+  friendshipBeer:{name:'友谊啤酒杯',icon:'🍺',slot:'道具',type:'self',desc:'指定一名队友，你俩同时"干杯"（各回复2点血量）',effect:'healBoth',value:2},
+  tavernSpecial:{name:'酒馆的特调',icon:'🍹',slot:'道具',type:'self',desc:'喝下后伤害+2（一次性）',effect:'damageBoost',value:2},
+  strongPotion:{name:'强效治疗药水',icon:'🧪',slot:'道具',type:'self',desc:'立即回复自身3点血量（一次性并占用攻击回合）',effect:'healSelf',value:3},
+  curseDoll:{name:'诅咒的娃娃',icon:'🪆',slot:'道具',type:'self',desc:'当你受到伤害时，使用此卡反击一半伤害（一次性）',effect:'reflectHalf',value:0.5},
+  firstAid:{name:'急救包',icon:'🩹',slot:'道具',type:'self',desc:'为一名队友回复2点血量（一次性并占用攻击回合）',effect:'healAlly',value:2},
+  whiskeyBomb:{name:'威士忌炸弹',icon:'🥃',slot:'道具',type:'self',desc:'扔出酒瓶，对目标敌人造成1点伤害（一次性）',effect:'directDamage',value:1}
+};
+
+// G6损人道具（击败怪兽单数获得，已简化线上版）
+const G6_ITEMS_ENEMY={
+  friendshipPotion:{name:'友情催化药水',icon:'🧴',slot:'道具',type:'enemy',desc:'指定一名玩家下次战斗无法使用武器加成（简化版）',effect:'noWeaponBonus',value:0},
+  silenceScroll:{name:'沉默卷轴',icon:'📜',slot:'道具',type:'enemy',desc:'可指定一位冒险王在下次战斗不可使用技能',effect:'silence',value:0},
+  jokeShield:{name:'玩笑护盾',icon:'🛡️',slot:'道具',type:'enemy',desc:'为非龙族怪物增加4点血量',effect:'monsterHpBoost',value:4},
+  redLaneStone:{name:'红色莱恩石',icon:'🔴',slot:'道具',type:'enemy',desc:'可指定一名怪物伤害+1',effect:'monsterAtkBoost',value:1},
+  legendaryWine:{name:'传说中的酒',icon:'🍷',slot:'道具',type:'enemy',desc:'可指定一位冒险王无法使用武器',effect:'noWeapon',value:0},
+  blackPepperBomb:{name:'黑胡椒炸弹',icon:'💣',slot:'道具',type:'enemy',desc:'指定一名玩家下次战斗命中环数-2（最低0环，简化版）',effect:'ringReduce',value:2}
 };
 
 // G6投骰状态
@@ -2942,6 +3307,7 @@ window.G.g6TargetHTML=function(combat){
       <div class="g6-monster-info">攻击:${c.monster.atk} | 金币:${c.monster.gold}</div>
     </div>
     <div class="g6-target-wrap">
+      ${c.attackerWeapon ? `<div class="g6-weapon-req">⚔️ ${c.attackerWeapon.name} +${c.attackerWeapon.bonus}<br><span style="font-size:11px;color:#ffd700">${c.attackerWeapon.desc}</span></div>` : ''}
       <div class="g6-target">
         <svg viewBox="0 0 200 200" class="g6-tsvg">
           <circle cx="100" cy="100" r="95" fill="#1a0a0a" stroke="#8b0000" stroke-width="2"/>
@@ -3006,28 +3372,48 @@ window.G.g6Lock=function(){
   c.dice=Math.floor(Math.random()*6)+1;
   c.isEven=c.dice%2===0;
   c.crit=ring===5&&c.isEven&&!c.monster.isDragon;
-  // 不设置resolved，等待主持人端确认
-  sendAction({type:'g6combat',ring:ring,dice:c.dice,crit:c.crit});
+  c.locked=true;
+  // 发送锁定动作到主持人，不立即结算
+  sendAction({type:'g6lock',ring:ring,dice:c.dice,crit:c.crit});
 };
 
 // 计算血量剩余分：(生命数-1)*9 + 当前血量
 function g6HpScore(p){return ((p.life||1)-1)*9+(p.hp||0)}
 
+// 玩家锁定投骰（主持人端）
+window.G.g6PlayerLock=function(peerId,action){
+  const g=state.game;const c=g.combat;
+  if(!c||c.resolved||c.locked)return;
+  if(c.attacker!==peerId)return;
+  c.ring=action.ring;c.dice=action.dice;c.crit=action.crit;c.locked=true;
+  c.isEven=c.dice%2===0;
+  state.message=state.players[peerId].name+' 锁定：'+(c.ring>0?c.ring+'环':'脱靶')+'，骰子'+c.dice+'点'+(c.isEven?'(双数，可发动技能)':'(单数)');
+  broadcastState();this.renderG6();
+};
+
 window.G.initG6=function(){
   G.gameId=6; // 确保动作路由正确
+  // 第一层路线优先选择权：上个游戏的胜者队伍
+  const firstPick=state.winner||'red';
   state.game={
     floor:1,
     teamPos:{red:{route:null,pos:0},blue:{route:null,pos:0}}, // 两队位置和路线
     lastEffect:null,
     round:1,
-    phase:'routeselect', // routeselect/moving/combat/shop/event
+    phase:'positionselect', // positionselect/routeselect/moving/combat/shop/event
     currentTeam:'red', // 当前行动队伍
     combat:null,
     shop:null,
     event:null,
     cloverUsed:[],
     monstersDefeated:{red:[],blue:[]},
-    bossDefeated:false
+    bossDefeated:false,
+    firstPickTeam:firstPick, // 优先选择路线的队伍
+    firstFloorDone:null, // 第一层先通关的队伍（用于二层路线优先）
+    secondPickTeam:null, // 第二层优先选择路线的队伍
+    discardedEquip:[], // 弃置装备堆（商店不足时刷回）
+    shopInventory:{}, // 商店库存（每种装备的剩余数量）
+    positionSelect:{red:{},blue:{}} // 号位选择状态
   };
   Object.entries(state.players).forEach(([id,p])=>{
     p.floor=1;
@@ -3051,11 +3437,12 @@ window.G.initG6=function(){
     p.backpack=[]; // 背包（最多2件）
     p.treasures=[]; // 宝物栏（被动宝物）
     p.skillSlots=3;
-    // 自动装备专属武器到主武器槽
+    // 自动装备专属武器到专属武器槽
     if(charData&&charData.weapon){
-      p.equipment.push({slot:'主武器',...charData.weapon,exclusive:true});
+      p.equipment.push({slot:'专属武器',...charData.weapon,exclusive:true});
     }
   });
+  // 号位由玩家自己选择，不自动分配
   state.turnOrder=Object.keys(state.players);
   state.message='🐉 最终机制开始！请两队选择路线（上路/下路）';
   state.messageType='';
@@ -3108,20 +3495,69 @@ window.G.renderG6=function(){
   });
   html+='</div>';
 
-  // 路线选择阶段
-  if(g.phase==='routeselect'){
+  // 号位选择阶段
+  if(g.phase==='positionselect'){
+    html+='<div class="g6-position-select">';
+    html+='<h3>⚔️ 选择战斗号位（1/2/3号位）</h3>';
+    html+='<p style="text-align:center;color:var(--gold-light);font-size:13px">号位决定战斗攻击顺序：1号→2号→3号</p>';
+    ['red','blue'].forEach(team=>{
+      html+='<div class="g6-position-team g6-team-'+team+'">';
+      html+='<span>'+(team==='red'?'🔴红队':'🔵蓝队')+'</span>';
+      const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+      [1,2,3].forEach(pos=>{
+        const posPlayer=teamMembers.find(p=>p.position===pos);
+        html+='<div class="g6-position-slot">';
+        html+='<span class="g6-pos-num">'+pos+'号位</span>';
+        if(posPlayer){
+          html+='<img src="'+CHARACTERS.find(c=>c.id===posPlayer.character).img+'" class="g6-pos-avatar">';
+          html+='<span>'+posPlayer.name+'</span>';
+        }else{
+          html+='<span style="color:var(--text-dim)">空缺</span>';
+        }
+        html+='</div>';
+      });
+      html+='</div>';
+    });
+    // 我的号位选择
+    if(myP&&!myP.dead&&!myP.position){
+      html+='<div class="g6-position-my">';
+      html+='<h4>选择你的号位：</h4>';
+      const teamMembers=Object.values(state.players).filter(p=>p.team===myP.team&&!p.dead);
+      [1,2,3].forEach(pos=>{
+        const taken=teamMembers.some(p=>p.position===pos);
+        html+='<button class="btn '+(taken?'btn-gray':'btn-yellow')+'" '+(taken?'disabled':'onclick="sendAction({type:\'g6position\',position:'+pos+'})"')+'>'+pos+'号位'+(taken?'（已选）':'')+'</button>';
+      });
+      html+='</div>';
+    }else if(myP&&myP.position){
+      html+='<div class="g6-position-done">✅ 你已选择 '+myP.position+' 号位，等待其他玩家...</div>';
+    }
+    // 主持人确认按钮
+    if(isHost){
+      const allSelected=Object.values(state.players).filter(p=>!p.dead).every(p=>p.position);
+      html+='<div class="g6-position-confirm"><button class="btn btn-green" '+(allSelected?'':'disabled')+' onclick="sendAction({type:\'g6positiondone\'})">✅ 全部选好，进入路线选择</button></div>';
+      if(!allSelected){
+        html+='<div style="text-align:center;color:#fbbf24;font-size:12px">还有玩家未选择号位</div>';
+      }
+    }
+    html+='</div>';
+  }else if(g.phase==='routeselect'){
+    const pickTeam=g.floor===1?g.firstPickTeam:g.secondPickTeam;
     html+='<div class="g6-route-select">';
-    html+='<h3>🗺️ 选择路线</h3>';
-    html+='<p style="text-align:center;color:var(--text-dim);font-size:13px">两队各选一条路线，第一名队伍优先选择</p>';
+    html+='<h3>🗺️ 第'+g.floor+'层 · 选择路线</h3>';
+    html+='<p style="text-align:center;color:var(--gold-light);font-size:14px">👑 '+(pickTeam==='red'?'红队':'蓝队')+'优先选择路线</p>';
     ['red','blue'].forEach(team=>{
       const tp=g.teamPos[team];
-      html+='<div class="g6-route-team g6-team-'+team+'">';
-      html+='<span>'+(team==='red'?'🔴红队':'🔵蓝队')+'</span>';
+      const isPriority=pickTeam===team;
+      const waitingForPriority=pickTeam&&pickTeam!==team&&!g.teamPos[pickTeam].route;
+      html+='<div class="g6-route-team g6-team-'+team+(isPriority?' priority':'')+'">';
+      html+='<span>'+(team==='red'?'🔴红队':'🔵蓝队')+(isPriority?' 👑':'')+'</span>';
       if(tp.route){
         html+='<span>已选: '+(tp.route==='top'?'上路':'下路')+'</span>';
-      }else if(myP&&myP.team===team){
+      }else if(myP&&myP.team===team&&!waitingForPriority){
         html+='<button class="btn btn-small" onclick="sendAction({type:\'g6route\',route:\'top\'})">⬆️ 上路</button>';
         html+='<button class="btn btn-small" onclick="sendAction({type:\'g6route\',route:\'bottom\'})">⬇️ 下路</button>';
+      }else if(waitingForPriority){
+        html+='<span style="color:var(--text-dim)">⏳ 等待'+(pickTeam==='red'?'红队':'蓝队')+'先选...</span>';
       }else{
         html+='<span style="color:var(--text-dim)">等待选择...</span>';
       }
@@ -3129,6 +3565,16 @@ window.G.renderG6=function(){
     });
     html+='</div>';
   }else if(g.phase==='combat'&&g.combat){
+    // 战斗阶段：行动顺序显示
+    const combatAttacker=g.combat.attacker?state.players[g.combat.attacker]:null;
+    html+='<div class="g6-combat-info">';
+    html+='<span style="color:'+(combatAttacker?.team==='blue'?'#64b5f6':'#ef9a9a')+'">⚔️ 当前攻击者：'+(combatAttacker?combatAttacker.name:'?')+'</span>';
+    html+='<span style="color:var(--text-dim);margin-left:12px">队伍：'+(g.combat.team==='red'?'🔴红队':'🔵蓝队')+'</span>';
+    html+='<span style="color:var(--text-dim);margin-left:12px">怪物：'+g.combat.monster.name+'（'+g.combat.monsterHp+'血）</span>';
+    if(g.combat.locked){
+      html+='<span style="color:var(--gold-light);margin-left:12px">锁定：'+(g.combat.ring>0?g.combat.ring+'环':'脱靶')+'，骰子'+g.combat.dice+'点'+(g.combat.dice%2===0?'（双数）':'（单数）')+'</span>';
+    }
+    html+='</div>';
     // 战斗阶段：显示靶盘
     html+=this.g6TargetHTML(g.combat);
     // 战斗日志
@@ -3137,9 +3583,228 @@ window.G.renderG6=function(){
       g.combat.log.slice(-3).forEach(l=>{html+='<div>'+l+'</div>'});
       html+='</div>';
     }
-  }else{
-    // 地图：上下两条路线
-    const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+    // 技能按钮（锁定后显示，当前攻击者可操作，主持人只读可见）
+    const attacker=g.combat.attacker?state.players[g.combat.attacker]:null;
+    const canSeeSkills=(myP&&!myP.dead&&g.combat.attacker===myPeerId)||isHost;
+    if(canSeeSkills&&attacker&&!g.combat.resolved&&g.combat.locked){
+      const monster=g.combat.monster;
+      const isSuccubus=monster.effect==='noRedSkill';
+      const isEven=g.combat.dice%2===0;
+      const isHit=g.combat.ring>0;
+      const availableSkills=(attacker.skills||[]).filter(s=>!s.used);
+      if(availableSkills.length>0){
+        html+='<div class="g6-skill-buttons">';
+        html+='<div class="g6-skill-title">⚡ '+attacker.name+'的技能（'+(isEven?'双数可发动':'单数无法发动')+(isHit?'，上靶':'，脱靶')+'）'+(isHost?' 👁️主持人视角':'')+'</div>';
+        if(isSuccubus){
+          html+='<div class="g6-skill-warning">😈 魅魔效果：红色技能（商店技能）被禁用！</div>';
+        }
+        availableSkills.forEach((skill,idx)=>{
+          const isRedSkill=skill.isShopSkill;
+          const canUse=isEven&&(skill.evenMiss||isHit)&&!(isSuccubus&&isRedSkill)&&!isHost;
+          const evenMissTag=skill.evenMiss?' <span style="color:#22c55e;font-size:10px">[即使未上靶]</span>':'';
+          html+='<button class="btn btn-small g6-skill-btn'+(canUse?'':' disabled')+'" style="border-color:'+skill.color+';color:'+skill.color+'" '+(canUse?'onclick="sendAction({type:\'g6skill\',skillIndex:'+idx+'})"':'disabled')+'>';
+          html+='<span class="g6-skill-name">'+skill.name+evenMissTag+'</span>';
+          html+='<span class="g6-skill-desc">'+skill.desc+'</span>';
+          if(!isEven)html+='<span class="g6-skill-lock">🔒 需要双数</span>';
+          else if(!isHit&&!skill.evenMiss)html+='<span class="g6-skill-lock">🔒 需要上靶</span>';
+          else if(isSuccubus&&isRedSkill)html+='<span class="g6-skill-lock">🔒 魅魔禁用</span>';
+          else if(isHost)html+='<span class="g6-skill-lock">👁️ 主持人视角</span>';
+          html+='</button>';
+        });
+        html+='</div>';
+      }
+      // 确认结算按钮（只有当前攻击者可见）
+      if(myP&&!myP.dead&&g.combat.attacker===myPeerId){
+        html+='<div class="g6-confirm-combat"><button class="btn btn-yellow" onclick="sendAction({type:\'g6confirm\'})">✅ 确认结算</button></div>';
+      }else if(isHost){
+        html+='<div class="g6-confirm-combat"><span style="color:var(--gold)">⏳ 等待'+attacker.name+'确认结算</span></div>';
+      }
+    }
+  }else if(g.chestSelect){
+    // 宝箱选择阶段
+    html+='<div class="g6-chest-select">';
+    html+='<h3>📦 宝箱！选择一件装备</h3>';
+    const chestMembers=Object.values(state.players).filter(p=>p.team===g.chestSelect.team&&!p.dead);
+    html+='<div class="g6-chest-status">';
+    chestMembers.forEach(p=>{
+      const chosen=g.chestSelect.chosen[p.id];
+      html+='<div class="g6-chest-player'+(chosen?' done':'')+'">';
+      html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" class="g6-chest-avatar">';
+      html+='<span>'+p.name+'</span>';
+      html+='<span>'+(chosen?'✅ '+chosen:'⏳ 等待选择')+'</span>';
+      html+='</div>';
+    });
+    html+='</div>';
+    // 我的选择界面（或主持人视角）
+    const canSelectChest=myP&&!myP.dead&&myP.team===g.chestSelect.team&&!g.chestSelect.chosen[myPeerId];
+    if(canSelectChest||isHost){
+      const viewPlayer=isHost?null:myP;
+      const availableItems=isHost?[]:this.g6GetAvailableItems(myP);
+      if(isHost){
+        // 主持人视角：显示所有玩家的当前装备和选择状态
+        html+='<div class="g6-chest-host-view" style="background:rgba(0,0,0,.3);border-radius:8px;padding:10px;margin-bottom:10px">';
+        html+='<div style="color:var(--gold-light);font-size:12px;margin-bottom:6px">👁️ 主持人视角：宝箱选择进度</div>';
+        chestMembers.forEach(p=>{
+          const chosen=g.chestSelect.chosen[p.id];
+          const currentEquip=p.equipment?.map(e=>e.name).join('、')||'无';
+          html+='<div style="font-size:11px;margin:2px 0;color:'+(chosen?'#4ade80':'#fbbf24')+'">'+(p.team==='blue'?'🔵':'🔴')+p.name+': '+(chosen?chosen:'等待选择')+' | 当前装备：'+currentEquip+'</div>';
+        });
+        html+='</div>';
+      }
+      if(!isHost&&availableItems.length>0){
+        html+='<div class="g6-chest-items">';
+        availableItems.forEach(item=>{
+          html+='<div class="g6-chest-item" onclick="sendAction({type:\'g6chest\',itemType:\''+item.type+'\',itemId:\''+item.id+'\'})">';
+          html+='<div class="g6-chest-item-icon">'+(item.icon||'📦')+'</div>';
+          html+='<div class="g6-chest-item-name">'+item.name+'</div>';
+          html+='<div class="g6-chest-item-slot">'+item.slot+'</div>';
+          html+='<div class="g6-chest-item-desc">'+item.desc+'</div>';
+          html+='</div>';
+        });
+        html+='</div>';
+      }else if(!isHost){
+        html+='<div class="g6-chest-empty">你的装备槽已满，无法选择装备</div>';
+        // 自动标记为已选择
+        if(!g.chestSelect.chosen[myPeerId]){
+          g.chestSelect.chosen[myPeerId]='槽位已满';
+          setTimeout(()=>G.g6CheckChestDone(),100);
+        }
+      }
+    }
+    html+='</div>';
+  }else if(g.shop){
+    // 商店界面
+    html+='<div class="g6-shop">';
+    html+='<h3>🏛️ 雕像商店</h3>';
+    // 弃置堆显示（主持人可见）
+    if(isHost&&g.discardedEquip&&g.discardedEquip.length>0){
+      html+='<div class="g6-discarded-info" style="background:rgba(139,69,19,.3);border:1px solid #8b4513;border-radius:8px;padding:8px;margin-bottom:10px">';
+      html+='<div style="color:#daa520;font-size:12px;margin-bottom:4px">📦 弃置堆（可刷回商店，共'+g.discardedEquip.length+'件）：</div>';
+      html+='<div style="display:flex;flex-wrap:wrap;gap:4px">';
+      g.discardedEquip.forEach(item=>{
+        html+='<span style="background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:11px">'+(item.icon||'📦')+' '+item.name+'</span>';
+      });
+      html+='</div></div>';
+    }
+    const shopMembers=Object.values(state.players).filter(p=>p.team===g.shop.team&&!p.dead);
+    html+='<div class="g6-shop-status">';
+    shopMembers.forEach(p=>{
+      const done=g.shop.done[p.id];
+      const bought=g.shop.bought[p.id]||0;
+      html+='<div class="g6-shop-player'+(done?' done':'')+'">';
+      html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" class="g6-shop-avatar">';
+      html+='<span>'+p.name+'</span>';
+      html+='<span>💰'+(p.gold||0)+'</span>';
+      html+='<span>'+(done?'✅ 完成':'⏳ 购买中 ('+bought+'/3)')+'</span>';
+      html+='</div>';
+    });
+    html+='</div>';
+    // 我的商店界面
+    if(myP&&!myP.dead&&myP.team===g.shop.team&&!g.shop.done[myPeerId]){
+      const myBought=g.shop.bought[myPeerId]||0;
+      html+='<div class="g6-shop-my">';
+      html+='<div class="g6-shop-info">💰 我的金币：'+(myP.gold||0)+' | 已购装备：'+myBought+'/3 | 装备总数：'+((myP.equipment?.length||0)+(myP.treasures?.length||0))+'/5</div>';
+      // 购买血量
+      html+='<div class="g6-shop-section"><h4>❤️ 购买血量（1金币/1血）</h4>';
+      html+='<button class="btn btn-small btn-green" onclick="sendAction({type:\'g6shop\',buyType:\'hp\'})" '+(myP.gold<1||myP.hp>=9?'disabled':'')+'>+1血 (1金)</button>';
+      html+='</div>';
+      // 购买技能
+      html+='<div class="g6-shop-section"><h4>📜 购买技能（4金币/个，最多另购2个）</h4>';
+      const extraSkills=(myP.skills?.length||0)-2;
+      html+='<button class="btn btn-small btn-purple" onclick="sendAction({type:\'g6shop\',buyType:\'skill\'})" '+(myP.gold<4||extraSkills>=2?'disabled':'')+'>随机技能 (4金)</button>';
+      html+='</div>';
+      // 购买装备
+      const availableItems=this.g6GetAvailableItems(myP);
+      if(availableItems.length>0){
+        html+='<div class="g6-shop-section"><h4>⚔️ 购买装备（3金币/件）</h4>';
+        html+='<div class="g6-shop-items">';
+        availableItems.forEach(item=>{
+          const canBuy=myP.gold>=3&&myBought<3&&((myP.equipment?.length||0)+(myP.treasures?.length||0))<5;
+          html+='<div class="g6-shop-item'+(canBuy?'':' disabled')+'" '+(canBuy?'onclick="sendAction({type:\'g6shop\',buyType:\''+item.type+'\',itemId:\''+item.id+'\'})"':'')+'>';
+          html+='<div class="g6-shop-item-icon">'+(item.icon||'📦')+'</div>';
+          html+='<div class="g6-shop-item-name">'+item.name+'</div>';
+          html+='<div class="g6-shop-item-slot">'+item.slot+(item.bonus?' +'+item.bonus:'')+'</div>';
+          html+='<div class="g6-shop-item-desc">'+item.desc+'</div>';
+          html+='<div class="g6-shop-item-price">💰3</div>';
+          html+='</div>';
+        });
+        html+='</div></div>';
+      }
+      // 完成购买按钮
+      html+='<div class="g6-shop-done"><button class="btn btn-yellow" onclick="sendAction({type:\'g6shopdone\'})">✅ 完成购买</button></div>';
+      html+='</div>';
+    }else if(myP&&g.shop.done[myPeerId]){
+      html+='<div class="g6-shop-wait">✅ 你已完成购买，等待其他玩家...</div>';
+    }
+    html+='</div>';
+  }else if(g.itemDrop){
+    // 道具分配界面
+    const dropItem=g.itemDrop.item;
+    html+='<div class="g6-item-drop">';
+    html+='<h3>🎁 道具掉落！投出'+g.itemDrop.dice+'点</h3>';
+    html+='<div class="g6-item-drop-card">';
+    html+='<div class="g6-item-drop-icon">'+(dropItem.icon||'📦')+'</div>';
+    html+='<div class="g6-item-drop-name">'+dropItem.name+'</div>';
+    html+='<div class="g6-item-drop-type">'+(dropItem.type==='self'?'【利己】':'【损人】')+'</div>';
+    html+='<div class="g6-item-drop-desc">'+dropItem.desc+'</div>';
+    html+='</div>';
+    html+='<div class="g6-item-drop-select"><h4>选择队员分配道具：</h4>';
+    const dropMembers=Object.values(state.players).filter(p=>p.team===g.itemDrop.team&&!p.dead);
+    dropMembers.forEach(p=>{
+      const hasSlot=!p.equipment?.some(e=>e.slot==='道具');
+      html+='<button class="btn btn-small '+(hasSlot?'btn-blue':'')+'" '+(hasSlot?'onclick="sendAction({type:\'g6itemassign\',targetId:\''+p.id+'\'})"':'disabled')+'>';
+      html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:4px">';
+      html+=p.name+(hasSlot?'':' (道具槽已满)');
+      html+='</button>';
+    });
+    html+='</div></div>';
+  }else if(g.itemTargetSelect){
+    // 道具目标选择界面
+    const its=g.itemTargetSelect;
+    const itsItem=its.item;
+    html+='<div class="g6-item-target">';
+    html+='<h3>🎯 使用 '+itsItem.name+'</h3>';
+    html+='<div class="g6-item-target-desc">'+itsItem.desc+'</div>';
+    html+='<div class="g6-item-target-select"><h4>选择目标：</h4>';
+    const targetPlayers=its.needAlly?
+      Object.values(state.players).filter(p=>p.team===state.players[its.playerId].team&&!p.dead):
+      Object.values(state.players).filter(p=>!p.dead);
+    targetPlayers.forEach(p=>{
+      html+='<button class="btn btn-small btn-blue" onclick="G.g6UseItem(\''+its.playerId+'\',\''+p.id+'\')">';
+      html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:4px">';
+      html+=p.name;
+      html+='</button>';
+    });
+    html+='<button class="btn btn-small btn-gray" onclick="G.g6CancelItemTarget()">取消</button>';
+    html+='</div></div>';
+  }else if(g.cloverEvent){
+    // 三叶草事件显示
+    const ce=g.cloverEvent;
+    const cePlayer=state.players[ce.playerId];
+    const ceTeam=ce.team;
+    html+='<div class="g6-clover-event">';
+    html+='<div class="g6-clover-title">🍀 三叶草事件</div>';
+    html+='<div class="g6-clover-player">'+(ceTeam==='red'?'🔴红队':'🔵蓝队')+' 三人一起触发！（'+cePlayer.name+'的事件卡）</div>';
+    html+='<div class="g6-clover-story">'+ce.story+'</div>';
+    html+='<div class="g6-clover-action">🎭 动作：'+ce.action+'</div>';
+    html+='<div class="g6-clover-quote">';
+    html+='<div class="g6-quote-title">🗣️ 三人各一句：</div>';
+    (ce.quotes||[ce.quote]).forEach((q,i)=>{
+      html+='<div class="g6-quote-line"><span class="g6-quote-num">队员'+(i+1)+'：</span>"'+q+'"</div>';
+    });
+    html+='</div>';
+    html+='<div class="g6-clover-timer">⏱️ 请全队在语音中一起重复台词，等待主持人判定</div>';
+    html+='<div class="g6-clover-reward">🎁 完成奖励：全队每人'+(ce.reward==='gold2'?'+2金币':ce.reward==='gold3'?'+3金币':'+2血量')+'</div>';
+    // 主持人判定按钮
+    if(isHost){
+      html+='<div class="g6-clover-host">';
+      html+='<button class="btn btn-green" onclick="G.g6CloverResolve(true)">✅ 判定通过，给奖励</button>';
+      html+='<button class="btn btn-red" onclick="G.g6CloverResolve(false)">❌ 判定不通过</button>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
     html+='<div class="g6-map-section">';
     // 上路
     html+='<div class="g6-route-label">⬆️ 上路</div>';
@@ -3192,7 +3857,6 @@ window.G.renderG6=function(){
     bossTeams.forEach(([team])=>{html+='<div class="g6-pdot '+team+'">'+(team==='red'?'🔴':'🔵')+'</div>'});
     html+='</div></div>';
     html+='</div></div>';
-  }
 
   // 消息
   html+='<div class="g6-message">'+state.message+'</div>';
@@ -3232,8 +3896,8 @@ window.G.renderG6=function(){
   // 特效
   if(g.lastEffect){
     const fx=g.lastEffect;
-    const fxIcon={damage:'💔',combat:'⚔️',gold:'💰',heal:'💚',dragon:'🐉',crit:'💥',treasure:'💎'}[fx.type]||'✨';
-    const fxColor=fx.type==='damage'?'#ff4444':fx.type==='gold'?'#ffd700':fx.type==='heal'?'#44ff44':fx.type==='crit'?'#ff0000':'#e8c86a';
+    const fxIcon={damage:'💔',combat:'⚔️',gold:'💰',heal:'💚',dragon:'🐉',crit:'💥',treasure:'💎',skill:'✨',clover:'🍀',info:'📢',buff:'⬆️',debuff:'⬇️'}[fx.type]||'✨';
+    const fxColor=fx.type==='damage'?'#ff4444':fx.type==='gold'?'#ffd700':fx.type==='heal'?'#44ff44':fx.type==='crit'?'#ff0000':fx.type==='skill'?'#a855f7':fx.type==='clover'?'#22c55e':fx.type==='debuff'?'#ef4444':'#e8c86a';
     html+='<div class="g5-fx-overlay"><div class="g5-fx-box g5-fx-'+(fx.type||'normal')+'" style="--fx-color:'+fxColor+'"><div class="g5-fx-icon" style="color:'+fxColor+'">'+fxIcon+'</div><div class="g5-fx-text" style="color:'+fxColor+'">'+fx.text+'</div><div class="g5-fx-sub">'+fx.sub+'</div></div></div>';
   }
   document.getElementById('gameArea').innerHTML=html;
@@ -3262,7 +3926,9 @@ window.G.g6RenderCharPanel=function(p){
   html+='<div class="g6-panel-equips">';
   (p.equipSlots||charData.equip).forEach((slotName,i)=>{
     const item=p.equipment?.find(e=>e.slot===slotName);
-    html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+'"><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>':'')+'</div>';
+    const isUsableItem=slotName==='道具'&&item&&item.effect!=='reflectHalf';
+    const canUse=isUsableItem&&p.id===myPeerId&&!p.dead;
+    html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+(canUse?' usable':'')+'"'+(canUse?' onclick="G.g6PromptUseItem(\''+p.id+'\')"':'')+'><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>':'')+(canUse?'<div class="use-hint">点击使用</div>':'')+'</div>';
   });
   html+='</div>';
   // 技能槽
@@ -3320,7 +3986,7 @@ window.G.g6RenderButtons=function(){
   if(!btns)return;
   const myP=state.players[myPeerId];
   if(!myP||myP.dead){btns.innerHTML='';return}
-  if(g.phase==='routeselect'){btns.innerHTML='';return}
+  if(g.phase==='positionselect'||g.phase==='routeselect'){btns.innerHTML='';return}
   if(myP.team!==g.currentTeam){btns.innerHTML='<span style="color:var(--text-dim)">等待'+(g.currentTeam==='red'?'红队':'蓝队')+'行动...</span>';return}
   if(g.phase==='moving'){
     btns.innerHTML='<button class="btn" onclick="sendAction({type:\'g6move\'})">🚶 队伍前进1格</button>';
@@ -3329,6 +3995,8 @@ window.G.g6RenderButtons=function(){
     if(c.attacker===myPeerId&&!c.resolved){
       if(c.rolling){
         btns.innerHTML='<button class="btn btn-red" onclick="G.g6Lock()">🎯 锁定！</button>';
+      }else if(c.locked){
+        btns.innerHTML='<span style="color:var(--gold)">⏳ 请使用技能或确认结算 ↑</span>';
       }else{
         btns.innerHTML='<button class="btn" onclick="G.g6StartRoll()">🎲 投骰攻击</button>';
       }
@@ -3336,11 +4004,47 @@ window.G.g6RenderButtons=function(){
       btns.innerHTML='<span style="color:var(--gold)">结算中...</span>';
     }else{
       const attacker=state.players[c.attacker];
-      btns.innerHTML='<span style="color:var(--text-dim)">等待'+(attacker?attacker.name:'')+'投骰...</span>';
+      btns.innerHTML='<span style="color:var(--text-dim)">等待'+(attacker?attacker.name:'')+(c.locked?'确认结算':'投骰')+'...</span>';
     }
   }else{
     btns.innerHTML='';
   }
+};
+
+// 玩家选择号位
+window.G.g6SelectPosition=function(peerId,position){
+  const g=state.game;
+  if(g.phase!=='positionselect')return;
+  const p=state.players[peerId];
+  if(!p||p.dead)return;
+  if(p.position)return; // 已选择
+  // 检查号位是否被同队其他玩家占用
+  const teamMembers=Object.values(state.players).filter(pl=>pl.team===p.team&&!pl.dead);
+  if(teamMembers.some(pl=>pl.position===position)){
+    state.message=p.name+'选择的'+position+'号位已被占用';
+    broadcastState();this.renderG6();
+    return;
+  }
+  p.position=position;
+  state.message=p.name+' 选择了 '+position+' 号位';
+  broadcastState();this.renderG6();
+};
+
+// 主持人确认号位选择完成
+window.G.g6PositionDone=function(peerId){
+  const g=state.game;
+  if(g.phase!=='positionselect')return;
+  if(!isHost&&peerId!==state.hostId)return;
+  // 检查所有存活玩家是否都选择了号位
+  const allSelected=Object.values(state.players).filter(p=>!p.dead).every(p=>p.position);
+  if(!allSelected){
+    state.message='还有玩家未选择号位';
+    broadcastState();this.renderG6();
+    return;
+  }
+  g.phase='routeselect';
+  state.message='✅ 号位选择完成！进入路线选择';
+  broadcastState();this.renderG6();
 };
 
 // 选择路线
@@ -3348,6 +4052,13 @@ window.G.g6SelectRoute=function(peerId,route){
   const p=state.players[peerId];const g=state.game;
   if(g.phase!=='routeselect')return;
   if(g.teamPos[p.team].route)return; // 已选择
+  // 路线选择优先级：优先队伍先选，选完后另一个队伍才能选
+  const pickTeam=g.floor===1?g.firstPickTeam:g.secondPickTeam;
+  if(pickTeam&&pickTeam!==p.team&&!g.teamPos[pickTeam].route){
+    state.message=(pickTeam==='red'?'红队':'蓝队')+'优先选择路线，请等待';
+    broadcastState();this.renderG6();
+    return;
+  }
   g.teamPos[p.team].route=route;
   state.message=(p.team==='red'?'红队':'蓝队')+'选择了'+(route==='top'?'上路':'下路');
   // 检查两队是否都选好了
@@ -3386,7 +4097,19 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
   const g=state.game;
   const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
   const cellKey=route+'-'+pos;
+  // 如果没有传入cell，自动获取
+  if(!cell){
+    const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+    const routeData=route==='top'?floorData.top:floorData.bottom;
+    cell=routeData[pos];
+  }
   switch(cell.type){
+    case 'start':
+      // 雕像格=商店
+      g.shop={cellKey, team, bought:{}, done:{}};
+      state.message+=' | 🏛️ 雕像商店！购买装备/技能/血量';
+      broadcastState();this.renderG6();
+      break;
     case 'spring':
       members.forEach(p=>{p.hp=Math.min(9,(p.hp||0)+(g.floor===1?2:3))});
       g.lastEffect={type:'heal',text:(team==='red'?'红队':'蓝队')+'每人+'+(g.floor===1?2:3)+'血',sub:'💧泉水'};
@@ -3394,26 +4117,26 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
       this.g6EndTeamTurn();
       break;
     case 'chest':
-      // 每个存活玩家获得一件随机宝物
-      const treasureKeys=Object.keys(G6_TREASURES);
-      const gotTreasures=[];
-      members.forEach(p=>{
-        if(p.treasures.length<3){ // 最多3件宝物
-          const tk=treasureKeys[Math.floor(Math.random()*treasureKeys.length)];
-          const treasure={...G6_TREASURES[tk],id:tk};
-          p.treasures.push(treasure);
-          gotTreasures.push(p.name+'获得'+treasure.name);
-        }
-      });
-      g.lastEffect={type:'treasure',text:(team==='red'?'红队':'蓝队')+'发现宝箱！',sub:'📦 '+gotTreasures.join('、')};
-      state.message+=' | 宝箱：'+gotTreasures.join('、');
-      this.g6EndTeamTurn();
+      // 宝箱：每人获得一件装备，玩家任选一件（必须是面板上能装备的）
+      g.chestSelect={cellKey, team, chosen:{}};
+      state.message+=' | 📦 宝箱！请每人选择一件装备';
+      // 检查是否所有存活玩家都已选择
+      this.g6CheckChestDone();
       break;
     case 'clover':
       if(!g.cloverUsed.includes(g.floor+'-'+cellKey)){
         g.cloverUsed.push(g.floor+'-'+cellKey);
-        g.lastEffect={type:'gold',text:(team==='red'?'红队':'蓝队')+'触发三叶草事件！',sub:'🍀三叶草'};
-        state.message+=' | 三叶草随机事件（开发中）';
+        // 随机选择小队中一个存活玩家的角色事件（小队三人一起触发）
+        const aliveMembers=members.filter(p=>G6_CLOVER_EVENTS[p.character]);
+        if(aliveMembers.length>0){
+          const randomPlayer=aliveMembers[Math.floor(Math.random()*aliveMembers.length)];
+          const event=G6_CLOVER_EVENTS[randomPlayer.character];
+          g.cloverEvent={...event,playerId:randomPlayer.id,cellKey,team,resolved:false,teamEvent:true};
+          state.message+=' | 🍀 三叶草事件！'+(team==='red'?'红队':'蓝队')+'三人一起表演，等待主持人判定';
+          g.lastEffect={type:'clover',text:(team==='red'?'红队':'蓝队')+'触发三叶草事件！',sub:'🍀'+event.name};
+          broadcastState();this.renderG6();
+          return;
+        }
       }else{
         state.message+=' | 三叶草事件已触发过';
       }
@@ -3429,14 +4152,19 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
         const monsterKeys=Object.keys(G6_MONSTERS).filter(k=>!G6_MONSTERS[k].isDragon);
         const monsterKey=monsterKeys[Math.floor(Math.random()*monsterKeys.length)];
         const monster={...G6_MONSTERS[monsterKey]};
-        // 选择当前队伍第一个存活玩家作为攻击者
-        const attackerEntry=Object.entries(state.players).find(([id,p])=>p.team===team&&!p.dead);
+        // 存储怪物到格子，供大回合结束主动攻击使用
+        if(!g.cellMonsters)g.cellMonsters={};
+        if(!g.cellMonsters[team])g.cellMonsters[team]={};
+        g.cellMonsters[team][cellKey]=monster;
+        // 选择当前队伍1号位存活玩家作为攻击者（按position顺序）
+        const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
+        const attacker=teamMembers[0];
         g.combat={
           monster:monster,
           monsterHp:monster.hp,
           cellKey:cellKey,
           team:team,
-          attacker:attackerEntry?attackerEntry[0]:null,
+          attacker:attacker?attacker.id:null,
           attackerIndex:0,
           rolling:false,
           resolved:false,
@@ -3445,9 +4173,10 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
           pointer:0,
           crit:false,
           round:1,
-          log:[]
+          log:[],
+          locked:false
         };
-        state.message+=' | ⚔️ 遭遇'+monster.name+'！'+(attackerEntry?attackerEntry[1].name:'')+'投骰攻击';
+        state.message+=' | ⚔️ 遭遇'+monster.name+'！'+(attacker?attacker.name+'（'+(attacker.position||'?')+'号位）':'')+'投骰攻击';
         g.lastEffect={type:'combat',text:'遭遇'+monster.name+'！',sub:'💀怪兽格'};
       }
       break;
@@ -3472,12 +4201,17 @@ window.G.g6TriggerBoss=function(team){
   if(g.bossDefeated){
     // 已击败，直接通过
     if(g.floor===1){
+      // 记录先通关的队伍（用于二层路线优先选择）
+      if(!g.firstFloorDone){
+        g.firstFloorDone=team;
+        g.secondPickTeam=team; // 先通关的队伍优先选择二层路线
+      }
       g.floor=2;
       g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
       g.phase='routeselect';
       g.bossDefeated=false;
       Object.values(state.players).forEach(p=>{p.floor=2});
-      state.message='🎉 进入第二层！请重新选择路线';
+      state.message='🎉 进入第二层！'+(g.secondPickTeam==='red'?'红队':'蓝队')+'行动更快，优先选择路线';
     }
     this.g6EndTeamTurn();
     return;
@@ -3489,14 +4223,15 @@ window.G.g6TriggerBoss=function(team){
   setTimeout(()=>this.g6AutoCombat(team,'boss',true),2000);
 };
 
-// 战斗结算（玩家投骰后）
+// 战斗结算（玩家确认后）
 window.G.g6ResolveCombat=function(peerId,action){
   const g=state.game;const c=g.combat;
   if(!c||c.resolved)return;
   const attacker=state.players[peerId];
   if(!attacker||c.attacker!==peerId)return;
+  if(!c.locked){state.message='请先投骰锁定';broadcastState();this.renderG6();return}
   
-  c.ring=action.ring;c.dice=action.dice;c.crit=action.crit;c.resolved=true;
+  c.resolved=true;
   const isEven=c.dice%2===0;
   const monster=c.monster;
   
@@ -3506,14 +4241,28 @@ window.G.g6ResolveCombat=function(peerId,action){
   // 计算伤害
   let damage=0;
   if(c.ring>0){
+    // 技能效果：弱点标记（3环→4环，4环→5环）
+    if(c.ringUpgrade){
+      if(c.ring===3){c.ring=4;log.push('弱点标记：3环→4环')}
+      else if(c.ring===4){c.ring=5;log.push('弱点标记：4环→5环')}
+      // 检查暴击
+      if(c.ring===5&&isEven&&!monster.isDragon){c.crit=true;log.push('弱点标记触发暴击！')}
+    }
     // 武器加成：从装备中获取主武器加成
     const mainWeapon=attacker.equipment?.find(e=>e.slot==='主武器');
     const weaponBonus=mainWeapon?.bonus||0;
+    // 副武器加成
+    const secondaryWeapon=attacker.equipment?.find(e=>e.slot==='副武器');
+    const secondaryBonus=secondaryWeapon?.bonus||0;
     // 空酒瓶宝物：进攻前额外造成1点伤害
     const hasEmptyBottle=attacker.treasures?.some(t=>t.effect==='extraDamage');
     const bottleBonus=hasEmptyBottle?1:0;
-    damage=c.ring+weaponBonus+bottleBonus;
-    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，武器+'+weaponBonus:'')+(bottleBonus>0?'，空酒瓶+'+bottleBonus:'')+'，伤害='+damage);
+    // 技能效果：自然之力（伤害+2）
+    const allyBonus=c.allyDamageUp||0;
+    // 技能效果：战斗诗歌（伤害加成）
+    const songBonus=c.damageBoost||0;
+    damage=c.ring+weaponBonus+secondaryBonus+bottleBonus+allyBonus+songBonus;
+    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，主武器+'+weaponBonus:'')+(secondaryBonus>0?'，副武器+'+secondaryBonus:'')+(bottleBonus>0?'，空酒瓶+'+bottleBonus:'')+(allyBonus>0?'，自然之力+'+allyBonus:'')+(songBonus>0?'，战斗诗歌+'+songBonus:'')+'，伤害='+damage);
     
     // 暴击：5环+双数=一击毙命（非龙族）
     if(c.crit){
@@ -3522,19 +4271,137 @@ window.G.g6ResolveCombat=function(peerId,action){
       g.lastEffect={type:'crit',text:attacker.name+' 暴击一击毙命！',sub:'💥暴击'};
     }
     
+    // 技能效果：魔法药水（放弃上靶伤害）
+    if(c.giveUpDamage){
+      damage=0;
+      log.push('魔法药水：放弃上靶伤害，换取道具');
+    }
+    
+    // 技能效果：虚弱（怪物受伤+1）
+    if(c.monsterDefDown&&damage>0){
+      damage+=1;
+      log.push('虚弱：怪物受伤+1');
+    }
+    
     c.monsterHp=Math.max(0,c.monsterHp-damage);
     log.push(monster.name+' 剩余 '+c.monsterHp+' 血');
+    
+    // 技能效果：祈祷（上靶后额外2伤害+1金币）
+    if(c.prayerBonus&&damage>0){
+      c.monsterHp=Math.max(0,c.monsterHp-2);
+      attacker.gold=(attacker.gold||0)+1;
+      log.push('祈祷：额外2伤害+1金币，'+monster.name+'剩余'+c.monsterHp+'血');
+    }
   }else{
     log.push('脱靶！未命中');
-    // 未上靶受怪物反击
-    const counterDmg=monster.atk;
-    attacker.hp=(attacker.hp||0)-counterDmg;
-    log.push(monster.name+' 反击！'+attacker.name+' -'+counterDmg+'血');
-    this.g6CheckDeath(attacker);
-    g.lastEffect={type:'damage',text:attacker.name+' 脱靶被反击 -'+counterDmg+'血',sub:'❌脱靶'};
+    // 怪物特殊效果：龙蛋脱靶无反击
+    if(monster.effect==='noCounter'){
+      log.push(monster.name+'效果：脱靶不反击！');
+      g.lastEffect={type:'info',text:attacker.name+' 脱靶，'+monster.name+'不反击',sub:'🥚龙蛋'};
+    }else if(c.skipMonsterAction){
+      // 技能效果：催眠曲（跳过怪物反击）
+      log.push('催眠曲：怪物反击被跳过！');
+      g.lastEffect={type:'info',text:attacker.name+' 脱靶，催眠曲跳过反击',sub:'🎵催眠曲'};
+      c.skipMonsterAction=false;
+    }else{
+      // 未上靶受怪物反击
+      let counterDmg=monster.atk;
+      // 护盾效果
+      const shield=attacker.equipment?.find(e=>e.slot==='护盾');
+      let shieldLog=[];
+      if(shield){
+        if(shield.effect==='reduceCounterDmg'){ // 钢背心：反击伤害-2
+          counterDmg=Math.max(1,counterDmg-shield.value);
+          shieldLog.push(shield.name+'-'+shield.value);
+        }
+        if(shield.effect==='reduceAllDmg'){ // 锁子甲：所有伤害-1（最低1）
+          counterDmg=Math.max(1,counterDmg-shield.value);
+          shieldLog.push(shield.name+'-'+shield.value);
+        }
+        if(shield.effect==='reduceMonsterDmg'){ // 硬皮甲：怪物攻击伤害-1
+          counterDmg=Math.max(1,counterDmg-shield.value);
+          shieldLog.push(shield.name+'-'+shield.value);
+        }
+      }
+      attacker.hp=(attacker.hp||0)-counterDmg;
+      log.push(monster.name+' 反击！'+attacker.name+' -'+counterDmg+'血'+(shieldLog.length>0?'（'+shieldLog.join('+')+'）':''));
+      // 荆棘甲：受到伤害后对怪物造成1点反伤
+      if(shield&&shield.effect==='reflectDmg'&&counterDmg>0){
+        c.monsterHp=Math.max(0,c.monsterHp-shield.value);
+        log.push('🌵 '+shield.name+'反伤！'+monster.name+' -'+shield.value+'血');
+      }
+      this.g6CheckDeath(attacker);
+      g.lastEffect={type:'damage',text:attacker.name+' 脱靶被反击 -'+counterDmg+'血'+(shieldLog.length>0?'（护盾减伤）':''),sub:'❌脱靶'};
+      
+      // 怪物特殊效果：火爆犀牛王脱靶全队反击
+      if(monster.effect==='teamCounter'){
+        const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead&&p.id!==attacker.id);
+        teamMembers.forEach(p=>{
+          let teamDmg=monster.atk;
+          const teamShield=p.equipment?.find(e=>e.slot==='护盾');
+          if(teamShield&&(teamShield.effect==='reduceCounterDmg'||teamShield.effect==='reduceAllDmg'||teamShield.effect==='reduceMonsterDmg')){
+            teamDmg=Math.max(1,teamDmg-teamShield.value);
+          }
+          p.hp=(p.hp||0)-teamDmg;
+          log.push(monster.name+' 全队反击！'+p.name+' -'+teamDmg+'血');
+          this.g6CheckDeath(p);
+        });
+        g.lastEffect={type:'damage',text:monster.name+' 全队反击！',sub:'🦏火爆犀牛王'};
+      }
+    }
+    
+    // 怪物特殊效果：贪财哥布林脱靶扣金币
+    if(monster.effect==='loseGold'){
+      if((attacker.gold||0)>=1){
+        attacker.gold--;
+        log.push(monster.name+'效果：损失1金币');
+      }else{
+        attacker.hp=(attacker.hp||0)-1;
+        log.push(monster.name+'效果：没金币，额外-1血');
+        this.g6CheckDeath(attacker);
+      }
+    }
+    
+    // 怪物特殊效果：火焰核心脱靶怪物回血
+    if(monster.effect==='monsterHeal'){
+      c.monsterHp=Math.min(monster.hp,c.monsterHp+1);
+      log.push(monster.name+'效果：回复1点血量');
+    }
   }
   
   c.log=log;
+  
+  // 技能效果：顺势斩（上靶后二次攻击）
+  if(c.secondAttack&&c.ring>0&&c.monsterHp>0&&!c.secondAttackUsed){
+    c.secondAttackUsed=true;
+    c.resolved=false;
+    c.rolling=false;
+    c.ring=0;
+    c.dice=0;
+    c.pointer=0;
+    c.crit=false;
+    log.push('⚔️ 顺势斩：可进行二次攻击！');
+    c.log=log;
+    state.message=attacker.name+' 顺势斩！二次攻击';
+    broadcastState();this.renderG6();
+    return;
+  }
+  
+  // 技能效果：无赖（脱靶后重投）
+  if(c.rerollAvailable&&c.ring===0&&!c.rerollUsed){
+    c.rerollUsed=true;
+    c.resolved=false;
+    c.rolling=false;
+    c.ring=0;
+    c.dice=0;
+    c.pointer=0;
+    c.crit=false;
+    log.push('🎲 无赖：可重投一次！');
+    c.log=log;
+    state.message=attacker.name+' 无赖！重投骰子';
+    broadcastState();this.renderG6();
+    return;
+  }
   
   // 检查怪物是否死亡
   if(c.monsterHp<=0){
@@ -3570,17 +4437,37 @@ window.G.g6ResolveCombat=function(peerId,action){
     }else{
       g.phase='moving';
       state.message=(c.team==='red'?'红队':'蓝队')+'击败'+monster.name+'！继续前进';
+      // 道具掉落：投骰子，单数=损人，双数=利己
+      const itemDice=1+Math.floor(Math.random()*6);
+      const isItemEven=itemDice%2===0;
+      let droppedItem=null;
+      if(isItemEven){
+        const itemKeys=Object.keys(G6_ITEMS_SELF);
+        const itemKey=itemKeys[Math.floor(Math.random()*itemKeys.length)];
+        droppedItem={...G6_ITEMS_SELF[itemKey],id:itemKey};
+      }else{
+        const itemKeys=Object.keys(G6_ITEMS_ENEMY);
+        const itemKey=itemKeys[Math.floor(Math.random()*itemKeys.length)];
+        droppedItem={...G6_ITEMS_ENEMY[itemKey],id:itemKey};
+      }
+      if(droppedItem){
+        g.itemDrop={item:droppedItem,team:c.team,dice:itemDice,assigned:null};
+        state.message+=' | 投出'+itemDice+'点，获得'+(isItemEven?'【利己】':'【损人】')+'道具：'+droppedItem.name+'（请分配给队员）';
+        log.push('道具掉落：投出'+itemDice+'点，获得'+droppedItem.name);
+      }
     }
     g.combat=null;
   }else{
-    // 怪物未死，切换到下一个攻击者
-    const teamEntries=Object.entries(state.players).filter(([id,p])=>p.team===c.team&&!p.dead);
-    const nextIdx=(c.attackerIndex+1)%teamEntries.length;
+    // 怪物未死，切换到下一个攻击者（按1/2/3号位顺序）
+    const teamMembers=Object.values(state.players).filter(p=>p.team===c.team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
+    const currentIdx=teamMembers.findIndex(p=>p.id===c.attacker);
+    const nextIdx=(currentIdx+1)%teamMembers.length;
     c.attackerIndex=nextIdx;
-    c.attacker=teamEntries[nextIdx][0];
-    c.resolved=false;c.rolling=false;
-    log.push('轮到 '+teamEntries[nextIdx][1].name+' 攻击');
-    state.message='⚔️ '+monster.name+' 剩余'+c.monsterHp+'血，'+teamEntries[nextIdx][1].name+'投骰';
+    c.attacker=teamMembers[nextIdx].id;
+    c.resolved=false;c.rolling=false;c.locked=false;
+    c.ring=0;c.dice=0;c.pointer=0;c.crit=false;
+    log.push('轮到 '+teamMembers[nextIdx].name+'（'+(teamMembers[nextIdx].position||'?')+'号位）攻击');
+    state.message='⚔️ '+monster.name+' 剩余'+c.monsterHp+'血，'+teamMembers[nextIdx].name+'（'+(teamMembers[nextIdx].position||'?')+'号位）投骰';
   }
   
   c.log=log;
@@ -3624,6 +4511,459 @@ window.G.g6AutoCombat=function(team,cellKey,isDragon){
   this.g6EndTeamTurn();
 };
 
+// 商店购买
+window.G.g6ShopBuy=function(peerId,buyType,itemId){
+  const g=state.game;
+  if(!g.shop)return;
+  const player=state.players[peerId];
+  if(!player||player.dead)return;
+  if(g.shop.done[peerId])return; // 已完成购买
+  const boughtCount=g.shop.bought[peerId]||0;
+  // 检查装备总数（最多5件）
+  const equipCount=(player.equipment?.length||0)+(player.treasures?.length||0);
+  
+  if(buyType==='hp'){
+    // 购买血量：1金币回1血，不可超上限
+    if(player.gold<1){state.message=player.name+'金币不足';broadcastState();this.renderG6();return;}
+    if(player.hp>=9){state.message=player.name+'血量已满';broadcastState();this.renderG6();return;}
+    player.gold-=1;
+    player.hp=Math.min(9,player.hp+1);
+    state.message=player.name+' 购买血量 +1';
+  }else if(buyType==='skill'){
+    // 购买技能：4金币，每人最多另购2个
+    if(player.gold<4){state.message=player.name+'金币不足';broadcastState();this.renderG6();return;}
+    const extraSkills=(player.skills?.length||0)-2; // 自带2个
+    if(extraSkills>=2){state.message=player.name+'技能已满（最多另购2个）';broadcastState();this.renderG6();return;}
+    player.gold-=4;
+    if(!player.skills)player.skills=[];
+    // 从G6商店技能池中获取对应角色的未拥有技能
+    const charShopSkills=G6_SHOP_SKILLS[player.character]||[];
+    const ownedSkillIds=player.skills.map(s=>s.id);
+    const availableSkills=charShopSkills.filter(s=>!ownedSkillIds.includes(s.id));
+    if(availableSkills.length>0){
+      const newSkill=availableSkills[Math.floor(Math.random()*availableSkills.length)];
+      player.skills.push({...newSkill,id:'bought_'+newSkill.id+'_'+Date.now(),used:false,isShopSkill:true});
+      state.message=player.name+' 购买技能：'+newSkill.name;
+    }else{
+      state.message=player.name+'已拥有所有商店技能';
+      player.gold+=4; // 退款
+    }
+  }else{
+    // 购买装备：3金币/件，每人每雕像格最多3件
+    if(boughtCount>=3){state.message=player.name+'本雕像格已购3件装备';broadcastState();this.renderG6();return;}
+    if(player.gold<3){state.message=player.name+'金币不足';broadcastState();this.renderG6();return;}
+    // 获取装备数据
+    let item=null;
+    let isDiscarded=false;
+    let discardedIdx=-1;
+    if(buyType==='mainWeapon')item={...G6_MAIN_WEAPONS[itemId],id:itemId};
+    else if(buyType==='secondaryWeapon')item={...G6_SECONDARY_WEAPONS[itemId],id:itemId};
+    else if(buyType==='shield')item={...G6_SHIELDS[itemId],id:itemId};
+    else if(buyType==='treasure')item={...G6_TREASURES[itemId],id:itemId};
+    // 检查是否是弃置堆中的装备
+    if(itemId&&itemId.startsWith('discarded_')){
+      const idx=parseInt(itemId.replace('discarded_',''));
+      if(g.discardedEquip&&g.discardedEquip[idx]){
+        item={...g.discardedEquip[idx]};
+        isDiscarded=true;
+        discardedIdx=idx;
+      }
+    }
+    if(!item)return;
+    // 检查是否有对应槽位
+    const charConfig=G6_CHAR_SKILLS[player.character];
+    if(!charConfig?.equip?.includes(item.slot)){state.message=player.name+'没有'+item.slot+'槽位';broadcastState();this.renderG6();return;}
+    // 宝物槽位检查（最多3件）
+    if(item.slot==='宝物'&&(player.treasures?.length||0)>=3){state.message=player.name+'宝物已满';broadcastState();this.renderG6();return;}
+    // 购买
+    player.gold-=3;
+    if(!player.equipment)player.equipment=[];
+    let oldEquip=null;
+    if(item.slot==='宝物'){
+      if(!player.treasures)player.treasures=[];
+      player.treasures.push(item);
+    }else{
+      // 旧装备进入弃置堆
+      oldEquip=player.equipment.find(e=>e.slot===item.slot);
+      if(oldEquip){
+        if(!g.discardedEquip)g.discardedEquip=[];
+        g.discardedEquip.push({...oldEquip,type:buyType});
+      }
+      player.equipment=player.equipment.filter(e=>e.slot!==item.slot);
+      player.equipment.push(item);
+    }
+    // 如果是弃置堆中的装备，从弃置堆中移除
+    if(isDiscarded&&discardedIdx>=0){
+      g.discardedEquip.splice(discardedIdx,1);
+    }
+    g.shop.bought[peerId]=boughtCount+1;
+    state.message=player.name+' 购买 '+item.name+(oldEquip?'（替换'+oldEquip.name+'）':'');
+  }
+  broadcastState();this.renderG6();
+};
+
+// 商店完成
+window.G.g6ShopDone=function(peerId){
+  const g=state.game;
+  if(!g.shop)return;
+  g.shop.done[peerId]=true;
+  // 检查是否所有存活玩家都完成
+  const members=Object.values(state.players).filter(p=>p.team===g.shop.team&&!p.dead);
+  const allDone=members.every(p=>g.shop.done[p.id]);
+  if(allDone){
+    g.lastEffect={type:'gold',text:(g.shop.team==='red'?'红队':'蓝队')+'商店购买完成',sub:'🏛️商店'};
+    g.shop=null;
+    this.g6EndTeamTurn();
+  }else{
+    state.message=state.players[peerId].name+' 完成购买，等待其他玩家';
+    broadcastState();this.renderG6();
+  }
+};
+
+// 道具分配给队员
+window.G.g6AssignItem=function(peerId,targetId){
+  const g=state.game;
+  if(!g.itemDrop)return;
+  const target=state.players[targetId];
+  if(!target||target.dead||target.team!==g.itemDrop.team)return;
+  // 检查道具槽
+  if(!target.equipment)target.equipment=[];
+  const itemSlot=target.equipment.find(e=>e.slot==='道具');
+  if(itemSlot){state.message=target.name+'道具槽已满';broadcastState();this.renderG6();return;}
+  // 分配道具
+  target.equipment.push(g.itemDrop.item);
+  g.itemDrop.assigned=targetId;
+  state.message=target.name+' 获得道具：'+g.itemDrop.item.name;
+  g.lastEffect={type:'item',text:target.name+'获得'+g.itemDrop.item.name,sub:'🎁道具'};
+  g.itemDrop=null;
+  this.g6EndTeamTurn();
+};
+
+// 道具使用提示（选择目标）
+window.G.g6PromptUseItem=function(playerId){
+  const player=state.players[playerId];
+  if(!player||player.dead)return;
+  const item=player.equipment?.find(e=>e.slot==='道具');
+  if(!item)return;
+  
+  // 判断是否需要目标
+  const needTarget=['healAlly','healBoth','noWeaponBonus','noWeapon','silence','ringReduce'].includes(item.effect);
+  
+  if(!needTarget){
+    // 不需要目标，直接使用
+    this.g6UseItem(playerId,null);
+  }else{
+    // 需要目标，显示选择界面
+    state.game.itemTargetSelect={playerId,item,needAlly:['healAlly','healBoth'].includes(item.effect)};
+    state.message='请选择'+item.name+'的目标';
+    broadcastState();this.renderG6();
+  }
+};
+
+// 取消道具目标选择
+window.G.g6CancelItemTarget=function(){
+  state.game.itemTargetSelect=null;
+  state.message='已取消使用道具';
+  broadcastState();this.renderG6();
+};
+
+// 主持人判定三叶草事件完成
+window.G.g6CloverResolve=function(success){
+  const g=state.game;
+  if(!g.cloverEvent)return;
+  const ce=g.cloverEvent;
+  const teamMembers=Object.values(state.players).filter(p=>p.team===ce.team&&!p.dead);
+  if(success){
+    teamMembers.forEach(p=>{
+      if(ce.reward==='gold2'){p.gold=(p.gold||0)+2}
+      else if(ce.reward==='gold3'){p.gold=(p.gold||0)+3}
+      else if(ce.reward==='heal2'){p.hp=Math.min(9,(p.hp||0)+2)}
+    });
+    state.message=(ce.team==='red'?'红队':'蓝队')+'三叶草事件完成！全队每人'+(ce.reward==='gold2'?'+2金币':ce.reward==='gold3'?'+3金币':'+2血');
+    g.lastEffect={type:'clover',text:(ce.team==='red'?'红队':'蓝队')+'三叶草表演成功！',sub:'🍀成功'};
+  }else{
+    state.message=(ce.team==='red'?'红队':'蓝队')+'三叶草事件未通过';
+    g.lastEffect={type:'info',text:(ce.team==='red'?'红队':'蓝队')+'三叶草表演未通过',sub:'🍀失败'};
+  }
+  g.cloverEvent=null;
+  this.g6EndTeamTurn();
+};
+
+// 使用技能
+window.G.g6UseSkill=function(peerId,skillIndex){
+  const g=state.game;
+  const c=g.combat;
+  if(!c||c.resolved)return;
+  const player=state.players[peerId];
+  if(!player||c.attacker!==peerId)return;
+  const skill=player.skills?.[skillIndex];
+  if(!skill||skill.used)return;
+  
+  // 技能发动条件：必须已锁定（有环数和骰子结果）
+  if(c.ring===undefined||c.dice===undefined||!c.locked){
+    state.message='请先投骰锁定后再使用技能';
+    broadcastState();this.renderG6();
+    return;
+  }
+  
+  // 检查骰子双数
+  const isEven=c.dice%2===0;
+  if(!isEven){
+    state.message='骰子为单数，无法发动技能';
+    broadcastState();this.renderG6();
+    return;
+  }
+  
+  // 检查上靶（evenMiss技能除外）
+  if(!skill.evenMiss&&c.ring<=0){
+    state.message='未上靶，无法发动'+skill.name+'（需要上靶+双数）';
+    broadcastState();this.renderG6();
+    return;
+  }
+  
+  // 魅魔禁用红色技能
+  if(c.monster.effect==='noRedSkill'&&skill.isShopSkill){
+    state.message='😈 魅魔效果：红色技能被禁用！';
+    broadcastState();this.renderG6();
+    return;
+  }
+  
+  const monster=c.monster;
+  let log=[];
+  
+  switch(skill.effect){
+    case 'goldDamage': // 战斗诗歌：每消耗2金币+1伤害，上限3
+      const goldBonus=Math.min(3,Math.floor((player.gold||0)/2));
+      if(goldBonus>0){
+        const cost=goldBonus*2;
+        player.gold-=cost;
+        c.damageBoost=(c.damageBoost||0)+goldBonus;
+        log.push(player.name+' 使用 '+skill.name+'，消耗'+cost+'金币，伤害+'+goldBonus);
+        skill.used=true;
+      }else{
+        state.message='金币不足，无法使用'+skill.name;
+        return;
+      }
+      break;
+    case 'skipMonster': // 催眠曲：跳过怪物下一次行动
+      c.skipMonsterAction=true;
+      log.push(player.name+' 使用 '+skill.name+'，怪物下一次行动被跳过');
+      skill.used=true;
+      break;
+    case 'monsterAtkDown': // 怜悯：怪物伤害-1
+      monster.atk=Math.max(0,monster.atk-1);
+      c.monsterAtkDown=true;
+      log.push(player.name+' 使用 '+skill.name+'，'+monster.name+'攻击-1');
+      skill.used=true;
+      break;
+    case 'extraDamageGold': // 祈祷：上靶后额外2伤害+1金币
+      c.prayerBonus=true;
+      log.push(player.name+' 使用 '+skill.name+'，上靶后额外2伤害+1金币');
+      skill.used=true;
+      break;
+    case 'fixedDamage3': // 气味捕捉：固定3点伤害（即使未上靶）
+      c.monsterHp=Math.max(0,c.monsterHp-3);
+      log.push(player.name+' 使用 '+skill.name+'，造成3点固定伤害');
+      skill.used=true;
+      if(c.monsterHp<=0){
+        this.g6ResolveCombat(peerId,{ring:0,dice:1,crit:false,monsterDead:true,skillKill:true});
+        return;
+      }
+      break;
+    case 'ringUpgrade': // 弱点标记：3环变4环，4环变5环
+      c.ringUpgrade=true;
+      log.push(player.name+' 使用 '+skill.name+'，3环→4环，4环→5环');
+      skill.used=true;
+      break;
+    case 'secondAttack': // 顺势斩：上靶后二次攻击
+      c.secondAttack=true;
+      log.push(player.name+' 使用 '+skill.name+'，上靶后可二次攻击');
+      skill.used=true;
+      break;
+    case 'reroll': // 无赖：重投骰子
+      c.rerollAvailable=true;
+      log.push(player.name+' 使用 '+skill.name+'，可重投一次');
+      skill.used=true;
+      break;
+    case 'monsterDefDown': // 虚弱：怪物受伤+1
+      c.monsterDefDown=true;
+      log.push(player.name+' 使用 '+skill.name+'，'+monster.name+'受到伤害+1');
+      skill.used=true;
+      break;
+    case 'allyDamageUp': // 自然之力：友方伤害+2
+      c.allyDamageUp=2;
+      log.push(player.name+' 使用 '+skill.name+'，本次战斗伤害+2');
+      skill.used=true;
+      break;
+    case 'burn': // 火球术：持续灼烧，每大回合-2血
+      c.monsterBurn=2;
+      // 存储灼烧效果到格子怪物
+      if(g.cellMonsters&&g.cellMonsters[c.team]&&g.cellMonsters[c.team][c.cellKey]){
+        g.cellMonsters[c.team][c.cellKey].burn=2;
+      }
+      log.push(player.name+' 使用 '+skill.name+'，'+monster.name+'每大回合-2血');
+      skill.used=true;
+      break;
+    case 'getItem': // 魔法药水：放弃上靶伤害，获得道具
+      c.giveUpDamage=true;
+      // 随机获得一个道具
+      const itemPool=Math.random()<0.5?G6_ITEMS_SELF:G6_ITEMS_ENEMY;
+      const itemKeys=Object.keys(itemPool);
+      const randomItem=itemPool[itemKeys[Math.floor(Math.random()*itemKeys.length)]];
+      if(!player.equipment)player.equipment=[];
+      const hasItemSlot=player.equipment.some(e=>e.slot==='道具');
+      if(!hasItemSlot){
+        player.equipment.push({...randomItem,id:'item_'+Date.now()});
+        log.push(player.name+' 使用 '+skill.name+'，获得道具：'+randomItem.name);
+      }else{
+        log.push(player.name+' 使用 '+skill.name+'，但道具槽已满');
+      }
+      skill.used=true;
+      break;
+    default:
+      // 角色自带技能（简化处理）
+      log.push(player.name+' 使用 '+skill.name);
+      skill.used=true;
+      break;
+  }
+  
+  if(log.length>0){
+    c.log=(c.log||[]).concat(log);
+    state.message=log.join(' | ');
+    // 技能专属特效
+    const skillFx={
+      goldDamage:{icon:'🎵',text:player.name+' 战斗诗歌！',sub:'消耗金币增加伤害'},
+      skipMonster:{icon:'😴',text:player.name+' 催眠曲！',sub:'怪物陷入沉睡'},
+      monsterAtkDown:{icon:'🛡️',text:player.name+' 怜悯！',sub:'怪物攻击力下降'},
+      extraDamageGold:{icon:'🙏',text:player.name+' 祈祷！',sub:'神圣祝福降临'},
+      fixedDamage3:{icon:'👃',text:player.name+' 气味捕捉！',sub:'造成3点伤害'},
+      ringUpgrade:{icon:'🎯',text:player.name+' 弱点标记！',sub:'命中环数提升'},
+      secondAttack:{icon:'⚔️',text:player.name+' 顺势斩！',sub:'可进行二次攻击'},
+      reroll:{icon:'🎲',text:player.name+' 无赖！',sub:'可重投一次'},
+      monsterDefDown:{icon:'💀',text:player.name+' 虚弱！',sub:'怪物防御力下降'},
+      allyDamageUp:{icon:'🌿',text:player.name+' 自然之力！',sub:'队伍伤害提升'},
+      burn:{icon:'🔥',text:player.name+' 火球术！',sub:'怪物持续灼烧'},
+      getItem:{icon:'🧪',text:player.name+' 魔法药水！',sub:'获得随机道具'}
+    };
+    const fx=skillFx[skill.effect];
+    if(fx){
+      g.lastEffect={type:'skill',text:fx.text,sub:fx.icon+' '+fx.sub,skillId:skill.effect};
+    }
+  }
+  broadcastState();this.renderG6();
+};
+
+// 使用道具
+window.G.g6UseItem=function(peerId,targetId){
+  const g=state.game;
+  const player=state.players[peerId];
+  if(!player||player.dead)return;
+  const item=player.equipment?.find(e=>e.slot==='道具');
+  if(!item)return;
+  
+  // 根据道具效果处理
+  switch(item.effect){
+    case 'healSelf': // 强效治疗药水：回复自身3血
+      player.hp=Math.min(9,(player.hp||0)+item.value);
+      state.message=player.name+' 使用 '+item.name+'，回复'+item.value+'血';
+      g.lastEffect={type:'heal',text:player.name+'回复'+item.value+'血',sub:'🧪'+item.name};
+      break;
+    case 'healAlly': // 急救包：指定队友回2血
+      if(targetId&&state.players[targetId]&&!state.players[targetId].dead&&state.players[targetId].team===player.team){
+        const target=state.players[targetId];
+        target.hp=Math.min(9,(target.hp||0)+item.value);
+        state.message=player.name+' 使用 '+item.name+'，'+target.name+'回复'+item.value+'血';
+        g.lastEffect={type:'heal',text:target.name+'回复'+item.value+'血',sub:'🩹'+item.name};
+      }else{
+        state.message='请选择一名队友';
+        return;
+      }
+      break;
+    case 'healBoth': // 友谊啤酒杯：自己+指定队友各回2血
+      if(targetId&&state.players[targetId]&&!state.players[targetId].dead&&state.players[targetId].team===player.team){
+        const target=state.players[targetId];
+        player.hp=Math.min(9,(player.hp||0)+item.value);
+        target.hp=Math.min(9,(target.hp||0)+item.value);
+        state.message=player.name+' 使用 '+item.name+'，与'+target.name+'各回复'+item.value+'血';
+        g.lastEffect={type:'heal',text:player.name+'&'+target.name+'各回复'+item.value+'血',sub:'🍺'+item.name};
+      }else{
+        state.message='请选择一名队友';
+        return;
+      }
+      break;
+    case 'directDamage': // 威士忌炸弹：对当前怪物造成1点伤害
+      if(g.phase==='combat'&&g.combat){
+        g.combat.monsterHp=Math.max(0,g.combat.monsterHp-item.value);
+        state.message=player.name+' 使用 '+item.name+'，对'+g.combat.monster.name+'造成'+item.value+'点伤害';
+        g.lastEffect={type:'damage',text:g.combat.monster.name+'-'+item.value+'血',sub:'🥃'+item.name};
+        if(g.combat.monsterHp<=0){
+          // 怪物被击败
+          this.g6ResolveCombat(peerId,{ring:0,dice:1,crit:false,monsterDead:true});
+        }
+      }else{
+        state.message='只能在战斗中使用';
+        return;
+      }
+      break;
+    case 'damageBoost': // 酒馆的特调：本次战斗伤害+2
+      if(g.phase==='combat'&&g.combat){
+        g.combat.damageBoost=(g.combat.damageBoost||0)+item.value;
+        state.message=player.name+' 使用 '+item.name+'，本次战斗伤害+'+item.value;
+        g.lastEffect={type:'buff',text:'伤害+'+item.value,sub:'🍹'+item.name};
+      }else{
+        state.message='只能在战斗中使用';
+        return;
+      }
+      break;
+    case 'noWeaponBonus': // 友情催化药水：指定玩家下次战斗无法使用武器加成
+    case 'noWeapon': // 传说中的酒：指定玩家无法使用武器
+    case 'silence': // 沉默卷轴：指定玩家下次战斗不可使用技能
+    case 'ringReduce': // 黑胡椒炸弹：指定玩家下次战斗命中环数-2
+      if(targetId&&state.players[targetId]&&!state.players[targetId].dead){
+        const target=state.players[targetId];
+        if(!target.debuffs)target.debuffs=[];
+        target.debuffs.push({effect:item.effect,value:item.value,duration:1});
+        state.message=player.name+' 使用 '+item.name+'，'+target.name+'受到影响';
+        g.lastEffect={type:'debuff',text:target.name+'受到'+item.name+'影响',sub:'💀'+item.name};
+      }else{
+        state.message='请选择一名目标玩家';
+        return;
+      }
+      break;
+    case 'monsterHpBoost': // 玩笑护盾：非龙族怪物+4血
+      if(g.phase==='combat'&&g.combat&&!g.combat.monster.isDragon){
+        g.combat.monsterHp+=item.value;
+        g.combat.monster.hp+=item.value;
+        state.message=player.name+' 使用 '+item.name+'，'+g.combat.monster.name+'+'+item.value+'血';
+        g.lastEffect={type:'buff',text:g.combat.monster.name+'+'+item.value+'血',sub:'🛡️'+item.name};
+      }else{
+        state.message='只能在战斗中对非龙族怪物使用';
+        return;
+      }
+      break;
+    case 'monsterAtkBoost': // 红色莱恩石：指定怪物伤害+1
+      if(g.phase==='combat'&&g.combat){
+        g.combat.monster.atk+=item.value;
+        state.message=player.name+' 使用 '+item.name+'，'+g.combat.monster.name+'攻击+'+item.value;
+        g.lastEffect={type:'buff',text:g.combat.monster.name+'攻击+'+item.value,sub:'🔴'+item.name};
+      }else{
+        state.message='只能在战斗中使用';
+        return;
+      }
+      break;
+    case 'reflectHalf': // 诅咒的娃娃：受到伤害时反击一半（被动，暂不主动使用）
+      state.message=item.name+'是被动道具，受到伤害时自动触发';
+      return;
+    default:
+      state.message='道具效果未实现';
+      return;
+  }
+  
+  // 消耗道具
+  player.equipment=player.equipment.filter(e=>e!==item);
+  broadcastState();this.renderG6();
+};
+
 // 检查死亡（3条生命系统）
 window.G.g6CheckDeath=function(p){
   if(p.hp<=0){
@@ -3637,6 +4977,91 @@ window.G.g6CheckDeath=function(p){
       p.hp=9; // 新的一条命满血
       state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能槽-1';
     }
+  }
+};
+
+// 获取玩家可装备的装备列表（根据角色槽位）
+window.G.g6GetAvailableItems=function(player){
+  const g=state.game;
+  const charConfig=G6_CHAR_SKILLS[player.character];
+  if(!charConfig)return [];
+  const slots=charConfig.equip||[];
+  const items=[];
+  // 主武器
+  if(slots.includes('主武器')){
+    Object.entries(G6_MAIN_WEAPONS).forEach(([id,w])=>items.push({type:'mainWeapon',id,...w}));
+  }
+  // 副武器
+  if(slots.includes('副武器')){
+    Object.entries(G6_SECONDARY_WEAPONS).forEach(([id,w])=>items.push({type:'secondaryWeapon',id,...w}));
+  }
+  // 护盾
+  if(slots.includes('护盾')){
+    Object.entries(G6_SHIELDS).forEach(([id,s])=>items.push({type:'shield',id,...s}));
+  }
+  // 宝物
+  if(slots.includes('宝物')){
+    Object.entries(G6_TREASURES).forEach(([id,t])=>items.push({type:'treasure',id,...t}));
+  }
+  // 弃置堆中的装备（刷回商店）
+  if(g.discardedEquip&&g.discardedEquip.length>0){
+    g.discardedEquip.forEach((item,idx)=>{
+      if(slots.includes(item.slot)){
+        items.push({...item,id:'discarded_'+idx,discarded:true,name:item.name+'（二手）'});
+      }
+    });
+  }
+  return items;
+};
+
+// 玩家选择宝箱装备
+window.G.g6SelectChestItem=function(peerId,itemType,itemId){
+  const g=state.game;
+  if(!g.chestSelect)return;
+  const player=state.players[peerId];
+  if(!player||player.dead)return;
+  if(g.chestSelect.chosen[peerId])return; // 已选择
+  // 获取装备数据
+  let item=null;
+  if(itemType==='mainWeapon')item={...G6_MAIN_WEAPONS[itemId],id:itemId};
+  else if(itemType==='secondaryWeapon')item={...G6_SECONDARY_WEAPONS[itemId],id:itemId};
+  else if(itemType==='shield')item={...G6_SHIELDS[itemId],id:itemId};
+  else if(itemType==='treasure')item={...G6_TREASURES[itemId],id:itemId};
+  if(!item)return;
+  // 装备到对应槽位，旧装备进入弃置堆
+  if(!player.equipment)player.equipment=[];
+  let oldEquip=null;
+  if(itemType==='treasure'){
+    if(!player.treasures)player.treasures=[];
+    player.treasures.push(item);
+  }else{
+    // 旧装备进入弃置堆
+    oldEquip=player.equipment.find(e=>e.slot===item.slot);
+    if(oldEquip){
+      if(!g.discardedEquip)g.discardedEquip=[];
+      g.discardedEquip.push({...oldEquip,type:itemType});
+    }
+    player.equipment=player.equipment.filter(e=>e.slot!==item.slot);
+    player.equipment.push(item);
+  }
+  g.chestSelect.chosen[peerId]=item.name;
+  state.message=player.name+' 选择了 '+item.name+(oldEquip?'（替换'+oldEquip.name+'）':'');
+  this.g6CheckChestDone();
+};
+
+// 检查宝箱选择是否完成
+window.G.g6CheckChestDone=function(){
+  const g=state.game;
+  if(!g.chestSelect)return;
+  const members=Object.values(state.players).filter(p=>p.team===g.chestSelect.team&&!p.dead);
+  const allDone=members.every(p=>g.chestSelect.chosen[p.id]);
+  if(allDone){
+    const chosenList=Object.entries(g.chestSelect.chosen).map(([id,name])=>state.players[id]?.name+':'+name);
+    g.lastEffect={type:'treasure',text:(g.chestSelect.team==='red'?'红队':'蓝队')+'宝箱选择完成！',sub:'📦 '+chosenList.join('、')};
+    g.chestSelect=null;
+    this.g6EndTeamTurn();
+  }else{
+    broadcastState();this.renderG6();
   }
 };
 
@@ -3662,7 +5087,71 @@ window.G.g6EndTeamTurn=function(){
     });
   });
   g.currentTeam=g.currentTeam==='red'?'blue':'red';
-  if(g.currentTeam==='red')g.round++;
+  if(g.currentTeam==='red'){
+    g.round++;
+    // 大回合结束：火球术灼烧伤害
+    const burnEffects=[];
+    ['red','blue'].forEach(team=>{
+      const tp=g.teamPos[team];
+      if(!tp)return;
+      const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+      const routeCells=tp.route==='top'?floorData.top:floorData.bottom;
+      const cell=routeCells[tp.pos];
+      if(!cell||cell.type!=='monster')return;
+      const cellKey=tp.route+'-'+tp.pos;
+      if(g.monstersDefeated[team]?.includes(cellKey))return;
+      const monster=g.cellMonsters?.[team]?.[cellKey];
+      if(monster&&monster.burn&&monster.burn>0){
+        monster.hp=Math.max(0,monster.hp-monster.burn);
+        burnEffects.push(monster.name+'灼烧-'+monster.burn+'血');
+        if(monster.hp<=0){
+          // 灼烧击杀怪物
+          g.monstersDefeated[team].push(cellKey);
+          burnEffects.push(monster.name+'被灼烧击败！');
+        }
+      }
+    });
+    if(burnEffects.length>0){
+      g.lastEffect={type:'damage',text:'🔥 火球术灼烧',sub:'🔥 '+burnEffects.join('、')};
+    }
+    // 大回合结束：未击败的怪物主动攻击小队所有成员
+    const monsterAttackEffects=[];
+    ['red','blue'].forEach(team=>{
+      const tp=g.teamPos[team];
+      if(!tp)return;
+      const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+      const routeCells=tp.route==='top'?floorData.top:floorData.bottom;
+      const cell=routeCells[tp.pos];
+      if(!cell||cell.type!=='monster')return;
+      // 检查是否已击败
+      const cellKey=tp.route+'-'+tp.pos;
+      if(g.monstersDefeated[team]?.includes(cellKey))return;
+      // 获取怪物
+      const monster=g.cellMonsters?.[team]?.[cellKey]||G6_MONSTERS[Object.keys(G6_MONSTERS)[Math.floor(Math.random()*Object.keys(G6_MONSTERS).length)]];
+      const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+      teamMembers.forEach(p=>{
+        let dmg=monster.atk;
+        // 护盾减伤
+        const shield=p.equipment?.find(e=>e.slot==='护盾');
+        if(shield){
+          if(shield.effect==='damageReduce')dmg=Math.max(0,dmg-shield.value);
+          if(shield.effect==='reflect'){/* 反伤在怪物攻击时不触发 */}
+        }
+        if(dmg>0){
+          p.hp-=dmg;
+          monsterAttackEffects.push(p.name+'-'+dmg+'血');
+          if(p.hp<=0){
+            p.life--;
+            if(p.life<=0){p.dead=true;monsterAttackEffects.push(p.name+'淘汰')}
+            else{p.hp=9;monsterAttackEffects.push(p.name+'复活')}
+          }
+        }
+      });
+      if(monsterAttackEffects.length>0){
+        g.lastEffect={type:'damage',text:monster.name+'主动攻击'+(team==='red'?'红队':'蓝队'),sub:'👹 '+monsterAttackEffects.join('、')};
+      }
+    });
+  }
   // 回合开始宝物效果
   const currentMembers=Object.values(state.players).filter(p=>p.team===g.currentTeam&&!p.dead);
   currentMembers.forEach(p=>{
@@ -3699,12 +5188,40 @@ window.G.g6EndGame=function(winnerTeam){
   const blueScore=blueMembers.reduce((s,p)=>s+g6HpScore(p)+(p.gold||0),0);
   const winTeam=redScore>blueScore?'red':blueScore>redScore?'blue':winnerTeam;
   state.winner=winTeam;
-  const personalGold={};
-  Object.entries(state.players).forEach(([id,p])=>{personalGold[id]=p.team===winTeam?5:2});
-  gameOver({
-    winner:'🎉 '+(winTeam==='red'?'红队':'蓝队')+'胜利！(红'+redScore+' vs 蓝'+blueScore+')',
-    personalGold
-  });
+  // G6地下城风格胜利/失败大特效
+  const isWin=state.players[myPeerId]?state.players[myPeerId].team===winTeam:false;
+  this.g6ShowEndEffect(winTeam,isWin,redScore,blueScore);
+  setTimeout(()=>{
+    const personalGold={};
+    Object.entries(state.players).forEach(([id,p])=>{personalGold[id]=p.team===winTeam?5:2});
+    gameOver({
+      winner:'🎉 '+(winTeam==='red'?'红队':'蓝队')+'胜利！(红'+redScore+' vs 蓝'+blueScore+')',
+      personalGold
+    });
+  },4000);
+};
+
+// G6地下城风格结束特效
+window.G.g6ShowEndEffect=function(winTeam,isWin,redScore,blueScore){
+  const effectDiv=document.createElement('div');
+  effectDiv.id='g6EndEffect';
+  effectDiv.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:g6FadeIn .5s ease-out';
+  const title=isWin?'🏆 胜 利 🏆':'💀 失 败 💀';
+  const titleColor=isWin?'#ffd700':'#ff4444';
+  const teamName=winTeam==='red'?'🔴 红 队':'🔵 蓝 队';
+  const particles=isWin?
+    Array(30).fill(0).map((_,i)=>`<div class="g6-particle" style="left:${Math.random()*100}%;animation-delay:${Math.random()*2}s;background:${['#ffd700','#ff6b6b','#4ecdc4','#45b7d1'][i%4]}"></div>`).join(''):
+    Array(20).fill(0).map((_,i)=>`<div class="g6-skull" style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s">💀</div>`).join('');
+  effectDiv.innerHTML=`
+    ${particles}
+    <div class="g6-end-title" style="color:${titleColor};animation:g6TitlePulse 1s ease-in-out infinite">${title}</div>
+    <div class="g6-end-team" style="color:${winTeam==='red'?'#ef9a9a':'#64b5f6'}">${teamName} 征服了地下城！</div>
+    <div class="g6-end-score">🔴 红队 ${redScore} 分 VS 🔵 蓝队 ${blueScore} 分</div>
+    <div class="g6-end-sub" style="color:${isWin?'#4ecdc4':'#888'}">${isWin?'你们的勇气将被永远铭记...':'地下城吞噬了你们的灵魂...'}</div>
+    <div class="g6-end-loading">即将进入结算...</div>
+  `;
+  document.body.appendChild(effectDiv);
+  setTimeout(()=>{if(document.getElementById('g6EndEffect'))document.getElementById('g6EndEffect').remove()},4000);
 };
 
 // ==================== 初始化 ====================
