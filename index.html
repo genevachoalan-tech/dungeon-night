@@ -489,6 +489,9 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-panel-equips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .g6-panel-slot{aspect-ratio:1;border:2px solid #8b6914;border-radius:6px;background:linear-gradient(135deg,#d4a574,#c4956a);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#5c4033;font-weight:bold;position:relative;min-height:50px}
 .g6-panel-slot.empty{background:rgba(0,0,0,.2);border-color:#4a3520;color:#666}
+.g6-panel-slot.exclusive{border-color:#ffd700;background:linear-gradient(135deg,#d4a574,#e8c87a);box-shadow:0 0 8px rgba(255,215,0,.4);animation:exclusiveGlow 2s ease-in-out infinite}
+@keyframes exclusiveGlow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.4)}50%{box-shadow:0 0 16px rgba(255,215,0,.7)}}
+.g6-panel-slot .item-name{font-size:9px;text-align:center;line-height:1.2}
 .g6-panel-slot .slot-name{font-size:9px;margin-bottom:2px}
 .g6-panel-skills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .g6-panel-skill{border:2px solid;border-radius:6px;padding:6px;font-size:10px;background:rgba(0,0,0,.3);min-height:70px;display:flex;flex-direction:column}
@@ -2300,7 +2303,16 @@ window.G.g5RenderButtons=function(){
     if(g.coinflip&&g.coinflip.done)dice.innerHTML='<span style="font-size:14px">🔵'+G5_DICE[g.coinflip.blue-1]+'('+g.coinflip.blue+') VS 🔴'+G5_DICE[g.coinflip.red-1]+'('+g.coinflip.red+')</span>';
     return;
   }
-  if(state.phase==='skillselect'){dice.innerHTML='<span style="font-size:13px;color:#a08060">技能选择阶段</span>';return}
+  if(state.phase==='skillselect'){
+    const selector=state.turnOrder[state.skillSelectIndex||0];
+    dice.innerHTML='<span style="font-size:13px;color:#a08060">技能选择阶段</span>';
+    if(selector===myPeerId&&!isHost){
+      btns.innerHTML='<button class="btn" onclick="G.g5ShowSkillSelect(state.game.skillPoolKey||0)">📜 选择技能</button>';
+    }else if(isHost){
+      btns.innerHTML='<span style="font-size:12px;color:#888">等待 '+playerName(selector)+' 选择技能...</span>';
+    }
+    return;
+  }
   if(state.phase!=='playing')return;
   if(g.duel){dice.innerHTML='<span style="font-size:14px;color:var(--gold-light)">⚔️ 决斗中...</span>';return}
   if(g.roundSummary){dice.innerHTML='<span style="font-size:13px;color:#888">查看回合总结...</span>';return}
@@ -2476,10 +2488,29 @@ window.G.hostActionG5=function(peerId,action){
       state.message=(state.game.coinflip.winner==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
     }else state.message='平局！再投一次';state.messageType='warn';
     broadcastState();this.renderG5();
-  }else if(action==='skip'&&state.phase==='playing'){
-    state.message='主持人跳过了 '+playerName(state.turnOrder[state.currentIndex]);state.messageType='warn';
-    state.game.pendingTargetChoice=null;state.game.pendingSkillChange=null;state.game.pendingPrediction=null;
-    this.g5EndTurn(state.turnOrder[state.currentIndex]);
+  }else if(action==='skip'){
+    if(state.phase==='skillselect'){
+      const selector=state.turnOrder[state.skillSelectIndex||0];
+      state.message='主持人跳过了 '+playerName(selector)+' 的技能选择';state.messageType='warn';
+      // 给断线玩家随机选一个技能
+      const poolKey=state.game.skillPoolKey||0;
+      const pool=state.game.skillPools[poolKey]||[];
+      if(pool.length>0){
+        const randomSkill=pool[Math.floor(Math.random()*pool.length)];
+        this.g5DoSelectSkill(selector,randomSkill);
+      }else{
+        state.skillSelectIndex=(state.skillSelectIndex||0)+1;
+        if(state.skillSelectIndex>=state.turnOrder.length){
+          state.phase='playing';state.currentIndex=0;state.round=1;
+          state.message=playerName(state.turnOrder[0])+' 的回合，投掷骰子';state.messageType='';
+        }
+        broadcastState();this.renderG5();
+      }
+    }else if(state.phase==='playing'){
+      state.message='主持人跳过了 '+playerName(state.turnOrder[state.currentIndex]);state.messageType='warn';
+      state.game.pendingTargetChoice=null;state.game.pendingSkillChange=null;state.game.pendingPrediction=null;
+      this.g5EndTurn(state.turnOrder[state.currentIndex]);
+    }
   }
 };
 
@@ -2776,29 +2807,29 @@ const G6_FLOOR2={
   boss:{type:'dragon'}
 };
 
-// G6角色自带技能
+// G6角色自带技能和专属武器
 const G6_CHAR_SKILLS={
-  adou:{name:'阿兜',equip:['主武器','护盾','道具'],skills:[
+  adou:{name:'阿兜',equip:['主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',bonus:1},skills:[
     {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true},
     {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false}
   ]},
-  duolin:{name:'多琳',equip:['主武器','宝物','道具'],skills:[
+  duolin:{name:'多琳',equip:['主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',bonus:1},skills:[
     {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false},
     {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true}
   ]},
-  lier:{name:'莉尔',equip:['主武器','宝物','道具'],skills:[
+  lier:{name:'莉尔',equip:['主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',bonus:1},skills:[
     {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true},
     {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true}
   ]},
-  muen:{name:'沐恩',equip:['主武器','副武器','道具'],skills:[
+  muen:{name:'沐恩',equip:['主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',bonus:1},skills:[
     {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false},
     {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true}
   ]},
-  xiupa:{name:'休帕',equip:['主武器','副武器','道具'],skills:[
+  xiupa:{name:'休帕',equip:['主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',bonus:1},skills:[
     {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true},
     {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true}
   ]},
-  yuanyuan:{name:'圆圆',equip:['主武器','护盾','道具'],skills:[
+  yuanyuan:{name:'圆圆',equip:['主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',bonus:1},skills:[
     {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false},
     {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false}
   ]}
@@ -2954,6 +2985,10 @@ window.G.initG6=function(){
     p.equipment=[]; // 已装备的物品
     p.backpack=[]; // 背包（最多2件）
     p.skillSlots=3;
+    // 自动装备专属武器到主武器槽
+    if(charData&&charData.weapon){
+      p.equipment.push({slot:'主武器',...charData.weapon,exclusive:true});
+    }
   });
   state.turnOrder=Object.keys(state.players);
   state.message='🐉 最终机制开始！请两队选择路线（上路/下路）';
@@ -3160,8 +3195,8 @@ window.G.g6RenderCharPanel=function(p){
   // 装备槽
   html+='<div class="g6-panel-equips">';
   (p.equipSlots||charData.equip).forEach((slotName,i)=>{
-    const item=p.equipment?.[i];
-    html+='<div class="g6-panel-slot'+(item?'':' empty')+'"><div class="slot-name">'+slotName+'</div>'+(item?item.name:'')+'</div>';
+    const item=p.equipment?.find(e=>e.slot===slotName);
+    html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+'"><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>':'')+'</div>';
   });
   html+='</div>';
   // 技能槽
@@ -3384,10 +3419,11 @@ window.G.g6ResolveCombat=function(peerId,action){
   // 计算伤害
   let damage=0;
   if(c.ring>0){
-    // 武器数值：暂时主武器+1，副武器+0
-    const weaponBonus=1;
+    // 武器加成：从装备中获取主武器加成
+    const mainWeapon=attacker.equipment?.find(e=>e.slot==='主武器');
+    const weaponBonus=mainWeapon?.bonus||0;
     damage=c.ring+weaponBonus;
-    log.push('命中 '+c.ring+'环，伤害='+c.ring+'+'+weaponBonus+'='+damage);
+    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，武器+'+weaponBonus:'')+'，伤害='+damage);
     
     // 暴击：5环+双数=一击毙命（非龙族）
     if(c.crit){
