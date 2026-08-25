@@ -421,6 +421,10 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-member.dead{opacity:.4;text-decoration:line-through}
 .g6-member-avatar{width:24px;height:24px;border-radius:50%}
 .g6-map-section{margin-bottom:12px}
+.g6-map-route{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.g6-route-label{font-size:14px;font-weight:bold;color:var(--gold-light);text-align:center;margin:8px 0 4px;text-shadow:0 0 10px rgba(255,215,0,.3)}
+.g6-lava{text-align:center;padding:6px;background:linear-gradient(to right,transparent,#ff4500,transparent);color:#ffd700;font-weight:bold;font-size:12px;border-radius:4px;letter-spacing:2px;margin:4px 0;animation:lavaGlow 1.5s ease-in-out infinite}
+@keyframes lavaGlow{0%,100%{opacity:.6}50%{opacity:1}}
 .g6-map-dual{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;max-width:680px;margin:0 auto}
 .g6-map-col{display:flex;flex-direction:column;gap:4px}
 .g6-map-col .g6-route-label{font-size:12px;font-weight:bold;color:var(--gold-light);text-align:center;margin-bottom:2px}
@@ -1431,6 +1435,16 @@ window.G={
   render(){this[`renderG${this.gameId}`]&&this[`renderG${this.gameId}`]()},
   playerAction(id,action){this[`actionG${this.gameId}`]&&this[`actionG${this.gameId}`](id,action)},
   hostAction(id,action){this[`hostActionG${this.gameId}`]&&this[`hostActionG${this.gameId}`](id,action)},
+  restart(){
+    // 保留玩家金币，重新初始化当前游戏
+    const gid=this.gameId;
+    state.phase='playing';
+    this.init(gid);
+    state.phase='playing';
+    broadcastState();
+    showScreen('gameScreen');
+    setTimeout(()=>this.render(),200);
+  }
 };
 
 // ==================== 游戏1：小蛇机 ====================
@@ -1456,7 +1470,7 @@ window.G.initG1=function(){
   Object.values(state.players).forEach(p=>{p.snake=['tail'];p.g1coins=0;p.failed=false;p.g1title=false});
   state.message=playerName(order[0])+' 的回合，投掷骰子';state.messageType='';
   document.getElementById('gameInfo').innerHTML='<span>回合 <b id="g1Round">1</b></span><span>牌堆 <b id="g1DeckN">42</b></span><span id="g1Turn"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG1(null,\'skip\')">跳过当前断线玩家</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG1(null,\'skip\')">跳过当前断线玩家</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
   this.g1Rolling=false;
 };
 
@@ -1554,10 +1568,9 @@ window.G.g1DrawCard=function(){
     state.game.lastCard={type:cardType,playerName:p.name,effect:card.value>0?'+'+card.value+'金币':'无金币'};
   }
   state.game.deckCount=this.g1Deck.length;
-  this.g1Rolling=false;
   broadcastState();this.renderG1();
   if(this.g1CheckEnd())setTimeout(()=>this.g1EndGame(),1500);
-  else setTimeout(()=>{this.g1NextTurn();broadcastState();this.renderG1()},1200);
+  else setTimeout(()=>{this.g1NextTurn();this.g1Rolling=false;broadcastState();this.renderG1()},1200);
 };
 
 window.G.g1NextTurn=function(){
@@ -1602,7 +1615,7 @@ window.G.initG2=function(){
   Object.values(state.players).forEach(p=>{p.g2coins=0});
   state.message=playerName(order[0])+' 的回合，投掷骰子';state.messageType='';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g2Round">1</b> 轮</span><span id="g2Turn"></span><span id="g2Dir">➡️</span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG2(null,\'skip\')">跳过当前断线玩家</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG2(null,\'skip\')">跳过当前断线玩家</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
 
 window.G.renderG2=function(){
@@ -1714,16 +1727,23 @@ window.G.initG3=function(){
   state.phase='playing';
   state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+' 先手！'+playerName(order[0])+' 的回合';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g3Round">1</b> 轮</span><span id="g3Turn"></span><span id="g3IndInfo" class="g3-ind-info"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG3(null,\'skip\')">跳过断线玩家</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG3(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
 
 window.G.renderG3=function(){
-  if(!state.game)return;const g=state.game;
+  if(!state.game)return;
+  // 游戏结束阶段显示结算界面
+  if(state.phase==='gameOver'){renderGameSummary();return}
+  const g=state.game;
   document.getElementById('g3Round').textContent=state.round;
   const curId=state.turnOrder[state.currentIndex];
   if(curId&&state.players[curId]){const cp=state.players[curId];document.getElementById('g3Turn').innerHTML=`当前：<b style="color:${cp.team==='blue'?'#64b5f6':'#ef9a9a'}">${cp.name}</b>${cp.online?'':'（离线⏸️）'}`}
   if(!isHost&&state.players[myPeerId])document.getElementById('g3IndInfo').innerHTML='我的指示物：<b>'+state.players[myPeerId].indicators+'</b>';
-  else if(isHost&&curId)document.getElementById('g3IndInfo').innerHTML=playerName(curId)+' 指示物：<b>'+state.players[curId].indicators+'</b>';
+  else if(isHost){
+    let indHtml='指示物：';
+    Object.values(state.players).forEach(p=>{indHtml+=`<span style="color:${p.team==='blue'?'#64b5f6':'#ef9a9a'};margin:0 6px">${p.name}:<b>${p.indicators}</b></span>`});
+    document.getElementById('g3IndInfo').innerHTML=indHtml;
+  }
 
   let html='';
   // 比大小阶段
@@ -1895,6 +1915,8 @@ window.G.g3AfterAttack=function(){
 };
 
 window.G.g3NextTurn=function(){
+  // 清除上一轮特效
+  if(state.game)state.game.lastEffect=null;
   const len=state.turnOrder.length;if(len===0)return;
   let nextIdx=(state.currentIndex+1)%len;if(nextIdx<=state.currentIndex)state.round++;
   let guard=0;
@@ -1976,7 +1998,7 @@ window.G.initG4=function(){
   state.phase='playing';
   state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+' 先行动！'+playerName(order[0])+' 的回合';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g4Round">1</b> 轮</span><span id="g4Turn"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG4(null,\'skip\')">跳过断线玩家</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG4(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
   this.g4PowerLocking=false;this.g4Rolling=false;this.g4StopPower();
 };
 
@@ -2216,7 +2238,7 @@ window.G.initG5=function(){
   state.phase='skillselect';
   state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g5Round">1</b> 轮</span><span id="g5Turn"></span><span id="g5Phase" class="g5-phase"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
 
 window.G.renderG5=function(){
@@ -2743,8 +2765,8 @@ const G6_CELL_TYPES={
 };
 // 第一层：两条路线，汇合到龙BOSS
 const G6_FLOOR1={
-  top:[{type:'start'},{type:'monster'},{type:'monster'},{type:'monster'}],
-  bottom:[{type:'start'},{type:'clover'},{type:'monster'},{type:'clover'}],
+  top:[{type:'start'},{type:'monster'},{type:'clover'},{type:'monster'}],
+  bottom:[{type:'start'},{type:'clover'},{type:'monster'},{type:'clover'},{type:'monster'}],
   boss:{type:'dragon'}
 };
 // 第二层：两条路线，汇合到最终龙BOSS
@@ -2936,6 +2958,7 @@ window.G.initG6=function(){
   state.turnOrder=Object.keys(state.players);
   state.message='🐉 最终机制开始！请两队选择路线（上路/下路）';
   state.messageType='';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
 
 window.G.renderG6=function(){
@@ -3019,7 +3042,7 @@ window.G.renderG6=function(){
     html+='<div class="g6-map-section">';
     // 上路
     html+='<div class="g6-route-label">⬆️ 上路</div>';
-    html+='<div class="g6-map g6-map-route">';
+    html+='<div class="g6-map g6-map-route" style="grid-template-columns:repeat('+(floorData.top.length+1)+',1fr)">';
     floorData.top.forEach((cell,i)=>{
       const cellType=G6_CELL_TYPES[cell.type];
       const teamsHere=Object.entries(g.teamPos).filter(([_,tp])=>tp.route==='top'&&tp.pos===i);
@@ -3047,7 +3070,7 @@ window.G.renderG6=function(){
     html+='<div class="g6-lava">🔥 熔岩区域 🔥</div>';
     // 下路
     html+='<div class="g6-route-label">⬇️ 下路</div>';
-    html+='<div class="g6-map g6-map-route">';
+    html+='<div class="g6-map g6-map-route" style="grid-template-columns:repeat('+(floorData.bottom.length+1)+',1fr)">';
     floorData.bottom.forEach((cell,i)=>{
       const cellType=G6_CELL_TYPES[cell.type];
       const teamsHere=Object.entries(g.teamPos).filter(([_,tp])=>tp.route==='bottom'&&tp.pos===i);
