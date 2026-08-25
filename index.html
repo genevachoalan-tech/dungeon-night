@@ -2726,8 +2726,8 @@ window.G.g5DuelRoll=function(peerId){
 window.G.g5HostDuelRoll=function(id){this.g5DuelRoll(id)};
 window.G.g5ResolveDuel=function(){
   const d=state.game.duel;const a=state.players[d.playerA],b=state.players[d.playerB];
-  if(d.rollA>d.rollB){a.pos=Math.min(G5_FINISH,a.pos+1);b.hp-=1;d.winner=d.playerA;state.message=playerName(d.playerA)+' 决斗胜利！('+d.rollA+'vs'+d.rollB+') +1格，'+playerName(d.playerB)+'-1血';state.messageType='good';state.game.lastEffect={type:'damage',playerName:playerName(d.playerB),text:'-1 血量',sub:playerName(d.playerA)+' 决斗击败 '+playerName(d.playerB)};if(a.skill==='胜者余酿酒'&&b.skill&&!a._copiedSkill){a.skill=b.skill;a._copiedSkill=true;this.g5OnSkillAcquire(d.playerA,b.skill);state.game.lastEffect={skillId:'胜者余酿酒',text:'复制败方技能：'+b.skill,sub:a.name+' 胜者余酿酒生效'}}this.g5CheckDeath(d.playerB)}
-  else if(d.rollB>d.rollA){b.pos=Math.min(G5_FINISH,b.pos+1);a.hp-=1;d.winner=d.playerB;state.message=playerName(d.playerB)+' 决斗胜利！('+d.rollB+'vs'+d.rollA+') +1格，'+playerName(d.playerA)+'-1血';state.messageType='warn';state.game.lastEffect={type:'damage',playerName:playerName(d.playerA),text:'-1 血量',sub:playerName(d.playerB)+' 决斗击败 '+playerName(d.playerA)};this.g5CheckDeath(d.playerA)}
+  if(d.rollA>d.rollB){a.pos=Math.min(G5_FINISH,a.pos+1);b.hp-=1;d.winner=d.playerA;state.message=playerName(d.playerA)+' 决斗胜利！('+d.rollA+'vs'+d.rollB+') +1格，'+playerName(d.playerB)+'-1血';state.messageType='good';state.game.lastEffect={type:'damage',playerName:playerName(d.playerB),text:playerName(d.playerB)+' -1 血量',sub:playerName(d.playerA)+' 决斗击败 '+playerName(d.playerB)};if(a.skill==='胜者余酿酒'&&b.skill&&!a._copiedSkill){a.skill=b.skill;a._copiedSkill=true;this.g5OnSkillAcquire(d.playerA,b.skill);state.game.lastEffect={skillId:'胜者余酿酒',text:'复制败方技能：'+b.skill,sub:a.name+' 胜者余酿酒生效'}}this.g5CheckDeath(d.playerB)}
+  else if(d.rollB>d.rollA){b.pos=Math.min(G5_FINISH,b.pos+1);a.hp-=1;d.winner=d.playerB;state.message=playerName(d.playerB)+' 决斗胜利！('+d.rollB+'vs'+d.rollA+') +1格，'+playerName(d.playerA)+'-1血';state.messageType='warn';state.game.lastEffect={type:'damage',playerName:playerName(d.playerA),text:playerName(d.playerA)+' -1 血量',sub:playerName(d.playerB)+' 决斗击败 '+playerName(d.playerA)};this.g5CheckDeath(d.playerA)}
   else state.message='决斗平局('+d.rollA+'vs'+d.rollB+')';
 };
 
@@ -2778,11 +2778,11 @@ window.G.g5NextTurn=function(){
     state.round++;
     // 大回合结束：巨龙吐息（第一阶段末尾-1血）
     const alive=Object.values(state.players).filter(pl=>!pl.dead);
-    if(alive.length){const minPos=Math.min(...alive.map(pl=>pl.pos));if(minPos<=7){const victims=alive.filter(pl=>pl.pos===minPos);victims.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});state.message+=' | 巨龙吐息！末尾-1血';state.game.lastEffect={type:'dragon',playerName:victims.map(pl=>pl.name).join('、'),text:'🐉 巨龙吐息 -1血',sub:'末尾玩家被吐息击中'}}}
+    if(alive.length){const minPos=Math.min(...alive.map(pl=>pl.pos));if(minPos<=7){const victims=alive.filter(pl=>pl.pos===minPos);victims.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});state.message+=' | 巨龙吐息！末尾-1血';state.game.lastEffect={type:'dragon',playerName:victims.map(pl=>pl.name).join('、'),text:'🐉 '+victims.map(pl=>pl.name).join('、')+' -1血',sub:'末尾玩家被吐息击中'}}}
     // 大回合结束：落石（第二阶段9/12/15格-1血）
     const rockVictims=alive.filter(pl=>pl.pos>=8&&pl.pos<=15&&G5_ROCK.includes(pl.pos));
     rockVictims.forEach(pl=>{pl.hp-=1;this.g5CheckDeathObj(pl)});
-    if(rockVictims.length){state.message+=' | 落石！'+rockVictims.map(pl=>pl.name).join('、')+'-1血';state.game.lastEffect={type:'rock',playerName:rockVictims.map(pl=>pl.name).join('、'),text:'🪨 落石 -1血',sub:'巨石砸中玩家'}}
+    if(rockVictims.length){state.message+=' | 落石！'+rockVictims.map(pl=>pl.name).join('、')+'-1血';state.game.lastEffect={type:'rock',playerName:rockVictims.map(pl=>pl.name).join('、'),text:'🪨 '+rockVictims.map(pl=>pl.name).join('、')+' -1血',sub:'巨石砸中玩家'}}
     const summary=[];
     state.turnOrder.forEach(id=>{const pl=state.players[id];if(!pl)return;summary.push('<div class="g5-sum-player"><span class="'+pl.team+'">'+(pl.team==='blue'?'🔵':'🔴')+' '+pl.name+'</span><span>位置'+pl.pos+' · ❤️'+pl.hp+' · 💰'+(pl.gold||0)+(pl.dead?' · 💀':'')+(pl.skill?' · 📜'+pl.skill:'')+'</span></div>')});
     g.roundSummary={round:state.round-1,html:summary.join('')};
