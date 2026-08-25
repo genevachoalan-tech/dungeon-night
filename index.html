@@ -510,6 +510,11 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-panel-backpack .bp-title{font-size:11px;color:var(--gold-light);margin-bottom:4px}
 .g6-panel-backpack .bp-slots{display:flex;gap:4px}
 .g6-panel-backpack .bp-slot{width:40px;height:40px;border:1px dashed #5c4033;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#666}
+.g6-panel-treasures{margin-top:6px}
+.g6-panel-treasures .bp-title{font-size:11px;color:var(--gold-light);margin-bottom:4px}
+.g6-panel-treasures .treasure-slots{display:flex;gap:6px;flex-wrap:wrap}
+.g6-panel-treasures .treasure-slot{display:flex;align-items:center;gap:4px;background:rgba(218,165,32,.1);border:1px solid #daa520;border-radius:4px;padding:3px 6px}
+.g6-panel-treasures .treasure-name{font-size:10px;color:#ffd700}
 @media(max-width:640px){.g6-panel-body{flex-direction:column}.g6-panel-avatar{width:100%;height:80px}.g6-panel-hpbar .hp-tick{width:12px;height:16px}}
 .g6-cell{background:rgba(0,0,0,.35);border:2px solid #4a3520;border-radius:8px;padding:4px;position:relative;font-size:9px;text-align:center;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .g6-cell::before{content:'';position:absolute;inset:0;font-size:clamp(20px,4.5vw,44px);display:flex;align-items:center;justify-content:center;opacity:.18;pointer-events:none;z-index:0}
@@ -933,7 +938,7 @@ function renderPublicLobby(){
     const allReady=Object.values(state.players).every(p=>p.ready||!p.online);
     const nextGame=state.currentGame+1;
     if(isHost){
-      if(state.currentGame>=5){
+      if(state.currentGame>=GAMES.length){
         actions.innerHTML='<div class="tip">🎉 全部游戏已结束！</div>';
       }else{
         const gi=GAMES[nextGame-1];
@@ -1436,7 +1441,14 @@ function enterGameScreen(){
 }
 
 // 玩家发送操作
-function sendAction(action){if(conn&&conn.open)conn.send({type:'playerAction',action})}
+function sendAction(action){
+  if(isHost){
+    // 主持人自己直接执行
+    if(window.G&&window.G.playerAction)window.G.playerAction(myPeerId,action);
+  }else if(conn&&conn.open){
+    conn.send({type:'playerAction',action});
+  }
+}
 function sendHostAction(action){if(isHost&&window.G&&window.G.hostAction)window.G.hostAction(myPeerId,action)}
 
 // ==================== 游戏模块接口 ====================
@@ -2892,6 +2904,14 @@ const G6_MONSTERS={
   dragon2:{name:'远古巨龙',icon:'🐉',hp:35,atk:5,gold:20,isDragon:true,skill:'毁灭吐息'}
 };
 
+// G6宝物/道具
+const G6_TREASURES={
+  bandage:{name:'绷带',icon:'🩹',img:'https://aka.doubaocdn.com/s/ejpB2Fx9rK',type:'passive',desc:'被动技能：回复一名队友1点血量。',trigger:'每回合结束时，可选择一名队友回复1点血量',effect:'healAlly'},
+  healingPotion:{name:'治疗药剂',icon:'🧪',img:'https://aka.doubaocdn.com/s/RNB7brl4dJ',type:'passive',desc:'每回合自动回复1点血量',trigger:'每回合开始时自动回复1点血量',effect:'autoHeal'},
+  goldPouch:{name:'金币钱袋',icon:'💰',img:'https://aka.doubaocdn.com/s/JoAXsBeDOD',type:'passive',desc:'每回合开始时，可以投掷一颗骰子，投掷结果4~6可获得1枚金币。',trigger:'每回合开始时投骰，4~6获得1金币',effect:'goldDice'},
+  emptyBottle:{name:'空酒瓶',icon:'🍾',img:'https://aka.doubaocdn.com/s/lSlP5WVbXK',type:'passive',desc:'进攻前不知道哪里飞来一个酒瓶，砸向敌人，造成1点额外伤害。',trigger:'每次进攻前额外造成1点伤害',effect:'extraDamage'}
+};
+
 // G6投骰状态
 window.G.g6Rolling=false;window.G.g6Pointer=0;window.G.g6Dir=1;window.G.g6Timer=null;window.G.g6Locked=false;
 
@@ -3029,6 +3049,7 @@ window.G.initG6=function(){
     }
     p.equipment=[]; // 已装备的物品
     p.backpack=[]; // 背包（最多2件）
+    p.treasures=[]; // 宝物栏（被动宝物）
     p.skillSlots=3;
     // 自动装备专属武器到主武器槽
     if(charData&&charData.weapon){
@@ -3211,7 +3232,7 @@ window.G.renderG6=function(){
   // 特效
   if(g.lastEffect){
     const fx=g.lastEffect;
-    const fxIcon={damage:'💔',combat:'⚔️',gold:'💰',heal:'💚',dragon:'🐉',crit:'💥'}[fx.type]||'✨';
+    const fxIcon={damage:'💔',combat:'⚔️',gold:'💰',heal:'💚',dragon:'🐉',crit:'💥',treasure:'💎'}[fx.type]||'✨';
     const fxColor=fx.type==='damage'?'#ff4444':fx.type==='gold'?'#ffd700':fx.type==='heal'?'#44ff44':fx.type==='crit'?'#ff0000':'#e8c86a';
     html+='<div class="g5-fx-overlay"><div class="g5-fx-box g5-fx-'+(fx.type||'normal')+'" style="--fx-color:'+fxColor+'"><div class="g5-fx-icon" style="color:'+fxColor+'">'+fxIcon+'</div><div class="g5-fx-text" style="color:'+fxColor+'">'+fx.text+'</div><div class="g5-fx-sub">'+fx.sub+'</div></div></div>';
   }
@@ -3263,6 +3284,16 @@ window.G.g6RenderCharPanel=function(p){
   for(let i=0;i<2;i++){
     const item=p.backpack?.[i];
     html+='<div class="bp-slot">'+(item?item.name:'空')+'</div>';
+  }
+  html+='</div></div>';
+  // 宝物栏
+  html+='<div class="g6-panel-treasures"><div class="bp-title">💎 宝物（被动效果）</div><div class="treasure-slots">';
+  if(p.treasures&&p.treasures.length>0){
+    p.treasures.forEach(t=>{
+      html+='<div class="treasure-slot" title="'+t.desc+'"><img src="'+t.img+'" style="width:32px;height:32px;border-radius:4px"><span class="treasure-name">'+t.name+'</span></div>';
+    });
+  }else{
+    html+='<div style="color:var(--text-dim);font-size:12px">暂无宝物</div>';
   }
   html+='</div></div>';
   html+='</div></div></div>';
@@ -3363,8 +3394,19 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
       this.g6EndTeamTurn();
       break;
     case 'chest':
-      g.lastEffect={type:'gold',text:(team==='red'?'红队':'蓝队')+'发现宝箱！',sub:'📦宝箱'};
-      state.message+=' | 宝箱格（装备系统开发中）';
+      // 每个存活玩家获得一件随机宝物
+      const treasureKeys=Object.keys(G6_TREASURES);
+      const gotTreasures=[];
+      members.forEach(p=>{
+        if(p.treasures.length<3){ // 最多3件宝物
+          const tk=treasureKeys[Math.floor(Math.random()*treasureKeys.length)];
+          const treasure={...G6_TREASURES[tk],id:tk};
+          p.treasures.push(treasure);
+          gotTreasures.push(p.name+'获得'+treasure.name);
+        }
+      });
+      g.lastEffect={type:'treasure',text:(team==='red'?'红队':'蓝队')+'发现宝箱！',sub:'📦 '+gotTreasures.join('、')};
+      state.message+=' | 宝箱：'+gotTreasures.join('、');
       this.g6EndTeamTurn();
       break;
     case 'clover':
@@ -3467,8 +3509,11 @@ window.G.g6ResolveCombat=function(peerId,action){
     // 武器加成：从装备中获取主武器加成
     const mainWeapon=attacker.equipment?.find(e=>e.slot==='主武器');
     const weaponBonus=mainWeapon?.bonus||0;
-    damage=c.ring+weaponBonus;
-    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，武器+'+weaponBonus:'')+'，伤害='+damage);
+    // 空酒瓶宝物：进攻前额外造成1点伤害
+    const hasEmptyBottle=attacker.treasures?.some(t=>t.effect==='extraDamage');
+    const bottleBonus=hasEmptyBottle?1:0;
+    damage=c.ring+weaponBonus+bottleBonus;
+    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，武器+'+weaponBonus:'')+(bottleBonus>0?'，空酒瓶+'+bottleBonus:'')+'，伤害='+damage);
     
     // 暴击：5环+双数=一击毙命（非龙族）
     if(c.crit){
@@ -3598,14 +3643,50 @@ window.G.g6CheckDeath=function(p){
 // 结束队伍回合，切换到另一队
 window.G.g6EndTeamTurn=function(){
   const g=state.game;
+  // 回合结束宝物效果：绷带回复血量最低的队友1点血量
+  const prevTeam=g.currentTeam;
+  const prevMembers=Object.values(state.players).filter(p=>p.team===prevTeam&&!p.dead);
+  const treasureEffects=[];
+  prevMembers.forEach(p=>{
+    if(!p.treasures)return;
+    p.treasures.forEach(t=>{
+      if(t.effect==='healAlly'){ // 绷带：回复一名队友1点血量
+        const allies=prevMembers.filter(a=>a.id!==p.id&&a.hp<9);
+        if(allies.length>0){
+          allies.sort((a,b)=>a.hp-b.hp);
+          const target=allies[0];
+          target.hp=Math.min(9,target.hp+1);
+          treasureEffects.push(p.name+'绷带回复'+target.name+'1血');
+        }
+      }
+    });
+  });
   g.currentTeam=g.currentTeam==='red'?'blue':'red';
   if(g.currentTeam==='red')g.round++;
+  // 回合开始宝物效果
+  const currentMembers=Object.values(state.players).filter(p=>p.team===g.currentTeam&&!p.dead);
+  currentMembers.forEach(p=>{
+    if(!p.treasures)return;
+    p.treasures.forEach(t=>{
+      if(t.effect==='autoHeal'){ // 治疗药剂：每回合自动回复1点血量
+        if(p.hp<9){p.hp=Math.min(9,p.hp+1);treasureEffects.push(p.name+'治疗药剂+1血')}
+      }
+      if(t.effect==='goldDice'){ // 金币钱袋：投骰4~6获得1金币
+        const roll=Math.floor(Math.random()*6)+1;
+        if(roll>=4){p.gold=(p.gold||0)+1;treasureEffects.push(p.name+'金币钱袋投出'+roll+'，+1金币')}
+      }
+    });
+  });
+  if(treasureEffects.length>0){
+    g.lastEffect={type:'heal',text:'宝物效果触发',sub:'✨ '+treasureEffects.join('、')};
+  }
   // 检查是否全队淘汰
   const redAlive=Object.values(state.players).some(p=>p.team==='red'&&!p.dead);
   const blueAlive=Object.values(state.players).some(p=>p.team==='blue'&&!p.dead);
   if(!redAlive){this.g6EndGame('blue');return}
   if(!blueAlive){this.g6EndGame('red');return}
   state.message+=' | '+(g.currentTeam==='red'?'红队':'蓝队')+'回合';
+  if(treasureEffects.length>0)state.message+=' | '+treasureEffects.join('、');
   broadcastState();this.renderG6();
 };
 
