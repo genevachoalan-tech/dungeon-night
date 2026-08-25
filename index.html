@@ -3174,28 +3174,28 @@ const G6_SHOP_SKILLS={
 // G6角色自带技能和专属武器
 const G6_CHAR_SKILLS={
   adou:{name:'阿兜',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',img:'https://aka.doubaocdn.com/s/Js4lAdezcV',bonus:1,exclusive:true},skills:[
-    {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true},
-    {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false}
+    {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true,effect:'eraseMonsterSkill'},
+    {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false,effect:'stealGold'}
   ]},
   duolin:{name:'多琳',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/vSOQ9520fU',bonus:1,exclusive:true},skills:[
-    {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false},
-    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true}
+    {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false,effect:'tameMonster'},
+    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true,effect:'plantHeal'}
   ]},
   lier:{name:'莉尔',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/rA7ewqqiMT',bonus:1,exclusive:true},skills:[
-    {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true},
-    {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true}
+    {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true,effect:'magicMissile'},
+    {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true,effect:'timeRewind'}
   ]},
   muen:{name:'沐恩',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',img:'https://aka.doubaocdn.com/s/tI6h5YxosE',bonus:1,exclusive:true},skills:[
-    {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false},
-    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true}
+    {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false,effect:'hoofStomp'},
+    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true,effect:'upDownStrike'}
   ]},
   xiupa:{name:'休帕',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',img:'https://aka.doubaocdn.com/s/f7QArSVwTj',bonus:1,exclusive:true},skills:[
-    {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true},
-    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true}
+    {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true,effect:'stealth'},
+    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true,effect:'counterAttack'}
   ]},
   yuanyuan:{name:'圆圆',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',img:'https://aka.doubaocdn.com/s/qZoID6Dodt',bonus:1,exclusive:true},skills:[
-    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false},
-    {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false}
+    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false,effect:'groupHeal'},
+    {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false,effect:'smite'}
   ]}
 };
 
@@ -4286,6 +4286,37 @@ window.G.g6ResolveCombat=function(peerId,action){
     c.monsterHp=Math.max(0,c.monsterHp-damage);
     log.push(monster.name+' 剩余 '+c.monsterHp+' 血');
     
+    // 角色技能：群体治疗（上靶伤害转为全体回血）
+    if(c.groupHealPending&&damage>0){
+      const healAmount=Math.min(damage,2);
+      const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead);
+      teamMembers.forEach(p=>{p.hp=Math.min(9,(p.hp||0)+healAmount)});
+      log.push('💚 群体治疗：全体友方回复'+healAmount+'血');
+      g.lastEffect={type:'heal',text:'群体治疗！全体+'+healAmount+'血',sub:'💚群体治疗'};
+      c.groupHealPending=false;
+    }
+    
+    // 角色技能：惩戒（造成伤害后自回2血）
+    if(c.smitePending&&damage>0){
+      attacker.hp=Math.min(9,(attacker.hp||0)+2);
+      log.push('⚡ 惩戒：'+attacker.name+'回复2血');
+      g.lastEffect={type:'heal',text:attacker.name+' 惩戒回复2血',sub:'⚡惩戒'};
+      c.smitePending=false;
+    }
+    
+    // 角色技能：植物精华（放弃伤害，回友方3血）
+    if(c.plantHealPending){
+      const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead);
+      // 选择血量最低的友方回复
+      const target=teamMembers.sort((a,b)=>(a.hp||0)-(b.hp||0))[0];
+      if(target){
+        target.hp=Math.min(9,(target.hp||0)+3);
+        log.push('🌱 植物精华：'+target.name+'回复3血');
+        g.lastEffect={type:'heal',text:target.name+' 植物精华回复3血',sub:'🌱植物精华'};
+      }
+      c.plantHealPending=false;
+    }
+    
     // 技能效果：祈祷（上靶后额外2伤害+1金币）
     if(c.prayerBonus&&damage>0){
       c.monsterHp=Math.max(0,c.monsterHp-2);
@@ -4414,6 +4445,21 @@ window.G.g6ResolveCombat=function(peerId,action){
     log.push('每人 +'+goldPer+' 金币');
     g.monstersDefeated[team].push(c.cellKey);
     g.lastEffect={type:'gold',text:'击败'+monster.name+'！每人+'+goldPer+'金',sub:'🏆胜利'};
+    
+    // 角色技能：驯服（击杀后获得一次性伤害道具）
+    if(c.tamePending&&!monster.isDragon){
+      const tameItem={name:'驯服的'+monster.name,icon:monster.icon,slot:'道具',type:'self',desc:'一次性伤害道具，造成'+monster.atk+'点伤害',effect:'directDamage',value:monster.atk,id:'tame_'+Date.now()};
+      if(!attacker.equipment)attacker.equipment=[];
+      const hasItemSlot=attacker.equipment.some(e=>e.slot==='道具');
+      if(!hasItemSlot){
+        attacker.equipment.push(tameItem);
+        log.push('🐾 驯服：获得'+tameItem.name+'（伤害'+monster.atk+'）');
+        g.lastEffect={type:'item',text:attacker.name+' 驯服了'+monster.name+'！',sub:'🐾驯服'};
+      }else{
+        log.push('🐾 驯服：道具槽已满，无法获得');
+      }
+      c.tamePending=false;
+    }
     
     // BOSS处理
     if(monster.isDragon){
@@ -4820,8 +4866,95 @@ window.G.g6UseSkill=function(peerId,skillIndex){
       }
       skill.used=true;
       break;
+    // ===== 角色自带技能效果 =====
+    case 'eraseMonsterSkill': // 迷魂曲：消耗1金币，抹除怪物技能（非龙族）
+      if(monster.isDragon){
+        state.message='龙族怪物无法被迷魂曲影响';
+        return;
+      }
+      if((player.gold||0)<1){
+        state.message='金币不足，无法使用迷魂曲';
+        return;
+      }
+      player.gold-=1;
+      monster.skill='（已被抹除）';
+      monster.skillErased=true;
+      log.push(player.name+' 使用迷魂曲，消耗1金币，抹除'+monster.name+'的技能');
+      skill.used=true;
+      break;
+    case 'stealGold': // 盗窃：盗取怪物额外2金币
+      player.gold=(player.gold||0)+2;
+      log.push(player.name+' 使用盗窃，从'+monster.name+'盗取2金币');
+      skill.used=true;
+      break;
+    case 'tameMonster': // 驯服：标记击杀后可驯服
+      c.tamePending=true;
+      log.push(player.name+' 使用驯服，若击杀此怪物可获得伤害道具');
+      skill.used=true;
+      break;
+    case 'plantHeal': // 植物精华：放弃上靶伤害，回友方3血
+      c.giveUpDamage=true;
+      c.plantHealPending=true;
+      log.push(player.name+' 使用植物精华，放弃伤害，将回复友方3血');
+      skill.used=true;
+      break;
+    case 'magicMissile': // 法术飞弹：固定2伤害
+      c.monsterHp=Math.max(0,c.monsterHp-2);
+      log.push(player.name+' 使用法术飞弹，造成2点固定伤害');
+      skill.used=true;
+      if(c.monsterHp<=0){
+        this.g6ResolveCombat(peerId,{ring:0,dice:1,crit:false,monsterDead:true,skillKill:true});
+        return;
+      }
+      break;
+    case 'timeRewind': // 时间回溯：重置本次投掷
+      c.locked=false;
+      c.ring=undefined;
+      c.dice=undefined;
+      c.isEven=undefined;
+      log.push(player.name+' 使用时间回溯，重置本次投掷');
+      skill.used=true;
+      break;
+    case 'hoofStomp': // 牛蹄践踏：1/2环变3环
+      if(c.ring===1||c.ring===2){
+        c.ring=3;
+        log.push(player.name+' 使用牛蹄践踏，'+(c.ring===1?'1':'2')+'环提升为3环');
+      }else{
+        log.push(player.name+' 使用牛蹄践踏（当前'+c.ring+'环，无需提升）');
+      }
+      skill.used=true;
+      break;
+    case 'upDownStrike': // 指上打下：固定3伤害
+      c.monsterHp=Math.max(0,c.monsterHp-3);
+      log.push(player.name+' 使用指上打下，造成3点固定伤害');
+      skill.used=true;
+      if(c.monsterHp<=0){
+        this.g6ResolveCombat(peerId,{ring:0,dice:1,crit:false,monsterDead:true,skillKill:true});
+        return;
+      }
+      break;
+    case 'stealth': // 隐秘身形：抵消下次怪物攻击
+      player.stealthActive=true;
+      log.push(player.name+' 使用隐秘身形，将抵消下一次怪物攻击');
+      skill.used=true;
+      break;
+    case 'counterAttack': // 反击：怪物回合额外攻击
+      player.counterAttackPending=true;
+      log.push(player.name+' 使用反击，怪物主动攻击回合将额外进攻一次');
+      skill.used=true;
+      break;
+    case 'groupHeal': // 群体治疗：上靶伤害转全体回血
+      c.groupHealPending=true;
+      log.push(player.name+' 使用群体治疗，上靶伤害将转为全体回血');
+      skill.used=true;
+      break;
+    case 'smite': // 惩戒：上靶后自回2血
+      c.smitePending=true;
+      log.push(player.name+' 使用惩戒，造成伤害后回复自身2血');
+      skill.used=true;
+      break;
     default:
-      // 角色自带技能（简化处理）
+      // 未知技能
       log.push(player.name+' 使用 '+skill.name);
       skill.used=true;
       break;
@@ -4843,7 +4976,20 @@ window.G.g6UseSkill=function(peerId,skillIndex){
       monsterDefDown:{icon:'💀',text:player.name+' 虚弱！',sub:'怪物防御力下降'},
       allyDamageUp:{icon:'🌿',text:player.name+' 自然之力！',sub:'队伍伤害提升'},
       burn:{icon:'🔥',text:player.name+' 火球术！',sub:'怪物持续灼烧'},
-      getItem:{icon:'🧪',text:player.name+' 魔法药水！',sub:'获得随机道具'}
+      getItem:{icon:'🧪',text:player.name+' 魔法药水！',sub:'获得随机道具'},
+      // 角色自带技能特效
+      eraseMonsterSkill:{icon:'🎵',text:player.name+' 迷魂曲！',sub:'抹除怪物技能'},
+      stealGold:{icon:'💰',text:player.name+' 盗窃！',sub:'盗取2金币'},
+      tameMonster:{icon:'🐾',text:player.name+' 驯服！',sub:'击杀后可驯服'},
+      plantHeal:{icon:'🌱',text:player.name+' 植物精华！',sub:'放弃伤害回复友方'},
+      magicMissile:{icon:'✨',text:player.name+' 法术飞弹！',sub:'造成2点伤害'},
+      timeRewind:{icon:'⏳',text:player.name+' 时间回溯！',sub:'重置本次投掷'},
+      hoofStomp:{icon:'🐂',text:player.name+' 牛蹄践踏！',sub:'1/2环变3环'},
+      upDownStrike:{icon:'👊',text:player.name+' 指上打下！',sub:'造成3点伤害'},
+      stealth:{icon:'👤',text:player.name+' 隐秘身形！',sub:'抵消下次攻击'},
+      counterAttack:{icon:'↩️',text:player.name+' 反击！',sub:'怪物回合额外攻击'},
+      groupHeal:{icon:'💚',text:player.name+' 群体治疗！',sub:'伤害转为全体回血'},
+      smite:{icon:'⚡',text:player.name+' 惩戒！',sub:'造成伤害后回血'}
     };
     const fx=skillFx[skill.effect];
     if(fx){
@@ -5130,6 +5276,13 @@ window.G.g6EndTeamTurn=function(){
       const monster=g.cellMonsters?.[team]?.[cellKey]||G6_MONSTERS[Object.keys(G6_MONSTERS)[Math.floor(Math.random()*Object.keys(G6_MONSTERS).length)]];
       const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
       teamMembers.forEach(p=>{
+        // 角色技能：隐秘身形（抵消下一次怪物攻击）
+        if(p.stealthActive){
+          p.stealthActive=false;
+          monsterAttackEffects.push(p.name+'隐秘身形抵消攻击');
+          g.lastEffect={type:'info',text:p.name+' 隐秘身形抵消攻击！',sub:'👤隐秘身形'};
+          return;
+        }
         let dmg=monster.atk;
         // 护盾减伤
         const shield=p.equipment?.find(e=>e.slot==='护盾');
@@ -5145,6 +5298,14 @@ window.G.g6EndTeamTurn=function(){
             if(p.life<=0){p.dead=true;monsterAttackEffects.push(p.name+'淘汰')}
             else{p.hp=9;monsterAttackEffects.push(p.name+'复活')}
           }
+        }
+        // 角色技能：反击（怪物主动攻击回合额外进攻一次）
+        if(p.counterAttackPending&&!p.dead){
+          p.counterAttackPending=false;
+          const counterDmg=2; // 固定2点反击伤害
+          monster.hp=Math.max(0,monster.hp-counterDmg);
+          monsterAttackEffects.push(p.name+'反击'+monster.name+'-'+counterDmg+'血');
+          g.lastEffect={type:'damage',text:p.name+' 反击！'+monster.name+'-'+counterDmg+'血',sub:'↩️反击'};
         }
       });
       if(monsterAttackEffects.length>0){
