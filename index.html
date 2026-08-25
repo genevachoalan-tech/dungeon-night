@@ -361,11 +361,11 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 #gameArea .g5-summary-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:14px;padding:20px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto}
 #gameArea .g5-summary-box h3{color:var(--gold-light);text-align:center;margin-bottom:12px}
 #gameArea .g5-sum-player{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid rgba(74,53,32,.3)}
-#gameArea .g5-skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-#gameArea .g5-skill-card{background:rgba(201,162,39,.1);border:1px solid var(--gold-dark);border-radius:8px;padding:8px;cursor:pointer;font-size:11px;transition:all .2s}
-#gameArea .g5-skill-card:hover{background:rgba(201,162,39,.25);border-color:var(--gold)}
-#gameArea .g5-skill-card .sk-name{font-weight:bold;color:var(--gold-light);font-size:12px;margin-bottom:3px}
-#gameArea .g5-skill-card .sk-desc{color:var(--text-dim);font-size:10px}
+#gameArea .g5-skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;max-height:60vh;overflow-y:auto}
+#gameArea .g5-skill-card{background:linear-gradient(135deg,rgba(201,162,39,.15),rgba(201,162,39,.05));border:2px solid var(--gold-dark);border-radius:10px;padding:10px;cursor:pointer;font-size:11px;transition:all .2s}
+#gameArea .g5-skill-card:hover{background:linear-gradient(135deg,rgba(201,162,39,.3),rgba(201,162,39,.1));border-color:var(--gold);transform:translateY(-2px)}
+#gameArea .g5-skill-card .sk-name{font-weight:bold;color:var(--gold-light);font-size:14px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(201,162,39,.3);display:block}
+#gameArea .g5-skill-card .sk-desc{color:var(--text-dim);font-size:11px;line-height:1.4;display:block;margin-top:4px}
 /* ===== G5操作特效 ===== */
 #gameArea .g5-fx-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:920;display:flex;align-items:center;justify-content:center}
 #gameArea .g5-fx-box{text-align:center;animation:g5fxPop .5s cubic-bezier(.34,1.56,.64,1) forwards}
@@ -1441,9 +1441,9 @@ window.G={
   restart(){
     // 保留玩家金币，重新初始化当前游戏
     const gid=this.gameId;
-    state.phase='playing';
     this.init(gid);
-    state.phase='playing';
+    // G5需要回到技能选择阶段，其他游戏默认playing
+    if(gid!==5)state.phase='playing';
     broadcastState();
     showScreen('gameScreen');
     setTimeout(()=>this.render(),200);
@@ -2241,7 +2241,7 @@ window.G.initG5=function(){
   state.phase='skillselect';
   state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g5Round">1</b> 轮</span><span id="g5Turn"></span><span id="g5Phase" class="g5-phase"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-orange" onclick="if(confirm(\'确定让当前玩家重选技能？\'))G.hostActionG5(null,\'reselectSkill\')">🔄 重选技能</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
 
 window.G.renderG5=function(){
@@ -2257,7 +2257,7 @@ window.G.renderG5=function(){
     let cls='g5-cell';if(i===0)cls+=' start';if(i===G5_FINISH)cls+=' end';if(G5_SKILL_POINTS.includes(i))cls+=' skillpoint';if(G5_ROCK.includes(i))cls+=' rock';if(!G5_SKILL_POINTS.includes(i)&&!G5_ROCK.includes(i)&&i!==0&&i!==G5_FINISH)cls+=' empty';
     const here=Object.entries(state.players).filter(([_,p])=>!p.dead&&p.pos===i);
     let dots='';here.forEach(([id,p])=>{const c=CHARACTERS.find(ch=>ch.id===p.character);dots+='<div class="g5-pdot '+p.team+'" title="'+p.name+'">'+(c?'<img src="'+c.img+'">':p.name.charAt(0))+'</div>'});
-    let label=i===0?'🏰 起点':i===G5_FINISH?'🚪 终点':G5_SKILL_POINTS.includes(i)?'📜 技能':G5_ROCK.includes(i)?'🪨 落石':'';
+    let label=i===0?'🏰 起点':i===G5_FINISH?'🚪 终点':G5_SKILL_POINTS.includes(i)?'📜 技能'+(state.game&&state.game.skillPools[i]?'('+state.game.skillPools[i].length+')':''):G5_ROCK.includes(i)?'🪨 落石':'';
     html+='<div class="'+cls+'"><div class="g5-cell-num">'+i+'</div><div class="g5-cell-label">'+label+'</div><div class="g5-cell-dots">'+dots+'</div></div>';
   }
   html+='</div></div><div class="g5-players-section"><div class="g5-players">';
@@ -2510,6 +2510,35 @@ window.G.hostActionG5=function(peerId,action){
       state.message='主持人跳过了 '+playerName(state.turnOrder[state.currentIndex]);state.messageType='warn';
       state.game.pendingTargetChoice=null;state.game.pendingSkillChange=null;state.game.pendingPrediction=null;
       this.g5EndTurn(state.turnOrder[state.currentIndex]);
+    }
+  }else if(action==='reselectSkill'){
+    // 主持人让当前玩家重新选择技能
+    if(state.phase==='skillselect'){
+      const selector=state.turnOrder[state.skillSelectIndex||0];
+      const p=state.players[selector];
+      if(p&&p.skill){
+        // 把技能放回技能池
+        const poolKey=state.game.skillPoolKey||0;
+        state.game.skillPools[poolKey].push(p.skill);
+        p.skill=null;
+        p.skillChangeUsed[poolKey]=false;
+        state.skillSelectIndex=(state.skillSelectIndex||0)-1;
+        if(state.skillSelectIndex<0)state.skillSelectIndex=0;
+        state.message='主持人让 '+p.name+' 重新选择技能';state.messageType='warn';
+        broadcastState();this.renderG5();
+      }
+    }else if(state.phase==='playing'){
+      // 游戏进行中，让当前玩家换技能（从当前格技能池）
+      const curId=state.turnOrder[state.currentIndex];
+      const p=state.players[curId];
+      if(p){
+        const poolKey=G5_SKILL_POINTS.find(sp=>sp<=p.pos)||0;
+        if(state.game.skillPools[poolKey]&&state.game.skillPools[poolKey].length>0){
+          state.game.pendingSkillChange={playerId:curId,poolKey};
+          state.message='主持人让 '+p.name+' 重新选择技能';state.messageType='warn';
+          broadcastState();this.renderG5();
+        }
+      }
     }
   }
 };
@@ -2809,27 +2838,27 @@ const G6_FLOOR2={
 
 // G6角色自带技能和专属武器
 const G6_CHAR_SKILLS={
-  adou:{name:'阿兜',equip:['主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',bonus:1},skills:[
+  adou:{name:'阿兜',equip:['主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',img:'https://aka.doubaocdn.com/s/Js4lAdezcV',bonus:1},skills:[
     {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true},
     {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false}
   ]},
-  duolin:{name:'多琳',equip:['主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',bonus:1},skills:[
+  duolin:{name:'多琳',equip:['主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/vSOQ9520fU',bonus:1},skills:[
     {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false},
     {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true}
   ]},
-  lier:{name:'莉尔',equip:['主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',bonus:1},skills:[
+  lier:{name:'莉尔',equip:['主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/rA7ewqqiMT',bonus:1},skills:[
     {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true},
     {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true}
   ]},
-  muen:{name:'沐恩',equip:['主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',bonus:1},skills:[
+  muen:{name:'沐恩',equip:['主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',img:'https://aka.doubaocdn.com/s/tI6h5YxosE',bonus:1},skills:[
     {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false},
     {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true}
   ]},
-  xiupa:{name:'休帕',equip:['主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',bonus:1},skills:[
+  xiupa:{name:'休帕',equip:['主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',img:'https://aka.doubaocdn.com/s/f7QArSVwTj',bonus:1},skills:[
     {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true},
     {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true}
   ]},
-  yuanyuan:{name:'圆圆',equip:['主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',bonus:1},skills:[
+  yuanyuan:{name:'圆圆',equip:['主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',img:'https://aka.doubaocdn.com/s/qZoID6Dodt',bonus:1},skills:[
     {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false},
     {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false}
   ]}
