@@ -2485,7 +2485,7 @@ window.G.initG5=function(){
   state.phase='skillselect';
   state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g5Round">1</b> 轮</span><span id="g5Turn"></span><span id="g5Phase" class="g5-phase"></span>';
-  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-orange" onclick="if(confirm(\'确定让当前玩家重选技能？\'))G.hostActionG5(null,\'reselectSkill\')">🔄 重选技能</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
+  document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-red" onclick="G.hostActionG5(null,\'skip\')">跳过断线玩家</button> <button class="btn btn-small btn-orange" onclick="if(confirm(\'确定让当前玩家重选技能？\'))G.hostActionG5(null,\'reselectSkill\')">🔄 重选技能</button> <button class="btn btn-small btn-gray" onclick="G.g5ShowSkillPool()">技能池总览</button> <button class="btn btn-small btn-purple" onclick="if(confirm(\'确定清除所有卡住的弹窗状态？\'))G.g5ClearPending()">🧹 清除卡住状态</button> <button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
 
 window.G.renderG5=function(){
@@ -2580,7 +2580,8 @@ window.G.g5RenderButtons=function(){
   }else btns.innerHTML='<button class="btn btn-gray" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
   if(p.skill&&!p.skillUsed&&typeof g.lastRoll!=='number'){
     const sk=G5_SKILLS.find(s=>s.id===p.skill);
-    if(sk&&sk.type==='active')btns.innerHTML+='<button class="btn btn-small" style="margin-left:8px" onclick="sendAction({type:\'useSkill\',skillId:\''+p.skill+'\'})">📜 '+p.skill+'</button>';
+    // 再投双杯酿不需要投掷前点击，投掷后自动显示重投按钮
+    if(sk&&sk.type==='active'&&p.skill!=='再投双杯酿')btns.innerHTML+='<button class="btn btn-small" style="margin-left:8px" onclick="sendAction({type:\'useSkill\',skillId:\''+p.skill+'\'})">📜 '+p.skill+'</button>';
   }
 };
 
@@ -2817,6 +2818,22 @@ window.G.actionG6=function(peerId,action){
   else if(action.type==='g6useitem'){this.g6UseItem(peerId,action.targetId)}
   else if(action.type==='g6skill'){this.g6UseSkill(peerId,action.skillIndex)}
   else if(action.type==='g6confirm'){this.g6ResolveCombat(peerId,{confirm:true})}
+};
+
+// 主持人强制清除所有卡住的pending状态
+window.G.g5ClearPending=function(){
+  if(!isHost)return;
+  const g=state.game;
+  g.pendingSkillChoice=null;
+  g.pendingSkillChange=null;
+  g.pendingTargetChoice=null;
+  g.pendingPrediction=null;
+  g.pendingWinnerPrediction=null;
+  g.pendingLeaderCopy=null;
+  g.pendingDuel=null;
+  state.message='主持人已清除所有卡住状态';state.messageType='warn';
+  this.g5RemoveModal();
+  broadcastState();this.renderG5();
 };
 
 window.G.hostActionG5=function(peerId,action){
