@@ -2587,8 +2587,8 @@ window.G.g5RenderButtons=function(){
 
 window.G.g5CheckModals=function(){
   const g=state.game;
-  // 防重复弹窗：玩家刚点击选择后3秒内不重复弹出（等待主持人处理state更新）
-  if(window._g5JustSelected&&Date.now()-window._g5JustSelected<3000)return;
+  // 防重复弹窗：玩家刚点击选择后1秒内不重复弹出（等待主持人处理state更新）
+  if(window._g5JustSelected&&Date.now()-window._g5JustSelected<1000)return;
   if(state.phase==='skillselect'){
     const selector=state.turnOrder[state.skillSelectIndex||0];
     if(selector===myPeerId&&!isHost)this.g5ShowSkillSelect(g.skillPoolKey||0);
