@@ -2481,7 +2481,7 @@ window.G.initG5=function(){
   const order=[];const mx=Math.max(first.length,second.length);
   for(let i=0;i<mx;i++){if(first[i])order.push(first[i]);if(second[i])order.push(second[i])}
   state.turnOrder=order;state.currentIndex=0;state.round=1;state.skillSelectIndex=0;state.game.skillPoolKey=0;
-  Object.values(state.players).forEach(p=>{p.pos=0;p.hp=9;p.skill=null;p.skillUsed=false;p.skipNext=false;p.extraTurn=false;p.predictedWinner=null;p.dead=false;p.skillChangeUsed={};p._rerollCount=0;p._copiedSkill=false;p._shadowTarget=null});
+  Object.values(state.players).forEach(p=>{p.pos=0;p.hp=9;p.skill=null;p.skillUsed=false;p.skillLocked=false;p.skipNext=false;p.extraTurn=false;p.predictedWinner=null;p.dead=false;p.skillChangeUsed={};p._rerollCount=0;p._copiedSkill=false;p._shadowTarget=null});
   state.phase='skillselect';
   state.message=(firstTeam==='blue'?'🔵蓝队':'🔴红队')+'先手！抽取初始技能';state.messageType='good';
   document.getElementById('gameInfo').innerHTML='<span>第 <b id="g5Round">1</b> 轮</span><span id="g5Turn"></span><span id="g5Phase" class="g5-phase"></span>';
@@ -2578,7 +2578,7 @@ window.G.g5RenderButtons=function(){
     else if(p.skill==='再投双杯酿'&&(p._rerollCount||0)<2)btns.innerHTML='<button class="btn" onclick="sendAction({type:\'reroll\'})">🔄 重投('+(2-(p._rerollCount||0))+')</button><button class="btn btn-gray" style="margin-left:8px" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
     else btns.innerHTML='<button class="btn btn-gray" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
   }else btns.innerHTML='<button class="btn btn-gray" onclick="sendAction({type:\'endTurn\'})">结束回合</button>';
-  if(p.skill&&!p.skillUsed&&typeof g.lastRoll!=='number'){
+  if(p.skill&&!p.skillUsed&&!p.skillLocked&&typeof g.lastRoll!=='number'){
     const sk=G5_SKILLS.find(s=>s.id===p.skill);
     // 再投双杯酿不需要投掷前点击，投掷后自动显示重投按钮
     if(sk&&sk.type==='active'&&p.skill!=='再投双杯酿')btns.innerHTML+='<button class="btn btn-small" style="margin-left:8px" onclick="sendAction({type:\'useSkill\',skillId:\''+p.skill+'\'})">📜 '+p.skill+'</button>';
@@ -2649,7 +2649,7 @@ window.G.g5ShowDiscardSelect=function(){
   html+='</tbody></table>';
   this.g5ShowModal('📜 回收者神酿',html);
 };
-window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectDiscard',skillId:sid})};
+window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid})};
 // 主持人看弃牌选择（只读）
 window.G.g5ShowDiscardSelectHost=function(playerId){
   const p=state.players[playerId];
@@ -2909,7 +2909,8 @@ window.G.g5DoSelectSkill=function(playerId,skillId){
   const p=state.players[playerId];
   if(p.skill)state.game.discarded.push(p.skill);
   p.skill=skillId;state.game.skillPools[poolKey].splice(idx,1);p.skillChangeUsed[poolKey]=true;
-  p.skillUsed=true; // 初始选择的技能下回合才能使用（被动技能不受影响，选择即生效）
+  p.skillUsed=false; // 可以投掷
+  p.skillLocked=true; // 初始选择的技能本回合不能使用（被动技能不受影响，选择即生效）
   this.g5OnSkillAcquire(playerId,skillId);
   state.skillSelectIndex=(state.skillSelectIndex||0)+1;
   if(state.skillSelectIndex>=state.turnOrder.length){
@@ -2928,7 +2929,7 @@ window.G.g5DoSelectDiscard=function(playerId,skillId){
   }
   const p=state.players[playerId];
   if(p.skill)g.discarded.push(p.skill);
-  p.skill=skillId;g.discarded.splice(idx,1);p.skillUsed=true;
+  p.skill=skillId;g.discarded.splice(idx,1);p.skillUsed=false;p.skillLocked=true;
   this.g5OnSkillAcquire(playerId,skillId);
   g.pendingSkillChoice=null;state.message=playerName(playerId)+' 从弃牌堆获得'+skillId;state.messageType='good';
   broadcastState();this.renderG5();
@@ -3091,6 +3092,7 @@ window.G.g5ResolveDuel=function(){
 
 window.G.g5DoUseSkill=function(playerId,skillId){
   const p=state.players[playerId];const g=state.game;if(p.skillUsed)return;
+  if(p.skillLocked){state.message=playerName(playerId)+' 的技能下回合才能使用';state.messageType='warn';broadcastState();this.renderG5();return}
   if(skillId==='再投双杯酿'){if(g.lastRoll===undefined)return;p._rerollCount=(p._rerollCount||0)+1;if(p._rerollCount>2){p.skillUsed=true;return;}if(p._rerollCount>=2)p.skillUsed=true;g.lastEffect={skillId:'再投双杯酿',text:'重新投掷（第'+p._rerollCount+'次）',sub:p.name+' 再投双杯酿生效'};this.g5DoRoll(playerId,true);return}
   if(skillId==='尾灯引路酒'){const alive=Object.entries(state.players).filter(([_,pl])=>!pl.dead);const minPos=Math.min(...alive.map(([_,pl])=>pl.pos));alive.filter(([_,pl])=>pl.pos===minPos).forEach(([id])=>{state.players[id].pos=Math.min(G5_FINISH,state.players[id].pos+2)});p.skillUsed=true;state.message=playerName(playerId)+' 尾灯引路：放弃移动，末尾玩家+2';state.messageType='good';g.lastEffect={skillId:'尾灯引路酒',text:'末尾玩家+2格',sub:p.name+' 尾灯引路酒生效'};broadcastState();this.renderG5();return}
   if(skillId==='凑桌传送酒'){const counts={};Object.values(state.players).forEach(pl=>{if(!pl.dead)counts[pl.pos]=(counts[pl.pos]||0)+1});const valid=Object.entries(counts).filter(([_,c])=>c===2).map(([pos])=>parseInt(pos));if(!valid.length)return;p.pos=valid[Math.floor(Math.random()*valid.length)];p.skillUsed=true;state.message=playerName(playerId)+' 凑桌传送至'+p.pos+'格';state.messageType='good';g.lastEffect={skillId:'凑桌传送酒',text:'传送至2人格',sub:p.name+' 凑桌传送酒生效'};this.g5AfterMove(playerId,0);return}
@@ -3109,7 +3111,7 @@ window.G.g5ResolveTarget=function(playerId,targetId){
 
 window.G.g5EndTurn=function(playerId){
   const p=state.players[playerId];const g=state.game;
-  p.skillUsed=false;p.skillActive=false;p._rerollCount=0;
+  p.skillUsed=false;p.skillActive=false;p.skillLocked=false;p._rerollCount=0;
   g.pendingDuel=null;g.lastRoll=undefined;g.pendingSkillChange=null;g.pendingTargetChoice=null;g.pendingPrediction=null;
   Object.entries(state.players).forEach(([id,pl])=>{
       if(!pl.dead&&pl.skill==='附影随行酒'&&id!==playerId&&pl._shadowTarget===playerId){
@@ -3462,7 +3464,7 @@ window.G.g6PlayerLock=function(peerId,action){
   const g=state.game;const c=g.combat;
   if(!c||c.resolved||c.locked)return;
   if(c.attacker!==peerId)return;
-  c.ring=action.ring;c.dice=action.dice;c.crit=action.crit;c.locked=true;
+  c.ring=action.ring;c.dice=action.dice;c.crit=action.crit;c.locked=true;c.rolling=false;
   c.isEven=c.dice%2===0;
   state.message=state.players[peerId].name+' 锁定：'+(c.ring>0?c.ring+'环':'脱靶')+'，骰子'+c.dice+'点'+(c.isEven?'(双数，可发动技能)':'(单数)');
   broadcastState();this.renderG6();
