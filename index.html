@@ -82,7 +82,7 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .game-topbar .title{font-size:17px;font-weight:bold;color:var(--gold-light)}
 .game-topbar .info span{background:rgba(255,255,255,.1);padding:3px 10px;border-radius:14px;margin-left:5px}
 .game-topbar .info b{color:var(--gold-light)}
-.host-controls{margin-bottom:8px;text-align:center}
+.host-controls{margin-bottom:8px;text-align:center;position:relative;z-index:1000}
 #gameArea{min-height:300px}
 
 /* 游戏进度条 */
@@ -2621,7 +2621,7 @@ window.G.g5CheckModals=function(){
   }else this.g5RemoveModal();
 };
 window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
-window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}m.innerHTML='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+'</div>';m.style.display='flex';m.style.zIndex='950'};
+window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}const clearBtn=isHost?'<div style="margin-top:12px;text-align:center"><button class="btn btn-small btn-purple" onclick="G.g5ClearPending()">🧹 清除卡住状态</button></div>':'';m.innerHTML='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+clearBtn+'</div>';m.style.display='flex';m.style.zIndex='950'};
 window.G.g5ShowSkillSelect=function(poolKey){
   const pool=state.game.skillPools[poolKey]||[];
   let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">选择一张技能：</p>';
