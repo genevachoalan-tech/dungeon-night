@@ -1025,7 +1025,7 @@ function handleHostMsg(peerId,msg){
     }
     const rc=genCode();
     const cname=charName(charId);
-    state.players[peerId]={name:cname,character:charId,team:msg.team,online:true,reconnectCode:rc,gold:0,ready:false};
+    state.players[peerId]={id:peerId,name:cname,character:charId,team:msg.team,online:true,reconnectCode:rc,gold:0,ready:false};
     // 新玩家加入，重置所有人准备状态
     Object.values(state.players).forEach(p=>p.ready=false);
     sendTo(peerId,{type:'joinAccept',yourId:peerId,reconnectCode:rc,name:cname,team:msg.team,charId:charId});
@@ -3512,6 +3512,7 @@ window.G.initG6=function(){
     positionSelect:{red:{},blue:{}} // 号位选择状态
   };
   Object.entries(state.players).forEach(([id,p])=>{
+    p.id=id;
     p.floor=1;
     // G6初始血量 = G5继承escapedHP + G6给的3条命(27血)
     const totalHp=(p.escapedHP||0)+27;
@@ -3540,7 +3541,7 @@ window.G.initG6=function(){
   });
   // 号位由玩家自己选择，不自动分配
   state.turnOrder=Object.keys(state.players);
-  state.message='🐉 最终机制开始！请两队选择路线（上路/下路）';
+  state.message='🐉 最终机制开始！请每人选择自己的号位（1/2/3号位）';
   state.messageType='';
   document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-yellow" onclick="if(confirm(\'确定重新开始本局？金币将保留\'))G.restart()">🔄 重新开始</button>';
 };
@@ -3664,12 +3665,19 @@ window.G.renderG6=function(){
       html+='</div>';
     });
     html+='</div>';
+  }else if(g.phase==='combat'&&!g.combat){
+    // BOSS自动战斗中
+    html+='<div style="text-align:center;padding:60px 20px">';
+    html+='<div style="font-size:72px;animation:g6Pulse 1s infinite">🐉</div>';
+    html+='<div style="font-size:28px;color:var(--gold);margin:20px 0;text-shadow:0 0 20px rgba(255,215,0,.5)">龙BOSS战进行中...</div>';
+    html+='<div style="color:var(--text-dim);font-size:16px">勇士们正在与巨龙激战！</div>';
+    html+='</div>';
   }else if(g.phase==='combat'&&g.combat){
     // 自动修复：如果attacker为null，自动选择队伍中position最小的存活玩家
     if(!g.combat.attacker||!state.players[g.combat.attacker]||state.players[g.combat.attacker].dead){
-      const teamMembers=Object.values(state.players).filter(p=>p.team===g.combat.team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
-      if(teamMembers.length>0){
-        g.combat.attacker=teamMembers[0].id;
+      const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===g.combat.team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
+      if(teamEntries.length>0){
+        g.combat.attacker=teamEntries[0][0];
         g.combat.attackerIndex=0;
       }
     }
@@ -3732,10 +3740,10 @@ window.G.renderG6=function(){
     // 宝箱选择阶段
     html+='<div class="g6-chest-select">';
     html+='<h3>📦 宝箱！选择一件装备</h3>';
-    const chestMembers=Object.values(state.players).filter(p=>p.team===g.chestSelect.team&&!p.dead);
+    const chestMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.chestSelect.team&&!p.dead);
     html+='<div class="g6-chest-status">';
-    chestMembers.forEach(p=>{
-      const chosen=g.chestSelect.chosen[p.id];
+    chestMembers.forEach(([pid,p])=>{
+      const chosen=g.chestSelect.chosen[pid];
       html+='<div class="g6-chest-player'+(chosen?' done':'')+'">';
       html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" class="g6-chest-avatar">';
       html+='<span>'+p.name+'</span>';
@@ -3752,8 +3760,8 @@ window.G.renderG6=function(){
         // 主持人视角：显示所有玩家的当前装备和选择状态
         html+='<div class="g6-chest-host-view" style="background:rgba(0,0,0,.3);border-radius:8px;padding:10px;margin-bottom:10px">';
         html+='<div style="color:var(--gold-light);font-size:12px;margin-bottom:6px">👁️ 主持人视角：宝箱选择进度</div>';
-        chestMembers.forEach(p=>{
-          const chosen=g.chestSelect.chosen[p.id];
+        chestMembers.forEach(([pid,p])=>{
+          const chosen=g.chestSelect.chosen[pid];
           const currentEquip=p.equipment?.map(e=>e.name).join('、')||'无';
           html+='<div style="font-size:11px;margin:2px 0;color:'+(chosen?'#4ade80':'#fbbf24')+'">'+(p.team==='blue'?'🔵':'🔴')+p.name+': '+(chosen?chosen:'等待选择')+' | 当前装备：'+currentEquip+'</div>';
         });
@@ -3794,11 +3802,11 @@ window.G.renderG6=function(){
       });
       html+='</div></div>';
     }
-    const shopMembers=Object.values(state.players).filter(p=>p.team===g.shop.team&&!p.dead);
+    const shopMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead);
     html+='<div class="g6-shop-status">';
-    shopMembers.forEach(p=>{
-      const done=g.shop.done[p.id];
-      const bought=g.shop.bought[p.id]||0;
+    shopMembers.forEach(([pid,p])=>{
+      const done=g.shop.done[pid];
+      const bought=g.shop.bought[pid]||0;
       html+='<div class="g6-shop-player'+(done?' done':'')+'">';
       html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" class="g6-shop-avatar">';
       html+='<span>'+p.name+'</span>';
@@ -3857,10 +3865,10 @@ window.G.renderG6=function(){
     html+='<div class="g6-item-drop-desc">'+dropItem.desc+'</div>';
     html+='</div>';
     html+='<div class="g6-item-drop-select"><h4>选择队员分配道具：</h4>';
-    const dropMembers=Object.values(state.players).filter(p=>p.team===g.itemDrop.team&&!p.dead);
-    dropMembers.forEach(p=>{
+    const dropMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.itemDrop.team&&!p.dead);
+    dropMembers.forEach(([pid,p])=>{
       const hasSlot=!p.equipment?.some(e=>e.slot==='道具');
-      html+='<button class="btn btn-small '+(hasSlot?'btn-blue':'')+'" '+(hasSlot?'onclick="sendAction({type:\'g6itemassign\',targetId:\''+p.id+'\'})"':'disabled')+'>';
+      html+='<button class="btn btn-small '+(hasSlot?'btn-blue':'')+'" '+(hasSlot?'onclick="sendAction({type:\'g6itemassign\',targetId:\''+pid+'\'})"':'disabled')+'>';
       html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:4px">';
       html+=p.name+(hasSlot?'':' (道具槽已满)');
       html+='</button>';
@@ -3875,10 +3883,10 @@ window.G.renderG6=function(){
     html+='<div class="g6-item-target-desc">'+itsItem.desc+'</div>';
     html+='<div class="g6-item-target-select"><h4>选择目标：</h4>';
     const targetPlayers=its.needAlly?
-      Object.values(state.players).filter(p=>p.team===state.players[its.playerId].team&&!p.dead):
-      Object.values(state.players).filter(p=>!p.dead);
-    targetPlayers.forEach(p=>{
-      html+='<button class="btn btn-small btn-blue" onclick="G.g6UseItem(\''+its.playerId+'\',\''+p.id+'\')">';
+      Object.entries(state.players).filter(([pid,p])=>p.team===state.players[its.playerId].team&&!p.dead):
+      Object.entries(state.players).filter(([pid,p])=>!p.dead);
+    targetPlayers.forEach(([pid,p])=>{
+      html+='<button class="btn btn-small btn-blue" onclick="G.g6UseItem(\''+its.playerId+'\',\''+pid+'\')">';
       html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:4px">';
       html+=p.name;
       html+='</button>';
@@ -4245,11 +4253,13 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
       if(!g.cloverUsed.includes(g.floor+'-'+cellKey)){
         g.cloverUsed.push(g.floor+'-'+cellKey);
         // 随机选择小队中一个存活玩家的角色事件（小队三人一起触发）
-        const aliveMembers=members.filter(p=>G6_CLOVER_EVENTS[p.character]);
+        const aliveMembers=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead&&G6_CLOVER_EVENTS[p.character]);
         if(aliveMembers.length>0){
-          const randomPlayer=aliveMembers[Math.floor(Math.random()*aliveMembers.length)];
+          const randomEntry=aliveMembers[Math.floor(Math.random()*aliveMembers.length)];
+          const randomPlayerId=randomEntry[0];
+          const randomPlayer=randomEntry[1];
           const event=G6_CLOVER_EVENTS[randomPlayer.character];
-          g.cloverEvent={...event,playerId:randomPlayer.id,cellKey,team,resolved:false,teamEvent:true};
+          g.cloverEvent={...event,playerId:randomPlayerId,cellKey,team,resolved:false,teamEvent:true};
           state.message+=' | 🍀 三叶草事件！'+(team==='red'?'红队':'蓝队')+'三人一起表演，等待主持人判定';
           g.lastEffect={type:'clover',text:(team==='red'?'红队':'蓝队')+'触发三叶草事件！',sub:'🍀'+event.name};
           broadcastState();this.renderG6();
@@ -4270,24 +4280,28 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
         const monsterKeys=Object.keys(G6_MONSTERS).filter(k=>!G6_MONSTERS[k].isDragon);
         const monsterKey=monsterKeys[Math.floor(Math.random()*monsterKeys.length)];
         const monster={...G6_MONSTERS[monsterKey]};
+        // 映射ruleType到effect（战斗代码检查effect字段）
+        const ruleTypeMap={noRedSkill:'noRedSkill',noCounter:'noCounter',missGold:'loseGold',ring1Miss:'ring1Miss',missHeal:'monsterHeal',missTeamDmg:'teamCounter'};
+        if(monster.ruleType&&ruleTypeMap[monster.ruleType])monster.effect=ruleTypeMap[monster.ruleType];
         // 存储怪物到格子，供大回合结束主动攻击使用
         if(!g.cellMonsters)g.cellMonsters={};
         if(!g.cellMonsters[team])g.cellMonsters[team]={};
         g.cellMonsters[team][cellKey]=monster;
         // 选择当前队伍1号位存活玩家作为攻击者（按position顺序）
-        const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
-        let attacker=teamMembers[0];
+        const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
+        let attackerId=teamEntries.length>0?teamEntries[0][0]:null;
+        let attacker=attackerId?state.players[attackerId]:null;
         // 容错：如果没有找到攻击者，选择任意存活玩家
-        if(!attacker){
-          const anyAlive=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
-          attacker=anyAlive[0];
+        if(!attackerId){
+          const anyAlive=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
+          if(anyAlive.length>0){attackerId=anyAlive[0][0];attacker=state.players[attackerId];}
         }
         g.combat={
           monster:monster,
           monsterHp:monster.hp,
           cellKey:cellKey,
           team:team,
-          attacker:attacker?attacker.id:null,
+          attacker:attackerId||null,
           attackerIndex:0,
           rolling:false,
           resolved:false,
@@ -4362,8 +4376,28 @@ window.G.g6ResolveCombat=function(peerId,action){
   let log=[];
   log.push(attacker.name+' 投出 '+c.dice+'点 '+(isEven?'(双数)':'(单数)'));
   
+  // 处理损人道具debuff
+  let debuffNoWeapon=false,debuffNoWeaponBonus=false,debuffRingReduce=0;
+  if(attacker.debuffs&&attacker.debuffs.length>0){
+    attacker.debuffs.forEach(d=>{
+      if(d.effect==='ringReduce'){debuffRingReduce=Math.max(debuffRingReduce,d.value||2);log.push('💀 黑胡椒炸弹：命中环数-'+(d.value||2))}
+      if(d.effect==='noWeapon'){debuffNoWeapon=true;log.push('💀 传说中的酒：无法使用武器')}
+      if(d.effect==='noWeaponBonus'){debuffNoWeaponBonus=true;log.push('💀 友情催化药水：无法使用武器加成')}
+    });
+    attacker.debuffs=[]; // 消耗debuff
+  }
+  if(debuffRingReduce>0&&c.ring>0){
+    c.ring=Math.max(0,c.ring-debuffRingReduce);
+    log.push('环数降低为'+c.ring+'环');
+  }
+  
   // 计算伤害
   let damage=0;
+  // 幼龙效果：1环视为攻击失败（脱靶）
+  if(monster.effect==='ring1Miss'&&c.ring===1){
+    c.ring=0;
+    log.push('🐲 幼龙效果：1环区域视为攻击失败！');
+  }
   if(c.ring>0){
     // 技能效果：弱点标记（3环→4环，4环→5环）
     if(c.ringUpgrade){
@@ -4373,11 +4407,14 @@ window.G.g6ResolveCombat=function(peerId,action){
       if(c.ring===5&&isEven&&!monster.isDragon){c.crit=true;log.push('弱点标记触发暴击！')}
     }
     // 武器加成：从装备中获取主武器加成
-    const mainWeapon=attacker.equipment?.find(e=>e.slot==='主武器');
-    const weaponBonus=mainWeapon?.bonus||0;
+    const mainWeapon=debuffNoWeapon?null:attacker.equipment?.find(e=>e.slot==='主武器');
+    const weaponBonus=(debuffNoWeapon||debuffNoWeaponBonus)?0:(mainWeapon?.bonus||0);
     // 副武器加成
-    const secondaryWeapon=attacker.equipment?.find(e=>e.slot==='副武器');
-    const secondaryBonus=secondaryWeapon?.bonus||0;
+    const secondaryWeapon=debuffNoWeapon?null:attacker.equipment?.find(e=>e.slot==='副武器');
+    const secondaryBonus=(debuffNoWeapon||debuffNoWeaponBonus)?0:(secondaryWeapon?.bonus||0);
+    // 专属武器加成
+    const exclusiveWeapon=debuffNoWeapon?null:attacker.equipment?.find(e=>e.slot==='专属武器');
+    const exclusiveBonus=(debuffNoWeapon||debuffNoWeaponBonus)?0:(exclusiveWeapon?.bonus||0);
     // 空酒瓶宝物：进攻前额外造成1点伤害
     const hasEmptyBottle=attacker.treasures?.some(t=>t.effect==='extraDamage');
     const bottleBonus=hasEmptyBottle?1:0;
@@ -4385,8 +4422,8 @@ window.G.g6ResolveCombat=function(peerId,action){
     const allyBonus=c.allyDamageUp||0;
     // 技能效果：战斗诗歌（伤害加成）
     const songBonus=c.damageBoost||0;
-    damage=c.ring+weaponBonus+secondaryBonus+bottleBonus+allyBonus+songBonus;
-    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，主武器+'+weaponBonus:'')+(secondaryBonus>0?'，副武器+'+secondaryBonus:'')+(bottleBonus>0?'，空酒瓶+'+bottleBonus:'')+(allyBonus>0?'，自然之力+'+allyBonus:'')+(songBonus>0?'，战斗诗歌+'+songBonus:'')+'，伤害='+damage);
+    damage=c.ring+weaponBonus+secondaryBonus+exclusiveBonus+bottleBonus+allyBonus+songBonus;
+    log.push('命中 '+c.ring+'环'+(weaponBonus>0?'，主武器+'+weaponBonus:'')+(secondaryBonus>0?'，副武器+'+secondaryBonus:'')+(exclusiveBonus>0?'，专属武器+'+exclusiveBonus:'')+(bottleBonus>0?'，空酒瓶+'+bottleBonus:'')+(allyBonus>0?'，自然之力+'+allyBonus:'')+(songBonus>0?'，战斗诗歌+'+songBonus:'')+'，伤害='+damage);
     
     // 暴击：5环+双数=一击毙命（非龙族）
     if(c.crit){
@@ -4490,7 +4527,7 @@ window.G.g6ResolveCombat=function(peerId,action){
       
       // 怪物特殊效果：火爆犀牛王脱靶全队反击
       if(monster.effect==='teamCounter'){
-        const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead&&p.id!==attacker.id);
+        const teamMembers=Object.entries(state.players).filter(([pid,p])=>p.team===attacker.team&&!p.dead&&pid!==c.attacker).map(([pid,p])=>p);
         teamMembers.forEach(p=>{
           let teamDmg=monster.atk;
           const teamShield=p.equipment?.find(e=>e.slot==='护盾');
@@ -4593,8 +4630,9 @@ window.G.g6ResolveCombat=function(peerId,action){
         g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
         g.phase='routeselect';
         g.bossDefeated=false;
+        if(!g.firstFloorDone){g.firstFloorDone=c.team;g.secondPickTeam=c.team;}
         Object.values(state.players).forEach(p=>{p.floor=2});
-        state.message='🎉 第一层通关！传送到第二层起点，请重新选择路线';
+        state.message='🎉 第一层通关！传送到第二层起点，'+(g.secondPickTeam==='red'?'红队':'蓝队')+'优先选择路线';
         g.lastEffect={type:'dragon',text:'🐉 第一层龙击败！进入第二层！',sub:'第一层通关'};
       }else{
         state.message='🎉🎉 最终龙BOSS击败！游戏结束！';
@@ -4629,15 +4667,15 @@ window.G.g6ResolveCombat=function(peerId,action){
     g.combat=null;
   }else{
     // 怪物未死，切换到下一个攻击者（按1/2/3号位顺序）
-    const teamMembers=Object.values(state.players).filter(p=>p.team===c.team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
-    const currentIdx=teamMembers.findIndex(p=>p.id===c.attacker);
-    const nextIdx=(currentIdx+1)%teamMembers.length;
+    const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===c.team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
+    const currentIdx=teamEntries.findIndex(([pid])=>pid===c.attacker);
+    const nextIdx=currentIdx<0?0:(currentIdx+1)%teamEntries.length;
     c.attackerIndex=nextIdx;
-    c.attacker=teamMembers[nextIdx].id;
+    c.attacker=teamEntries[nextIdx][0];
     c.resolved=false;c.rolling=false;c.locked=false;
     c.ring=0;c.dice=0;c.pointer=0;c.crit=false;
-    log.push('轮到 '+teamMembers[nextIdx].name+'（'+(teamMembers[nextIdx].position||'?')+'号位）攻击');
-    state.message='⚔️ '+monster.name+' 剩余'+c.monsterHp+'血，'+teamMembers[nextIdx].name+'（'+(teamMembers[nextIdx].position||'?')+'号位）投骰';
+    log.push('轮到 '+teamEntries[nextIdx][1].name+'（'+(teamEntries[nextIdx][1].position||'?')+'号位）攻击');
+    state.message='⚔️ '+monster.name+' 剩余'+c.monsterHp+'血，'+teamEntries[nextIdx][1].name+'（'+(teamEntries[nextIdx][1].position||'?')+'号位）投骰';
   }
   
   c.log=log;
@@ -4708,7 +4746,7 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
     if(!player.skills)player.skills=[];
     // 从G6商店技能池中获取对应角色的未拥有技能
     const charShopSkills=G6_SHOP_SKILLS[player.character]||[];
-    const ownedSkillIds=player.skills.map(s=>s.id);
+    const ownedSkillIds=player.skills.map(s=>s.id.replace(/^bought_/,'').replace(/_\d+$/,''));
     const availableSkills=charShopSkills.filter(s=>!ownedSkillIds.includes(s.id));
     if(availableSkills.length>0){
       const newSkill=availableSkills[Math.floor(Math.random()*availableSkills.length)];
@@ -4778,8 +4816,8 @@ window.G.g6ShopDone=function(peerId){
   if(!g.shop)return;
   g.shop.done[peerId]=true;
   // 检查是否所有存活玩家都完成
-  const members=Object.values(state.players).filter(p=>p.team===g.shop.team&&!p.dead);
-  const allDone=members.every(p=>g.shop.done[p.id]);
+  const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead);
+  const allDone=members.every(([pid])=>g.shop.done[pid]);
   if(allDone){
     g.lastEffect={type:'gold',text:(g.shop.team==='red'?'红队':'蓝队')+'商店购买完成',sub:'🏛️商店'};
     g.shop=null;
@@ -4894,6 +4932,12 @@ window.G.g6UseSkill=function(peerId,skillIndex){
   // 魅魔禁用红色技能
   if(c.monster.effect==='noRedSkill'&&skill.isShopSkill){
     state.message='😈 魅魔效果：红色技能被禁用！';
+    broadcastState();this.renderG6();
+    return;
+  }
+  // 沉默卷轴debuff
+  if(player.debuffs&&player.debuffs.some(d=>d.effect==='silence')){
+    state.message='🤫 你被沉默卷轴影响，本次战斗无法使用技能！';
     broadcastState();this.renderG6();
     return;
   }
@@ -5041,8 +5085,9 @@ window.G.g6UseSkill=function(peerId,skillIndex){
       break;
     case 'hoofStomp': // 牛蹄践踏：1/2环变3环
       if(c.ring===1||c.ring===2){
+        const oldRing=c.ring;
         c.ring=3;
-        log.push(player.name+' 使用牛蹄践踏，'+(c.ring===1?'1':'2')+'环提升为3环');
+        log.push(player.name+' 使用牛蹄践踏，'+oldRing+'环提升为3环');
       }else{
         log.push(player.name+' 使用牛蹄践踏（当前'+c.ring+'环，无需提升）');
       }
@@ -5323,8 +5368,8 @@ window.G.g6SelectChestItem=function(peerId,itemType,itemId){
 window.G.g6CheckChestDone=function(){
   const g=state.game;
   if(!g.chestSelect)return;
-  const members=Object.values(state.players).filter(p=>p.team===g.chestSelect.team&&!p.dead);
-  const allDone=members.every(p=>g.chestSelect.chosen[p.id]);
+  const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.chestSelect.team&&!p.dead);
+  const allDone=members.every(([pid])=>g.chestSelect.chosen[pid]);
   if(allDone){
     const chosenList=Object.entries(g.chestSelect.chosen).map(([id,name])=>state.players[id]?.name+':'+name);
     g.lastEffect={type:'treasure',text:(g.chestSelect.team==='red'?'红队':'蓝队')+'宝箱选择完成！',sub:'📦 '+chosenList.join('、')};
@@ -5340,13 +5385,13 @@ window.G.g6EndTeamTurn=function(){
   const g=state.game;
   // 回合结束宝物效果：绷带回复血量最低的队友1点血量
   const prevTeam=g.currentTeam;
-  const prevMembers=Object.values(state.players).filter(p=>p.team===prevTeam&&!p.dead);
+  const prevMembers=Object.entries(state.players).filter(([pid,p])=>p.team===prevTeam&&!p.dead);
   const treasureEffects=[];
-  prevMembers.forEach(p=>{
+  prevMembers.forEach(([pid,p])=>{
     if(!p.treasures)return;
     p.treasures.forEach(t=>{
       if(t.effect==='healAlly'){ // 绷带：回复一名队友1点血量
-        const allies=prevMembers.filter(a=>a.id!==p.id&&a.hp<9);
+        const allies=prevMembers.filter(([aid,a])=>aid!==pid&&a.hp<9).map(([aid,a])=>a);
         if(allies.length>0){
           allies.sort((a,b)=>a.hp-b.hp);
           const target=allies[0];
@@ -5397,7 +5442,17 @@ window.G.g6EndTeamTurn=function(){
       const cellKey=tp.route+'-'+tp.pos;
       if(g.monstersDefeated[team]?.includes(cellKey))return;
       // 获取怪物
-      const monster=g.cellMonsters?.[team]?.[cellKey]||G6_MONSTERS[Object.keys(G6_MONSTERS)[Math.floor(Math.random()*Object.keys(G6_MONSTERS).length)]];
+      let monster=g.cellMonsters?.[team]?.[cellKey];
+      if(!monster){
+        // 随机选择一个非龙族怪物
+        const normalMonsters=Object.values(G6_MONSTERS).filter(m=>!m.isDragon);
+        monster=normalMonsters[Math.floor(Math.random()*normalMonsters.length)];
+      }
+      // 映射ruleType到effect
+      if(monster.ruleType&&!monster.effect){
+        const ruleTypeMap={noRedSkill:'noRedSkill',noCounter:'noCounter',missGold:'loseGold',ring1Miss:'ring1Miss',missHeal:'monsterHeal',missTeamDmg:'teamCounter'};
+        if(ruleTypeMap[monster.ruleType])monster.effect=ruleTypeMap[monster.ruleType];
+      }
       const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
       teamMembers.forEach(p=>{
         // 角色技能：隐秘身形（抵消下一次怪物攻击）
@@ -5411,17 +5466,23 @@ window.G.g6EndTeamTurn=function(){
         // 护盾减伤
         const shield=p.equipment?.find(e=>e.slot==='护盾');
         if(shield){
-          if(shield.effect==='damageReduce')dmg=Math.max(0,dmg-shield.value);
-          if(shield.effect==='reflect'){/* 反伤在怪物攻击时不触发 */}
+          if(shield.effect==='reduceMonsterDmg'||shield.effect==='reduceAllDmg')dmg=Math.max(1,dmg-(shield.value||1));
+          if(shield.effect==='reduceCounterDmg'&&false){/* 仅反击减伤，主动攻击不减 */}
         }
         if(dmg>0){
-          p.hp-=dmg;
+          p.hp=(p.hp||0)-dmg;
           monsterAttackEffects.push(p.name+'-'+dmg+'血');
-          if(p.hp<=0){
-            p.life--;
-            if(p.life<=0){p.dead=true;monsterAttackEffects.push(p.name+'淘汰')}
-            else{p.hp=9;monsterAttackEffects.push(p.name+'复活')}
+          // 荆棘甲反伤
+          if(shield&&shield.effect==='reflectDmg'){
+            monster.hp=Math.max(0,(monster.hp||10)-(shield.value||1));
+            monsterAttackEffects.push('🌵荆棘甲反伤'+(shield.value||1));
           }
+          this.g6CheckDeath(p);
+        }
+        // 角色技能：反击（怪物主动攻击回合额外进攻一次）
+        if(p.counterAttackPending&&!p.dead){
+          p.counterAttackPending=false;
+          monsterAttackEffects.push(p.name+'反击！');
         }
         // 角色技能：反击（怪物主动攻击回合额外进攻一次）
         if(p.counterAttackPending&&!p.dead){
@@ -5471,7 +5532,7 @@ window.G.g6EndGame=function(winnerTeam){
   const blueMembers=Object.values(state.players).filter(p=>p.team==='blue');
   const redScore=redMembers.reduce((s,p)=>s+g6HpScore(p)+(p.gold||0),0);
   const blueScore=blueMembers.reduce((s,p)=>s+g6HpScore(p)+(p.gold||0),0);
-  const winTeam=redScore>blueScore?'red':blueScore>redScore?'blue':winnerTeam;
+  const winTeam=redScore>blueScore?'red':blueScore>redScore?'blue':'red';
   state.winner=winTeam;
   // G6地下城风格胜利/失败大特效
   const isWin=state.players[myPeerId]?state.players[myPeerId].team===winTeam:false;
