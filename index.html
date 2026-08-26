@@ -2586,6 +2586,8 @@ window.G.g5RenderButtons=function(){
 
 window.G.g5CheckModals=function(){
   const g=state.game;
+  // 防重复弹窗：玩家刚点击选择后3秒内不重复弹出（等待主持人处理state更新）
+  if(window._g5JustSelected&&Date.now()-window._g5JustSelected<3000)return;
   if(state.phase==='skillselect'){
     const selector=state.turnOrder[state.skillSelectIndex||0];
     if(selector===myPeerId&&!isHost)this.g5ShowSkillSelect(g.skillPoolKey||0);
@@ -2627,7 +2629,7 @@ window.G.g5ShowSkillSelect=function(poolKey){
   html+='</tbody></table>';
   this.g5ShowModal('📜 选择技能（'+poolKey+'格池）',html);
 };
-window.G.g5SelectSkill=function(sid){this.g5RemoveModal();sendAction({type:'selectSkill',skillId:sid})};
+window.G.g5SelectSkill=function(sid){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid})};
 // 主持人看技能选择（只读）
 window.G.g5ShowSkillSelectHost=function(playerId,poolKey){
   const pool=state.game.skillPools[poolKey]||[];
@@ -2646,7 +2648,7 @@ window.G.g5ShowDiscardSelect=function(){
   html+='</tbody></table>';
   this.g5ShowModal('📜 回收者神酿',html);
 };
-window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();sendAction({type:'selectDiscard',skillId:sid})};
+window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectDiscard',skillId:sid})};
 // 主持人看弃牌选择（只读）
 window.G.g5ShowDiscardSelectHost=function(playerId){
   const p=state.players[playerId];
@@ -2662,7 +2664,7 @@ window.G.g5ShowTargetChoice=function(){
   state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.dead||id===myPeerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5ChooseTarget(\''+id+'\')"><div class="sk-name">'+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</div><div class="sk-desc">位置'+p.pos+'格 · 血量'+p.hp+'</div></div>'});
   this.g5ShowModal('🎯 选择目标',html);
 };
-window.G.g5ChooseTarget=function(id){this.g5RemoveModal();sendAction({type:'chooseTarget',targetId:id})};
+window.G.g5ChooseTarget=function(id){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'chooseTarget',targetId:id})};
 // 主持人看目标选择（只读）
 window.G.g5ShowTargetChoiceHost=function(playerId,skillId){
   const p=state.players[playerId];
@@ -2676,7 +2678,7 @@ window.G.g5ShowPrediction=function(){
   for(let i=1;i<=6;i++)html+='<button class="btn" style="font-size:18px;padding:8px 14px" onclick="G.g5MakePrediction('+i+')">'+G5_DICE[i-1]+'</button>';
   html+='</div>';this.g5ShowModal('🔮 预言家陈酿',html);
 };
-window.G.g5MakePrediction=function(n){this.g5RemoveModal();state.game.pendingPrediction=null;sendAction({type:'roll',prediction:n})};
+window.G.g5MakePrediction=function(n){this.g5RemoveModal();window._g5JustSelected=Date.now();state.game.pendingPrediction=null;sendAction({type:'roll',prediction:n})};
 // 主持人看预测（只读）
 window.G.g5ShowPredictionHost=function(playerId){
   const p=state.players[playerId];
@@ -2692,7 +2694,7 @@ window.G.g5ShowWinnerPrediction=function(){
   state.turnOrder.forEach(id=>{const p=state.players[id];if(!p||p.dead||id===myPeerId)return;html+='<div class="g5-skill-card" style="margin-bottom:6px" onclick="G.g5PickWinner(\''+id+'\')"><div class="sk-name">'+(p.team==='blue'?'🔵':'🔴')+' '+p.name+'</div></div>'});
   this.g5ShowModal('🔮 次席预言酒',html);
 };
-window.G.g5PickWinner=function(id){this.g5RemoveModal();sendAction({type:'pickWinner',targetId:id})};
+window.G.g5PickWinner=function(id){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'pickWinner',targetId:id})};
 // 主持人看胜负预测（只读）
 window.G.g5ShowWinnerPredictionHost=function(playerId){
   const p=state.players[playerId];
@@ -2709,7 +2711,7 @@ window.G.g5ShowLeaderCopy=function(){
   html+='</tbody></table>';
   this.g5ShowModal('🎭 魁首仿酿酒',html);
 };
-window.G.g5PickLeader=function(id){this.g5RemoveModal();sendAction({type:'pickLeader',targetId:id})};
+window.G.g5PickLeader=function(id){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'pickLeader',targetId:id})};
 // 主持人看领袖复制（只读）
 window.G.g5ShowLeaderCopyHost=function(playerId){
   const p=state.players[playerId];
@@ -2890,6 +2892,7 @@ window.G.g5DoSelectSkill=function(playerId,skillId){
   const p=state.players[playerId];
   if(p.skill)state.game.discarded.push(p.skill);
   p.skill=skillId;state.game.skillPools[poolKey].splice(idx,1);p.skillChangeUsed[poolKey]=true;
+  p.skillUsed=true; // 初始选择的技能下回合才能使用（被动技能不受影响，选择即生效）
   this.g5OnSkillAcquire(playerId,skillId);
   state.skillSelectIndex=(state.skillSelectIndex||0)+1;
   if(state.skillSelectIndex>=state.turnOrder.length){
@@ -2900,7 +2903,12 @@ window.G.g5DoSelectSkill=function(playerId,skillId){
 };
 
 window.G.g5DoSelectDiscard=function(playerId,skillId){
-  const g=state.game;const idx=g.discarded.indexOf(skillId);if(idx<0)return;
+  const g=state.game;const idx=g.discarded.indexOf(skillId);
+  if(idx<0){
+    // 技能不在弃牌堆中，仍然清除pending状态避免弹窗卡住
+    g.pendingSkillChoice=null;state.message=playerName(playerId)+' 选择的技能已不可用，跳过';state.messageType='warn';
+    broadcastState();this.renderG5();return;
+  }
   const p=state.players[playerId];
   if(p.skill)g.discarded.push(p.skill);
   p.skill=skillId;g.discarded.splice(idx,1);p.skillUsed=true;
