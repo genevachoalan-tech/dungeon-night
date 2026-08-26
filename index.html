@@ -1200,6 +1200,8 @@ function hostStartNextGame(){
 function renderPreGame(){
   if(!state.preGame)return;
   const pg=state.preGame;
+  // 兼容旧状态：如果guessTeam不存在，根据局数计算
+  if(!pg.guessTeam){pg.guessTeam=state.currentGame%2===1?'blue':'red';}
   const blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue');
   const reds=Object.entries(state.players).filter(([_,p])=>p.team==='red');
   const blueRep=pg.blueRepId?blues.find(([id])=>id===pg.blueRepId):blues[0];
