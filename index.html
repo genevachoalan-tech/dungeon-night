@@ -3642,6 +3642,14 @@ window.G.renderG6=function(){
     });
     html+='</div>';
   }else if(g.phase==='combat'&&g.combat){
+    // 自动修复：如果attacker为null，自动选择队伍中position最小的存活玩家
+    if(!g.combat.attacker||!state.players[g.combat.attacker]||state.players[g.combat.attacker].dead){
+      const teamMembers=Object.values(state.players).filter(p=>p.team===g.combat.team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
+      if(teamMembers.length>0){
+        g.combat.attacker=teamMembers[0].id;
+        g.combat.attackerIndex=0;
+      }
+    }
     // 战斗阶段：行动顺序显示
     const combatAttacker=g.combat.attacker?state.players[g.combat.attacker]:null;
     html+='<div class="g6-combat-info">';
@@ -4150,6 +4158,9 @@ window.G.g6SelectRoute=function(peerId,route){
 window.G.g6Move=function(peerId){
   const p=state.players[peerId];const g=state.game;
   if(p.team!==g.currentTeam||g.phase!=='moving')return;
+  // 防重复点击：1秒内只能移动一次
+  if(g._lastMoveTime&&Date.now()-g._lastMoveTime<1000)return;
+  g._lastMoveTime=Date.now();
   const team=p.team;
   const tp=g.teamPos[team];
   if(!tp.route)return;
@@ -4235,7 +4246,12 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
         g.cellMonsters[team][cellKey]=monster;
         // 选择当前队伍1号位存活玩家作为攻击者（按position顺序）
         const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead).sort((a,b)=>(a.position||99)-(b.position||99));
-        const attacker=teamMembers[0];
+        let attacker=teamMembers[0];
+        // 容错：如果没有找到攻击者，选择任意存活玩家
+        if(!attacker){
+          const anyAlive=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+          attacker=anyAlive[0];
+        }
         g.combat={
           monster:monster,
           monsterHp:monster.hp,
