@@ -1025,11 +1025,17 @@ function handleHostMsg(peerId,msg){
   else if(msg.type==='playerAction'){
     // 猜大小阶段的操作单独处理
     if(state.phase==='preGame'&&msg.action&&msg.action.type==='preGameGuess'){
-      if(state.preGame&&state.preGame.phase==='guess'&&!state.preGame.blueGuess){
+      if(state.preGame&&state.preGame.phase==='guess'&&!(state.preGame.blueGuess||state.preGame.redGuess)){
         const p=state.players[peerId];
-        if(p&&p.team==='blue'){
-          state.preGame.blueGuess=msg.action.guess;
-          state.preGame.redGuess=msg.action.guess==='big'?'small':'big';
+        const guessTeam=state.preGame.guessTeam||'blue';
+        if(p&&p.team===guessTeam){
+          if(guessTeam==='blue'){
+            state.preGame.blueGuess=msg.action.guess;
+            state.preGame.redGuess=msg.action.guess==='big'?'small':'big';
+          }else{
+            state.preGame.redGuess=msg.action.guess;
+            state.preGame.blueGuess=msg.action.guess==='big'?'small':'big';
+          }
           state.preGame.phase='roll';
           broadcastState();renderPreGame();
         }
@@ -1090,8 +1096,14 @@ function renderPublicLobby(){
         const gi=GAMES[nextGame-1];
         const readyCount=Object.values(state.players).filter(p=>p.ready).length;
         const totalCount=Object.values(state.players).length;
+        let startTip=!can?'等待玩家加入（每队至少1人）':!allReady?`等待玩家准备（${readyCount}/${totalCount}已准备）`:'✅ 全部已准备，可以开始！';
+        if(nextGame===6){
+          const g5Winner=state.winner?state.players[state.winner]:null;
+          const winnerTeam=g5Winner?(g5Winner.team==='blue'?'🔵 蓝队':'🔴 红队'):'蓝队';
+          startTip+='<br><span style="color:var(--gold-light)">⚔️ 最终机制：'+winnerTeam+'（G5胜者）先手</span>';
+        }
         actions.innerHTML=`<button class="btn" id="startBtn" ${can&&allReady?'':'disabled'} onclick="hostStartNextGame()">🎮 开始第${nextGame}局：${gi.icon} ${gi.name}</button>
-        <div class="tip" id="startTip">${!can?'等待玩家加入（每队至少1人）':!allReady?`等待玩家准备（${readyCount}/${totalCount}已准备）`:'✅ 全部已准备，可以开始！'}</div>`;
+        <div class="tip" id="startTip">${startTip}</div>`;
       }
     }else{
       const me=state.players[myPeerId];
@@ -1134,20 +1146,44 @@ function fallbackCopy(text,cb){
 }
 
 function hostStartNextGame(){
-  if(state.currentGame>=5)return;
+  if(state.currentGame>=GAMES.length)return;
   // 金币确认弹窗
   showGoldConfirm(()=>{
     const nextGame=state.currentGame+1;
     state.currentGame=nextGame;
-    state.phase='preGame';
     state.gameSummary=null;
+    Object.values(state.players).forEach(p=>p.ready=false);
+    // G6最终机制：跳过猜大小，直接由G5胜者队伍先手
+    if(nextGame===6){
+      const g5Winner=state.winner?state.players[state.winner]:null;
+      state.firstTeam=g5Winner?g5Winner.team:'blue';
+      state.phase='playing';
+      broadcastState();
+      showScreen('gameScreen');
+      document.getElementById('myRoleLabel').textContent='🎩 主持人';
+      document.getElementById('hostControls').classList.remove('hidden');
+      document.getElementById('hostSkipBar').classList.remove('hidden');
+      setConn('online','已连接');
+      document.getElementById('gameTitle').textContent=GAMES[nextGame-1].icon+' '+GAMES[nextGame-1].name;
+      // 播放G6震撼特效后初始化
+      playFinalBattleIntro(()=>{
+        if(window.G && window.G.init)window.G.init(6);
+        broadcastState();
+        if(window.G && window.G.render)window.G.render();
+        if(isHost)renderHostReconnectPanel();
+      });
+      return;
+    }
+    // G1-G5：猜大小决定先手
+    state.phase='preGame';
     // 随机选每队代表
     const _blues=Object.entries(state.players).filter(([_,p])=>p.team==='blue');
     const _reds=Object.entries(state.players).filter(([_,p])=>p.team==='red');
     const _blueRep=_blues.length?_blues[Math.floor(Math.random()*_blues.length)]:null;
     const _redRep=_reds.length?_reds[Math.floor(Math.random()*_reds.length)]:null;
-    state.preGame={blueGuess:null,redGuess:null,dice:null,winner:null,rolling:false,phase:'guess',blueRepId:_blueRep?_blueRep[0]:null,redRepId:_redRep?_redRep[0]:null};
-    Object.values(state.players).forEach(p=>p.ready=false);
+    // 按局数轮换猜大小队伍：奇数局蓝队先猜，偶数局红队先猜
+    const _guessTeam=nextGame%2===1?'blue':'red';
+    state.preGame={blueGuess:null,redGuess:null,dice:null,winner:null,rolling:false,phase:'guess',blueRepId:_blueRep?_blueRep[0]:null,redRepId:_redRep?_redRep[0]:null,guessTeam:_guessTeam};
     broadcastState();
     showScreen('gameScreen');
     document.getElementById('myRoleLabel').textContent='🎩 主持人';
@@ -1170,7 +1206,9 @@ function renderPreGame(){
   const redRep=pg.redRepId?reds.find(([id])=>id===pg.redRepId):reds[0];
   let html='<div class="pregame-container">';
   html+='<h2 style="text-align:center;color:var(--gold-light);margin-bottom:8px">🎲 猜大小决定先手</h2>';
-  html+='<p style="text-align:center;color:var(--text-dim);font-size:13px;margin-bottom:16px">蓝队代表猜大或小，红队自动获得相反结果，投骰决定谁先开始</p>';
+  const guessTeamName=pg.guessTeam==='blue'?'🔵 蓝队':'🔴 红队';
+  const otherTeamName=pg.guessTeam==='blue'?'🔴 红队':'🔵 蓝队';
+  html+='<p style="text-align:center;color:var(--text-dim);font-size:13px;margin-bottom:16px">'+guessTeamName+'代表猜大或小，'+otherTeamName+'自动获得相反结果，投骰决定谁先开始</p>';
   html+='<div class="pregame-teams">';
   // 蓝队
   html+='<div class="pregame-team blue">';
@@ -1184,7 +1222,7 @@ function renderPreGame(){
   html+='<div class="pregame-team red">';
   html+='<div class="pregame-team-title">🔴 红队</div>';
   if(redRep){html+='<div class="pregame-rep">代表：'+(redRep[1].character?'<img src="'+charImg(redRep[1].character)+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle">':'')+redRep[1].name+'</div>';}
-  html+='<div class="pregame-guess">'+(pg.redGuess?'<span class="guess-badge '+(pg.redGuess==='big'?'big':'small')+'">'+(pg.redGuess==='big'?'大 (4-6)':'小 (1-3)')+'</span>':'<span style="color:var(--text-dim)">等待蓝队猜测...</span>')+'</div>';
+  html+='<div class="pregame-guess">'+(pg.redGuess?'<span class="guess-badge '+(pg.redGuess==='big'?'big':'small')+'">'+(pg.redGuess==='big'?'大 (4-6)':'小 (1-3)')+'</span>':'<span style="color:var(--text-dim)">等待'+(pg.guessTeam==='blue'?'蓝队':'红队')+'猜测...</span>')+'</div>';
   html+='</div>';
   html+='</div>';
   // 骰子
@@ -1200,14 +1238,16 @@ function renderPreGame(){
   html+='</div>';
   // 操作区
   html+='<div class="pregame-actions">';
-  if(pg.phase==='guess'&&!pg.blueGuess){
+  if(pg.phase==='guess'&&!(pg.blueGuess||pg.redGuess)){
+    const guessRep=pg.guessTeam==='blue'?blueRep:redRep;
+    const guessTeamLabel=pg.guessTeam==='blue'?'蓝队':'红队';
     if(isHost){
-      html+='<div style="color:var(--text-dim);text-align:center">等待蓝队代表猜测...</div>';
-    }else if(blueRep&&myPeerId===blueRep[0]){
+      html+='<div style="color:var(--text-dim);text-align:center">等待'+guessTeamLabel+'代表猜测...</div>';
+    }else if(guessRep&&myPeerId===guessRep[0]){
       html+='<button class="btn btn-blue" onclick="playerPreGameGuess(\'big\')" style="margin:0 8px">猜 大 (4-6)</button>';
       html+='<button class="btn btn-red" onclick="playerPreGameGuess(\'small\')" style="margin:0 8px">猜 小 (1-3)</button>';
     }else{
-      html+='<div style="color:var(--text-dim);text-align:center">等待蓝队代表猜测...</div>';
+      html+='<div style="color:var(--text-dim);text-align:center">等待'+guessTeamLabel+'代表猜测...</div>';
     }
   }else if(pg.phase==='roll'){
     if(isHost){
@@ -1229,7 +1269,8 @@ function renderPreGame(){
   document.getElementById('gameArea').innerHTML=html;
   // 主持人控制
   if(isHost){
-    document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-gray" onclick="hostSkipPreGame()">⏭️ 跳过猜大小（蓝队先手）</button>';
+    const skipTeam=pg.guessTeam==='blue'?'蓝队':'红队';
+    document.getElementById('hostControls').innerHTML='<button class="btn btn-small btn-gray" onclick="hostSkipPreGame()">⏭️ 跳过猜大小（'+skipTeam+'先手）</button>';
   }
 }
 
@@ -1245,8 +1286,10 @@ function hostPreGameRoll(){
     const dice=Math.floor(Math.random()*6)+1;
     state.preGame.dice=dice;state.preGame.rolling=false;
     const isBig=dice>=4;
-    const blueWon=(state.preGame.blueGuess==='big'&&isBig)||(state.preGame.blueGuess==='small'&&!isBig);
-    state.preGame.winner=blueWon?'blue':'red';
+    const guessTeam=state.preGame.guessTeam||'blue';
+    const guessVal=guessTeam==='blue'?state.preGame.blueGuess:state.preGame.redGuess;
+    const guessWon=(guessVal==='big'&&isBig)||(guessVal==='small'&&!isBig);
+    state.preGame.winner=guessWon?guessTeam:(guessTeam==='blue'?'red':'blue');
     state.preGame.phase='result';
     state.firstTeam=state.preGame.winner;
     broadcastState();renderPreGame();
@@ -1254,7 +1297,7 @@ function hostPreGameRoll(){
 }
 
 function hostSkipPreGame(){
-  state.firstTeam='blue';
+  state.firstTeam=state.preGame?(state.preGame.guessTeam||'blue'):'blue';
   hostStartActualGame();
 }
 
@@ -2889,6 +2932,10 @@ window.G.g5OnSkillAcquire=function(playerId,skillId){
 window.G.g5DoRoll=function(playerId,isReroll,prediction){
   const p=state.players[playerId];const g=state.game;
   if(p.skillUsed&&!isReroll)return;
+  // 重投时先回退之前的步数
+  if(isReroll&&g.lastSteps!==undefined){
+    p.pos=Math.max(0,p.pos-g.lastSteps);
+  }
   g.pendingPrediction=null;
   // 附影随行酒：移动前标记起点同格的附影玩家
   Object.entries(state.players).forEach(([id,pl])=>{if(!pl.dead&&pl.skill==='附影随行酒'&&id!==playerId&&pl.pos===p.pos){pl._shadowTarget=playerId}});
@@ -2935,7 +2982,10 @@ window.G.g5DoRoll=function(playerId,isReroll,prediction){
   }
   if(prediction&&prediction===roll)p.extraTurn=true;
   g.lastSteps=steps;
-  if(!(p.skill==='再投双杯酿'&&roll===6))p.skillUsed=true;
+  // 有再投双杯酿的玩家投骰后不设置skillUsed，允许重投（用_rerollCount控制次数）
+  if(p.skill!=='再投双杯酿'){
+    p.skillUsed=true;
+  }
   state.message=playerName(playerId)+' 投出 '+G5_DICE[roll-1]+'('+roll+')，移动'+steps+'格'+extraMsg;state.messageType='';
   this.g5ExecuteMove(playerId,steps);this.g5AfterMove(playerId,steps);
 };
@@ -3014,7 +3064,7 @@ window.G.g5ResolveDuel=function(){
 
 window.G.g5DoUseSkill=function(playerId,skillId){
   const p=state.players[playerId];const g=state.game;if(p.skillUsed)return;
-  if(skillId==='再投双杯酿'){if(g.lastRoll===undefined)return;p.skillUsed=true;p._rerollCount=(p._rerollCount||0)+1;if(p._rerollCount>2)return;g.lastEffect={skillId:'再投双杯酿',text:'重新投掷',sub:p.name+' 再投双杯酿生效'};this.g5DoRoll(playerId,true);return}
+  if(skillId==='再投双杯酿'){if(g.lastRoll===undefined)return;p._rerollCount=(p._rerollCount||0)+1;if(p._rerollCount>2){p.skillUsed=true;return;}if(p._rerollCount>=2)p.skillUsed=true;g.lastEffect={skillId:'再投双杯酿',text:'重新投掷（第'+p._rerollCount+'次）',sub:p.name+' 再投双杯酿生效'};this.g5DoRoll(playerId,true);return}
   if(skillId==='尾灯引路酒'){const alive=Object.entries(state.players).filter(([_,pl])=>!pl.dead);const minPos=Math.min(...alive.map(([_,pl])=>pl.pos));alive.filter(([_,pl])=>pl.pos===minPos).forEach(([id])=>{state.players[id].pos=Math.min(G5_FINISH,state.players[id].pos+2)});p.skillUsed=true;state.message=playerName(playerId)+' 尾灯引路：放弃移动，末尾玩家+2';state.messageType='good';g.lastEffect={skillId:'尾灯引路酒',text:'末尾玩家+2格',sub:p.name+' 尾灯引路酒生效'};broadcastState();this.renderG5();return}
   if(skillId==='凑桌传送酒'){const counts={};Object.values(state.players).forEach(pl=>{if(!pl.dead)counts[pl.pos]=(counts[pl.pos]||0)+1});const valid=Object.entries(counts).filter(([_,c])=>c===2).map(([pos])=>parseInt(pos));if(!valid.length)return;p.pos=valid[Math.floor(Math.random()*valid.length)];p.skillUsed=true;state.message=playerName(playerId)+' 凑桌传送至'+p.pos+'格';state.messageType='good';g.lastEffect={skillId:'凑桌传送酒',text:'传送至2人格',sub:p.name+' 凑桌传送酒生效'};this.g5AfterMove(playerId,0);return}
   if(skillId==='回收者神酿'){if(!g.discarded.length)return;g.pendingSkillChoice={playerId};state.message=playerName(playerId)+' 从弃牌堆选技能';g.lastEffect={skillId:'回收者神酿',text:'选择弃牌堆技能',sub:p.name+' 回收者神酿生效'};broadcastState();this.renderG5();return}
