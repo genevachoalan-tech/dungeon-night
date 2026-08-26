@@ -3585,10 +3585,10 @@ window.G.renderG6=function(){
     }
     // 主持人确认按钮
     if(isHost){
-      const allSelected=Object.values(state.players).filter(p=>!p.dead).every(p=>p.position);
+      const allSelected=Object.values(state.players).filter(p=>!p.dead&&p.online).every(p=>p.position);
       html+='<div class="g6-position-confirm"><button class="btn btn-green" '+(allSelected?'':'disabled')+' onclick="sendAction({type:\'g6positiondone\'})">✅ 全部选好，进入路线选择</button></div>';
       if(!allSelected){
-        html+='<div style="text-align:center;color:#fbbf24;font-size:12px">还有玩家未选择号位</div>';
+        html+='<div style="text-align:center;color:#fbbf24;font-size:12px">还有在线玩家未选择号位</div>';
       }
     }
     html+='</div>';
@@ -4087,10 +4087,10 @@ window.G.g6PositionDone=function(peerId){
   const g=state.game;
   if(g.phase!=='positionselect')return;
   if(!isHost&&peerId!==state.hostId)return;
-  // 检查所有存活玩家是否都选择了号位
-  const allSelected=Object.values(state.players).filter(p=>!p.dead).every(p=>p.position);
+  // 检查所有在线存活玩家是否都选择了号位
+  const allSelected=Object.values(state.players).filter(p=>!p.dead&&p.online).every(p=>p.position);
   if(!allSelected){
-    state.message='还有玩家未选择号位';
+    state.message='还有在线玩家未选择号位';
     broadcastState();this.renderG6();
     return;
   }
