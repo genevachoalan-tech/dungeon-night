@@ -634,6 +634,8 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-panel-skill .skill-name{font-weight:bold;font-size:11px;margin-bottom:3px}
 .g6-panel-skill .skill-desc{font-size:9px;color:var(--text-dim);flex:1;line-height:1.2}
 .g6-panel-skill.empty{border-color:#4a3520;color:#666;align-items:center;justify-content:center}
+.g6-panel-skill.sealed{opacity:0.4;filter:grayscale(1);position:relative}
+.g6-panel-skill.sealed::after{content:'🔒已封印';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;color:#ff4444;font-weight:bold;background:rgba(0,0,0,.7);padding:2px 6px;border-radius:4px}
 .g6-panel-backpack{margin-top:8px;padding:8px;background:rgba(0,0,0,.3);border-radius:6px;border:1px solid #4a3520}
 .g6-panel-backpack .bp-title{font-size:11px;color:var(--gold-light);margin-bottom:4px}
 .g6-panel-backpack .bp-slots{display:flex;gap:4px}
@@ -3312,56 +3314,56 @@ const G6_CLOVER_EVENTS={
 // G6商店购买的专属技能卡（红色技能，12个，每角色2个）
 const G6_SHOP_SKILLS={
   adou:[
-    {id:'zhandoushige',name:'战斗诗歌',desc:'技能发动后，每消耗2枚金币额外增加1点伤害。（上限3点伤害）',color:'#ff6b6b',evenMiss:false,effect:'goldDamage'},
-    {id:'cuimianqu',name:'催眠曲',desc:'技能发动后，跳过怪物的下一次行动回合。（反击或主动攻击二选一）',color:'#ff6b6b',evenMiss:true,effect:'skipMonster'}
+    {id:'zhandoushige',name:'战斗诗歌',desc:'技能发动后，每消耗2枚金币额外增加1点伤害。（上限3点伤害）',color:'red',evenMiss:false,effect:'goldDamage'},
+    {id:'cuimianqu',name:'催眠曲',desc:'技能发动后，跳过怪物的下一次行动回合。（反击或主动攻击二选一）',color:'red',evenMiss:true,effect:'skipMonster'}
   ],
   yuanyuan:[
-    {id:'lianmin',name:'怜悯',desc:'此次战斗的目标怪物伤害-1（包括反击与主动攻击）',color:'#ff6b6b',evenMiss:false,effect:'monsterAtkDown'},
-    {id:'qidao',name:'祈祷',desc:'造成上靶伤害后，额外造成2点伤害。并且获得1枚金币。',color:'#ff6b6b',evenMiss:false,effect:'extraDamageGold'}
+    {id:'lianmin',name:'怜悯',desc:'此次战斗的目标怪物伤害-1（包括反击与主动攻击）',color:'red',evenMiss:false,effect:'monsterAtkDown'},
+    {id:'qidao',name:'祈祷',desc:'造成上靶伤害后，额外造成2点伤害。并且获得1枚金币。',color:'red',evenMiss:false,effect:'extraDamageGold'}
   ],
   xiupa:[
-    {id:'qiweibuzhuo',name:'气味捕捉',desc:'技能发动后，造成3点伤害。（即使未上靶）',color:'#ff6b6b',evenMiss:true,effect:'fixedDamage3'},
-    {id:'ruodianbiaoji',name:'弱点标记',desc:'技能发动后，如果命中3环视为4环，命中4环视为5环（享受暴击效果）',color:'#ff6b6b',evenMiss:false,effect:'ringUpgrade'}
+    {id:'qiweibuzhuo',name:'气味捕捉',desc:'技能发动后，造成3点伤害。（即使未上靶）',color:'red',evenMiss:true,effect:'fixedDamage3'},
+    {id:'ruodianbiaoji',name:'弱点标记',desc:'技能发动后，如果命中3环视为4环，命中4环视为5环（享受暴击效果）',color:'red',evenMiss:false,effect:'ringUpgrade'}
   ],
   muen:[
-    {id:'shunshizhan',name:'顺势斩',desc:'造成上靶伤害后可进行二次攻击。（每回合限一次）',color:'#ff6b6b',evenMiss:false,effect:'secondAttack'},
-    {id:'wulai',name:'无赖',desc:'可以用手指再弹一次进攻骰子（即使未上靶）',color:'#ff6b6b',evenMiss:true,effect:'reroll'}
+    {id:'shunshizhan',name:'顺势斩',desc:'造成上靶伤害后可进行二次攻击。（每回合限一次）',color:'red',evenMiss:false,effect:'secondAttack'},
+    {id:'wulai',name:'无赖',desc:'可以用手指再弹一次进攻骰子（即使未上靶）',color:'red',evenMiss:true,effect:'reroll'}
   ],
   duolin:[
-    {id:'xuruo',name:'虚弱',desc:'虚弱当前目标怪物，使其之后受到的所有伤害+1。',color:'#ff6b6b',evenMiss:false,effect:'monsterDefDown'},
-    {id:'ziranzhili',name:'自然之力',desc:'技能发动后，选择一名友方（可自己），本次战斗伤害+2。',color:'#ff6b6b',evenMiss:false,effect:'allyDamageUp'}
+    {id:'xuruo',name:'虚弱',desc:'虚弱当前目标怪物，使其之后受到的所有伤害+1。',color:'red',evenMiss:false,effect:'monsterDefDown'},
+    {id:'ziranzhili',name:'自然之力',desc:'技能发动后，选择一名友方（可自己），本次战斗伤害+2。',color:'red',evenMiss:false,effect:'allyDamageUp'}
   ],
   lier:[
-    {id:'huoqianshu',name:'火球术',desc:'技能发动后，当前目标怪物承受持续灼烧伤害，每大回合血量-2。',color:'#ff6b6b',evenMiss:true,effect:'burn'},
-    {id:'mofayaoshui',name:'魔法药水',desc:'技能发动后，放弃上靶伤害，可获得一个道具（损人或利己道具任选一个）',color:'#ff6b6b',evenMiss:true,effect:'getItem'}
+    {id:'huoqianshu',name:'火球术',desc:'技能发动后，当前目标怪物承受持续灼烧伤害，每大回合血量-2。',color:'red',evenMiss:true,effect:'burn'},
+    {id:'mofayaoshui',name:'魔法药水',desc:'技能发动后，放弃上靶伤害，可获得一个道具（损人或利己道具任选一个）',color:'red',evenMiss:true,effect:'getItem'}
   ]
 };
 
 // G6角色自带技能和专属武器
 const G6_CHAR_SKILLS={
   adou:{name:'阿兜',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'破旧的鲁特琴',icon:'🎸',img:'https://aka.doubaocdn.com/s/Js4lAdezcV',bonus:1,exclusive:true},skills:[
-    {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'#ff6b6b',evenMiss:true,effect:'eraseMonsterSkill'},
-    {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'#ffd700',evenMiss:false,effect:'stealGold'}
+    {id:'mihunqu',name:'迷魂曲',desc:'消耗1金币，抹除当前目标怪物的技能（非龙族）',color:'red',evenMiss:true,effect:'eraseMonsterSkill'},
+    {id:'daoqie',name:'盗窃',desc:'盗取当前目标怪物额外2枚金币',color:'blue',evenMiss:false,effect:'stealGold'}
   ]},
   duolin:{name:'多琳',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/vSOQ9520fU',bonus:1,exclusive:true},skills:[
-    {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'#a855f7',evenMiss:false,effect:'tameMonster'},
-    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'#22c55e',evenMiss:true,effect:'plantHeal'}
+    {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'red',evenMiss:false,effect:'tameMonster'},
+    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'green',evenMiss:true,effect:'plantHeal'}
   ]},
   lier:{name:'莉尔',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/rA7ewqqiMT',bonus:1,exclusive:true},skills:[
-    {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'#8b5cf6',evenMiss:true,effect:'magicMissile'},
-    {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'#06b6d4',evenMiss:true,effect:'timeRewind'}
+    {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'red',evenMiss:true,effect:'magicMissile'},
+    {id:'shijianhuisu',name:'时间回溯',desc:'技能发动后可以重置本次投掷（即使未上靶）',color:'blue',evenMiss:true,effect:'timeRewind'}
   ]},
   muen:{name:'沐恩',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',img:'https://aka.doubaocdn.com/s/tI6h5YxosE',bonus:1,exclusive:true},skills:[
-    {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'#ef4444',evenMiss:false,effect:'hoofStomp'},
-    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'#f97316',evenMiss:true,effect:'upDownStrike'}
+    {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'red',evenMiss:false,effect:'hoofStomp'},
+    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'green',evenMiss:true,effect:'upDownStrike'}
   ]},
   xiupa:{name:'休帕',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',img:'https://aka.doubaocdn.com/s/f7QArSVwTj',bonus:1,exclusive:true},skills:[
-    {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'#6366f1',evenMiss:true,effect:'stealth'},
-    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'#ec4899',evenMiss:true,effect:'counterAttack'}
+    {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'blue',evenMiss:true,effect:'stealth'},
+    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'green',evenMiss:true,effect:'counterAttack'}
   ]},
   yuanyuan:{name:'圆圆',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',img:'https://aka.doubaocdn.com/s/qZoID6Dodt',bonus:1,exclusive:true},skills:[
-    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'#22c55e',evenMiss:false,effect:'groupHeal'},
-    {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'#f59e0b',evenMiss:false,effect:'smite'}
+    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'green',evenMiss:false,effect:'groupHeal'},
+    {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'red',evenMiss:false,effect:'smite'}
   ]}
 };
 
@@ -3468,7 +3470,9 @@ window.G.g6TargetHTML=function(combat){
     else currentRing=0;
   }
   if(c.resolved){
-    diceContent=['⚀','⚁','⚂','⚃','⚄','⚅'][c.dice-1];
+    const diceColorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[c.diceColor]||'#ffd700';
+    const diceColorName={red:'红',blue:'蓝',green:'绿'}[c.diceColor]||'';
+    diceContent='<span style="color:'+diceColorHex+'">'+diceColorName+'骰</span> '+['⚀','⚁','⚂','⚃','⚄','⚅'][c.dice-1];
     if(c.ring===0){
       resultText='<span style="color:#ff4444;font-size:20px">脱靶！</span>';
     }else{
@@ -3527,11 +3531,13 @@ window.G.g6TargetHTML=function(combat){
 };
 
 // 开始投骰（玩家端）
-window.G.g6StartRoll=function(){
+window.G.g6StartRoll=function(diceColor){
   if(this.g6Rolling||!state.game||state.game.phase!=='combat')return;
   const c=state.game.combat;
   if(!c||c.resolved||c.rolling)return;
   if(c.attacker!==myPeerId)return;
+  // 记录选择的骰子颜色
+  c.diceColor=diceColor||'red';
   this.g6Rolling=true;
   this.g6Pointer=0;this.g6Dir=1;this.g6Locked=false;
   c.rolling=true;c.pointer=0;
@@ -3590,7 +3596,7 @@ window.G.g6Lock=function(){
   c.crit=ring===5&&c.isEven&&!c.monster.isDragon;
   c.locked=true;
   // 发送锁定动作到主持人，不立即结算
-  sendAction({type:'g6lock',ring:ring,dice:c.dice,crit:c.crit});
+  sendAction({type:'g6lock',ring:ring,dice:c.dice,crit:c.crit,diceColor:c.diceColor});
 };
 
 // 计算血量剩余分：(生命数-1)*9 + 当前血量
@@ -3602,8 +3608,10 @@ window.G.g6PlayerLock=function(peerId,action){
   if(!c||c.resolved||c.locked)return;
   if(c.attacker!==peerId)return;
   c.ring=action.ring;c.dice=action.dice;c.crit=action.crit;c.locked=true;c.rolling=false;
+  c.diceColor=action.diceColor||'red';
   c.isEven=c.dice%2===0;
-  state.message=state.players[peerId].name+' 锁定：'+(c.ring>0?c.ring+'环':'脱靶')+'，骰子'+c.dice+'点'+(c.isEven?'(双数，可发动技能)':'(单数)');
+  const colorName={red:'红',blue:'蓝',green:'绿'}[c.diceColor]||'';
+  state.message=state.players[peerId].name+' 锁定：'+(c.ring>0?c.ring+'环':'脱靶')+'，'+colorName+'骰子'+c.dice+'点'+(c.isEven?'(双数，可发动'+colorName+'色技能)':'(单数)');
   broadcastState();this.renderG6();
 };
 
@@ -3813,7 +3821,13 @@ window.G.renderG6=function(){
     html+='<span style="color:var(--text-dim);margin-left:12px">队伍：'+(g.combat.team==='red'?'🔴红队':'🔵蓝队')+'</span>';
     html+='<span style="color:var(--text-dim);margin-left:12px">怪物：'+g.combat.monster.name+'（'+g.combat.monsterHp+'血）</span>';
     if(g.combat.locked){
-      html+='<span style="color:var(--gold-light);margin-left:12px">锁定：'+(g.combat.ring>0?g.combat.ring+'环':'脱靶')+'，骰子'+g.combat.dice+'点'+(g.combat.dice%2===0?'（双数）':'（单数）')+'</span>';
+      const dcName={red:'红',blue:'蓝',green:'绿'}[g.combat.diceColor]||'';
+      const dcHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[g.combat.diceColor]||'#ffd700';
+      html+='<span style="color:'+dcHex+';margin-left:12px">'+dcName+'骰'+g.combat.dice+'点'+(g.combat.dice%2===0?'（双数）':'（单数）')+'，'+(g.combat.ring>0?g.combat.ring+'环':'脱靶')+'</span>';
+    }else if(g.combat.diceColor&&g.combat.rolling){
+      const dcName={red:'红',blue:'蓝',green:'绿'}[g.combat.diceColor]||'';
+      const dcHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[g.combat.diceColor]||'#ffd700';
+      html+='<span style="color:'+dcHex+';margin-left:12px">使用'+dcName+'色骰子</span>';
     }
     html+='</div>';
     // 战斗阶段：显示靶盘
@@ -4189,8 +4203,10 @@ window.G.g6RenderCharPanel=function(p){
   for(let i=0;i<3;i++){
     const skill=p.skills?.[i];
     if(skill){
-      html+='<div class="g6-panel-skill" style="border-color:'+skill.color+'">';
-      html+='<div class="skill-name" style="color:'+skill.color+'">'+skill.name+'</div>';
+      const skillColorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[skill.color]||skill.color;
+      const colorLabel={red:'红',blue:'蓝',green:'绿'}[skill.color]||'';
+      html+='<div class="g6-panel-skill'+(skill.sealed?' sealed':'')+'" style="border-color:'+skillColorHex+'">';
+      html+='<div class="skill-name" style="color:'+skillColorHex+'">'+(colorLabel?'<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+skillColorHex+';margin-right:4px"></span>':'')+skill.name+(skill.sealed?' 🔒':'')+'</div>';
       html+='<div class="skill-desc">'+skill.desc+'</div>';
       html+='</div>';
     }else{
@@ -4254,9 +4270,36 @@ window.G.g6RenderButtons=function(){
       if(c.rolling){
         btns.innerHTML='<button class="btn btn-red" onclick="G.g6Lock()">🎯 锁定！</button>';
       }else if(c.locked){
-        btns.innerHTML='<span style="color:var(--gold)">⏳ 请使用技能或确认结算 ↑</span>';
+        // 锁定后：显示可用技能（匹配骰子颜色+双数）和确认结算按钮
+        let skillBtns='';
+        const attacker=state.players[myPeerId];
+        if(attacker.skills){
+          attacker.skills.forEach((s,idx)=>{
+            if(s.used||s.sealed)return;
+            if(s.color!==c.diceColor)return;
+            if(!c.isEven)return;
+            if(c.ring===0&&!s.evenMiss)return;
+            // 魅魔禁用红色技能
+            if(c.monster&&c.monster.effect==='noRedSkill'&&s.color==='red')return;
+            const colorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[s.color]||'#ffd700';
+            skillBtns+='<button class="btn" style="border-color:'+colorHex+';color:'+colorHex+';margin:2px" onclick="G.g6UseSkill(\''+myPeerId+'\','+idx+')">✨ '+s.name+'</button>';
+          });
+        }
+        btns.innerHTML=skillBtns+'<button class="btn btn-gold" style="margin:2px" onclick="G.g6ResolveCombat(\''+myPeerId+'\',{type:\'confirm\'})">✅ 确认结算</button>';
       }else{
-        btns.innerHTML='<button class="btn" onclick="G.g6StartRoll()">🎲 投骰攻击</button>';
+        // 投骰前：选择骰子颜色（只显示有对应颜色技能的颜色）
+        const attacker=state.players[myPeerId];
+        const colors=['red','blue','green'];
+        const colorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'};
+        const colorName={red:'红骰',blue:'蓝骰',green:'绿骰'};
+        let diceBtns='';
+        colors.forEach(col=>{
+          const hasSkill=attacker.skills&&attacker.skills.some(s=>s.color===col&&!s.sealed);
+          if(hasSkill){
+            diceBtns+='<button class="btn" style="border-color:'+colorHex[col]+';color:'+colorHex[col]+';margin:2px" onclick="G.g6StartRoll(\''+col+'\')">🎲 '+colorName[col]+'</button>';
+          }
+        });
+        btns.innerHTML=diceBtns;
       }
     }else if(c.resolved){
       btns.innerHTML='<span style="color:var(--gold)">结算中...</span>';
@@ -4612,7 +4655,8 @@ window.G.g6ResolveCombat=function(peerId,action){
   const monster=c.monster;
   
   let log=[];
-  log.push(attacker.name+' 投出 '+c.dice+'点 '+(isEven?'(双数)':'(单数)'));
+  const dcName={red:'红',blue:'蓝',green:'绿'}[c.diceColor]||'';
+  log.push(attacker.name+' 投出'+dcName+'骰'+c.dice+'点 '+(isEven?'(双数)':'(单数)'));
   
   // 处理损人道具debuff
   let debuffNoWeapon=false,debuffNoWeaponBonus=false,debuffRingReduce=0;
@@ -5188,6 +5232,14 @@ window.G.g6UseSkill=function(peerId,skillIndex){
     return;
   }
   
+  // 检查技能颜色是否匹配骰子颜色
+  if(skill.color!==c.diceColor){
+    const colorName={red:'红',blue:'蓝',green:'绿'};
+    state.message='技能颜色不匹配：需要'+(colorName[skill.color]||'')+'色骰子，当前是'+(colorName[c.diceColor]||'')+'色骰子';
+    broadcastState();this.renderG6();
+    return;
+  }
+  
   // 检查上靶（evenMiss技能除外）
   if(!skill.evenMiss&&c.ring<=0){
     state.message='未上靶，无法发动'+skill.name+'（需要上靶+双数）';
@@ -5196,7 +5248,7 @@ window.G.g6UseSkill=function(peerId,skillIndex){
   }
   
   // 魅魔禁用红色技能
-  if(c.monster.effect==='noRedSkill'&&skill.isShopSkill){
+  if(c.monster.effect==='noRedSkill'&&skill.color==='red'){
     state.message='😈 魅魔效果：红色技能被禁用！';
     broadcastState();this.renderG6();
     return;
