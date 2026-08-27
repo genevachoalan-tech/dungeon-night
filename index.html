@@ -2226,7 +2226,7 @@ window.G.g3FinishGuardian=function(){
 window.G.g3AfterAttack=function(){
   broadcastState();this.renderG3();
   // 特效2秒后清除
-  if(state.game&&state.game.lastEffect){const fx=state.game.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG3()}},2000)}
+  if(state.game&&state.game.lastEffect&&isHost){const fx=state.game.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG3()}},3500)}
   const allDone=state.turnOrder.every(id=>state.players[id].indicators<=0);
   if(allDone){setTimeout(()=>this.g3EndGame(),1500);return}
   setTimeout(()=>{this.g3NextTurn();broadcastState();this.renderG3()},1500);
@@ -2606,8 +2606,7 @@ window.G.renderG5=function(){
   if(g.roundSummary)this.g5RenderSummary();else{let m=document.getElementById('g5SumModal');if(m)m.remove()}
   this.g5CheckModals();
   // 特效2秒后自动清除（技能选择阶段不重新渲染，避免弹窗刷新导致点击丢失）
-  if(g.lastEffect&&state.phase!=='skillselect'){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG5()}},2000)}
-  else if(g.lastEffect&&state.phase==='skillselect'){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;if(isHost)broadcastState()}},2000)}
+  if(g.lastEffect&&isHost){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG5()}},3500)}
 };
 
 window.G.g5RenderButtons=function(){
@@ -2658,6 +2657,7 @@ window.G.g5RenderButtons=function(){
 };
 
 window.G.g5CheckModals=function(){
+  try{
   const g=state.game;
   // 防重复弹窗：仅在pending状态（非初始技能选择）时检查，玩家刚点击选择后1秒内不重复弹出
   if(state.phase!=='skillselect'&&window._g5JustSelected&&Date.now()-window._g5JustSelected<1000)return;
@@ -2704,6 +2704,7 @@ window.G.g5CheckModals=function(){
     if(isHost)this.g5ShowLeaderCopyHost(g.pendingLeaderCopy.playerId);
     else this.g5RemoveModal();
   }else this.g5RemoveModal();
+  }catch(e){console.error('g5CheckModals error:',e);this.g5RemoveModal()}
 };
 window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
 window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');const clearBtn=isHost?'<div style="margin-top:12px;text-align:center"><button class="btn btn-small btn-purple" onclick="G.g5ClearPending()">🧹 清除卡住状态</button></div>':'';const fullHtml='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+clearBtn+'</div>';if(m&&m.dataset.title===title&&m.dataset.bodyLen===String(bodyHtml.length)&&m.style.display==='flex'){return}if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}m.innerHTML=fullHtml;m.dataset.title=title;m.dataset.bodyLen=String(bodyHtml.length);m.style.display='flex';m.style.zIndex='950'};
@@ -2715,7 +2716,17 @@ window.G.g5ShowSkillSelect=function(poolKey){
   html+='</tbody></table>';
   this.g5ShowModal('📜 选择技能（'+poolKey+'格池）',html);
 };
-window.G.g5SelectSkill=function(sid){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid})};
+window.G.g5SelectSkill=function(sid){
+  if(window._g5Selecting)return;
+  window._g5Selecting=true;
+  this.g5RemoveModal();
+  window._g5JustSelected=Date.now();
+  state.message='正在选择技能【'+sid+'】...';
+  state.messageType='';
+  if(window.G&&window.G.renderG5)this.renderG5();
+  sendAction({type:'selectSkill',skillId:sid});
+  setTimeout(()=>{window._g5Selecting=false},2000);
+};
 // 主持人看技能选择（只读）
 window.G.g5ShowSkillSelectHost=function(playerId,poolKey){
   const pool=state.game.skillPools[poolKey]||[];
@@ -2734,7 +2745,7 @@ window.G.g5ShowDiscardSelect=function(){
   html+='</tbody></table>';
   this.g5ShowModal('📜 回收者神酿',html);
 };
-window.G.g5SelectDiscard=function(sid){this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid})};
+window.G.g5SelectDiscard=function(sid){if(window._g5Selecting)return;window._g5Selecting=true;this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid});setTimeout(()=>{window._g5Selecting=false},2000)};
 // 主持人看弃牌选择（只读）
 window.G.g5ShowDiscardSelectHost=function(playerId){
   const p=state.players[playerId];
@@ -2991,12 +3002,18 @@ window.G.hostActionG5=function(peerId,action){
 };
 
 window.G.g5DoSelectSkill=function(playerId,skillId){
-  const poolKey=state.game.skillPoolKey||0;const idx=state.game.skillPools[poolKey].indexOf(skillId);if(idx<0)return;
+  try{
+  const poolKey=state.game.skillPoolKey||0;
+  if(!state.game.skillPools[poolKey]){state.message='技能池异常，请主持人重新开始';state.messageType='error';broadcastState();this.renderG5();return}
+  const idx=state.game.skillPools[poolKey].indexOf(skillId);
+  if(idx<0){state.message='技能【'+skillId+'】不在池中（可能已被选走），请重选';state.messageType='warn';broadcastState();this.renderG5();return}
   const p=state.players[playerId];
+  if(!p){state.message='玩家数据异常';state.messageType='error';broadcastState();this.renderG5();return}
+  if(!p.skillChangeUsed)p.skillChangeUsed={};
   if(p.skill)state.game.discarded.push(p.skill);
   p.skill=skillId;state.game.skillPools[poolKey].splice(idx,1);p.skillChangeUsed[poolKey]=true;
-  p.skillUsed=false; // 可以投掷
-  p.skillLocked=true; // 初始选择的技能本回合不能使用（被动技能不受影响，选择即生效）
+  p.skillUsed=false;
+  p.skillLocked=true;
   this.g5OnSkillAcquire(playerId,skillId);
   state.skillSelectIndex=(state.skillSelectIndex||0)+1;
   if(state.skillSelectIndex>=state.turnOrder.length){
@@ -3004,6 +3021,7 @@ window.G.g5DoSelectSkill=function(playerId,skillId){
     state.message=playerName(state.turnOrder[0])+' 的回合，投掷骰子';state.messageType='';
   }else state.message='轮到 '+playerName(state.turnOrder[state.skillSelectIndex])+' 选择技能';
   broadcastState();this.renderG5();
+  }catch(e){state.message='选择技能出错：'+e.message;state.messageType='error';broadcastState();this.renderG5()}
 };
 
 window.G.g5DoSelectDiscard=function(playerId,skillId){
@@ -4169,7 +4187,7 @@ window.G.renderG6=function(){
   }
   document.getElementById('gameArea').innerHTML=html;
   this.g6RenderButtons();
-  if(g.lastEffect){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG6()}},2000)}
+  if(g.lastEffect&&isHost){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();if(window.G&&window.G.renderG6)this.renderG6()}},3500)}
 };
 
 // 渲染人物面板
@@ -4437,14 +4455,16 @@ window.G.g6CheckTurnAction=function(){
     }
   }
   if(tp.pos>=routeData.length){
-    if(!g.bossDefeated){
-      let bossMonster=g.cellMonsters?.[team]?.['boss-'+g.floor];
-      if(bossMonster&&bossMonster.hp>0){
-        g.phase='combat';
-        g.combat={monster:bossMonster,monsterHp:bossMonster.hp,cellKey:'boss-'+g.floor,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false,isBoss:true};
-        state.message='⚔️ '+current.player.name+' 攻击'+bossMonster.name;
-        return;
-      }
+    // BOSS战：使用公共血量
+    if(g.bossHp===null||g.bossHp===undefined){
+      this.g6TriggerBoss(team);
+      return;
+    }
+    if(g.bossHp>0){
+      g.phase='combat';
+      g.combat={monster:g.bossMonster,monsterHp:g.bossHp,cellKey:'boss-'+g.floor,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false,isBoss:true};
+      state.message='⚔️ '+current.player.name+' 攻击'+g.bossMonster.name+'（'+g.bossHp+'/'+g.bossMaxHp+'血）';
+      return;
     }
   }
   g.phase='moving';
@@ -4933,6 +4953,10 @@ window.G.g6ResolveCombat=function(peerId,action){
     g.combat=null;
     this.g6NextTurn();
   }else{
+    // 怪物未死，保存剩余血量供队友继续战斗
+    if(!c.isBoss&&g.cellMonsters&&g.cellMonsters[c.team]&&g.cellMonsters[c.team][c.cellKey]){
+      g.cellMonsters[c.team][c.cellKey].hp=c.monsterHp;
+    }
     g.combat=null;
     this.g6NextTurn();
   }
