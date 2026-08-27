@@ -404,30 +404,30 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 @media(max-width:640px){#gameArea .g5-map{max-width:100%;gap:3px}#gameArea .g5-cell{padding:2px}#gameArea .g5-cell-label{font-size:9px}#gameArea .g5-players{grid-template-columns:1fr 1fr;max-width:100%}#gameArea .g5-pcard{padding:6px 8px;font-size:11px}#gameArea .g5-pcard-head{font-size:12px}#gameArea .g5-pcard-head img{width:18px;height:18px}}
 /* ===== G6最终机制 ===== */
 .g6-container{max-width:900px;margin:0 auto;padding:10px}
-.g6-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
-.g6-title{font-size:22px;font-weight:bold;color:var(--gold-light);text-shadow:0 0 15px rgba(255,215,0,.3)}
-.g6-floor-badge{background:linear-gradient(135deg,#8b0000,#4a0000);color:#ffd700;padding:4px 14px;border-radius:20px;font-size:14px;font-weight:bold;border:1px solid #ffd700}
-.g6-round{color:var(--text-dim);font-size:14px}
-.g6-team-turn{padding:4px 12px;border-radius:15px;font-size:13px;font-weight:bold}
+.g6-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.g6-title{font-size:18px;font-weight:bold;color:var(--gold-light);text-shadow:0 0 15px rgba(255,215,0,.3)}
+.g6-floor-badge{background:linear-gradient(135deg,#8b0000,#4a0000);color:#ffd700;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:bold;border:1px solid #ffd700}
+.g6-round{color:var(--text-dim);font-size:12px}
+.g6-team-turn{padding:3px 10px;border-radius:15px;font-size:12px;font-weight:bold}
 .g6-team-turn.g6-red{background:rgba(255,68,68,.2);color:#ff6666;border:1px solid #ff4444}
 .g6-team-turn.g6-blue{background:rgba(68,136,255,.2);color:#6699ff;border:1px solid #4488ff}
-.g6-my-status{display:flex;align-items:center;gap:10px;background:rgba(26,15,8,.8);border:1px solid var(--gold-dark);border-radius:10px;padding:8px 14px;margin-bottom:12px;flex-wrap:wrap}
-.g6-avatar{width:36px;height:36px;border-radius:50%;border:2px solid var(--gold)}
-.g6-name{font-weight:bold;color:var(--gold-light)}
-.g6-life{color:#ff6b6b;font-weight:bold}
-.g6-hp-bar{color:#44ff44;font-size:12px;letter-spacing:1px}
-.g6-gold{color:#ffd700;font-weight:bold}
-.g6-score{color:var(--text-dim);font-size:13px}
-.g6-teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.g6-team-card{background:rgba(26,15,8,.8);border-radius:10px;padding:10px;border:2px solid}
+.g6-my-status{display:flex;align-items:center;gap:8px;background:rgba(26,15,8,.8);border:1px solid var(--gold-dark);border-radius:8px;padding:5px 10px;margin-bottom:6px;flex-wrap:wrap;font-size:12px}
+.g6-avatar{width:28px;height:28px;border-radius:50%;border:2px solid var(--gold)}
+.g6-name{font-weight:bold;color:var(--gold-light);font-size:12px}
+.g6-life{color:#ff6b6b;font-weight:bold;font-size:11px}
+.g6-hp-bar{color:#44ff44;font-size:11px;letter-spacing:1px}
+.g6-gold{color:#ffd700;font-weight:bold;font-size:11px}
+.g6-score{color:var(--text-dim);font-size:11px}
+.g6-teams{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.g6-team-card{background:rgba(26,15,8,.8);border-radius:8px;padding:6px 8px;border:2px solid}
 .g6-team-red{border-color:#ff4444}
 .g6-team-blue{border-color:#4488ff}
-.g6-team-name{font-weight:bold;font-size:14px;margin-bottom:4px}
-.g6-team-stats{font-size:12px;color:var(--gold);margin-bottom:6px}
-.g6-team-members{display:flex;gap:6px;flex-wrap:wrap}
-.g6-member{display:flex;flex-direction:column;align-items:center;font-size:10px;gap:2px}
+.g6-team-name{font-weight:bold;font-size:12px;margin-bottom:2px}
+.g6-team-stats{font-size:11px;color:var(--gold);margin-bottom:4px}
+.g6-team-members{display:flex;gap:4px;flex-wrap:wrap}
+.g6-member{display:flex;flex-direction:column;align-items:center;font-size:9px;gap:1px}
 .g6-member.dead{opacity:.4;text-decoration:line-through}
-.g6-member-avatar{width:24px;height:24px;border-radius:50%}
+.g6-member-avatar{width:20px;height:20px;border-radius:50%}
 .g6-position-select{background:rgba(0,0,0,.4);border:2px solid #6b4423;border-radius:12px;padding:16px;margin-bottom:12px}
 .g6-position-select h3{text-align:center;color:var(--gold);margin:0 0 8px}
 .g6-position-team{display:flex;align-items:center;gap:8px;margin:8px 0;padding:8px;background:rgba(0,0,0,.2);border-radius:8px}
@@ -475,22 +475,24 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-pdot.red{border-color:#e74c3c;background:rgba(231,76,60,.2)}
 .g6-pdot.blue{border-color:#4a90e2;background:rgba(74,144,226,.2)}
 /* G6战斗界面 */
-.g6-combat-area{display:flex;gap:20px;align-items:center;justify-content:center;margin:15px 0;flex-wrap:wrap}
-.g6-monster-card{background:linear-gradient(135deg,#3a1010,#1a0505);border:2px solid #8b0000;border-radius:12px;padding:15px;text-align:center;min-width:140px}
-.g6-monster-icon{font-size:48px;margin-bottom:8px}
-.g6-monster-name{font-size:16px;font-weight:bold;color:#ff6666;margin-bottom:8px}
-.g6-monster-hp{background:#1a0a0a;border-radius:6px;height:20px;overflow:hidden;margin-bottom:6px;border:1px solid #5c2020}
-.g6-mhp-fill{background:linear-gradient(90deg,#ff0000,#cc0000);height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;transition:width .5s}
-.g6-monster-info{font-size:11px;color:#aa8888}
+.g6-combat-area{display:flex;gap:12px;align-items:center;justify-content:center;margin:8px 0;flex-wrap:wrap}
+.g6-monster-card{background:linear-gradient(135deg,#3a1010,#1a0505);border:2px solid #8b0000;border-radius:10px;padding:10px;text-align:center;min-width:110px}
+.g6-monster-icon{font-size:36px;margin-bottom:4px}
+.g6-monster-name{font-size:14px;font-weight:bold;color:#ff6666;margin-bottom:6px}
+.g6-monster-hp{background:#1a0a0a;border-radius:6px;height:18px;overflow:hidden;margin-bottom:4px;border:1px solid #5c2020}
+.g6-mhp-fill{background:linear-gradient(90deg,#ff0000,#cc0000);height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:bold;transition:width .5s}
+.g6-monster-info{font-size:10px;color:#aa8888}
 .g6-target-wrap{text-align:center}
-.g6-target{position:relative;width:200px;height:200px;margin:0 auto}
+.g6-target{position:relative;width:150px;height:150px;margin:0 auto}
 .g6-tsvg{width:100%;height:100%;filter:drop-shadow(0 0 10px rgba(255,0,0,.3))}
-.g6-pointer{position:absolute;top:-5px;width:4px;height:210px;background:linear-gradient(180deg,#ffd700,transparent);left:0;transition:none;z-index:10;box-shadow:0 0 8px #ffd700}
-.g6-dice-display{font-size:36px;margin-top:10px;animation:g6DiceSpin .5s ease-out}
+.g6-pointer{position:absolute;top:-4px;width:3px;height:158px;background:linear-gradient(180deg,#ffd700,transparent);left:0;transition:none;z-index:10;box-shadow:0 0 6px #ffd700}
+.g6-dice-display{font-size:28px;margin-top:6px;animation:g6DiceSpin .5s ease-out}
 @keyframes g6DiceSpin{0%{transform:rotate(0) scale(1.5)}100%{transform:rotate(360deg) scale(1)}}
-.g6-result-text{font-size:18px;font-weight:bold;margin-top:8px;min-height:24px}
-.g6-combat-log{background:rgba(0,0,0,.4);border-radius:8px;padding:8px 12px;margin:10px 0;font-size:12px;color:var(--text-dim);max-height:80px;overflow-y:auto}
-.g6-combat-log div{margin:2px 0}
+.g6-result-text{font-size:16px;font-weight:bold;margin-top:4px;min-height:20px}
+.g6-combat-log{background:rgba(0,0,0,.4);border-radius:6px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-dim);max-height:55px;overflow-y:auto}
+.g6-combat-log div{margin:1px 0}
+.g6-combat-info{font-size:13px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.g6-buttons{margin-top:8px;text-align:center;position:sticky;bottom:0;background:rgba(20,12,8,.95);padding:8px;border-radius:8px;z-index:50}
 /* G6宝箱选择 */
 .g6-chest-select{background:linear-gradient(135deg,#3a2515,#2a1810);border:2px solid #c9a227;border-radius:12px;padding:16px;margin:12px 0}
 .g6-chest-select h3{text-align:center;color:#ffd700;margin:0 0 12px 0;font-size:18px}
@@ -556,15 +558,15 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 @keyframes usableGlow{0%,100%{box-shadow:0 0 5px rgba(34,197,94,.3)}50%{box-shadow:0 0 15px rgba(34,197,94,.6)}}
 .g6-panel-slot .use-hint{font-size:10px;color:#22c55e;margin-top:2px}
 /* G6战斗技能按钮 */
-.g6-skill-buttons{margin-top:12px;padding:12px;background:rgba(0,0,0,.3);border-radius:8px;border:1px solid #444}
-.g6-skill-title{color:#ffd700;font-size:14px;font-weight:bold;margin-bottom:8px;text-align:center}
-.g6-skill-warning{color:#ff4444;font-size:12px;text-align:center;margin-bottom:8px;padding:4px;background:rgba(255,68,68,.1);border-radius:4px}
-.g6-skill-btn{display:block;width:100%;margin:4px 0;padding:8px 12px;background:rgba(0,0,0,.5);border:2px solid;border-radius:6px;text-align:left;cursor:pointer;transition:all .2s}
+.g6-skill-buttons{margin-top:6px;padding:6px 8px;background:rgba(0,0,0,.3);border-radius:8px;border:1px solid #444;max-height:180px;overflow-y:auto}
+.g6-skill-title{color:#ffd700;font-size:12px;font-weight:bold;margin-bottom:4px;text-align:center}
+.g6-skill-warning{color:#ff4444;font-size:11px;text-align:center;margin-bottom:4px;padding:3px;background:rgba(255,68,68,.1);border-radius:4px}
+.g6-skill-btn{display:block;width:100%;margin:2px 0;padding:5px 8px;background:rgba(0,0,0,.5);border:2px solid;border-radius:6px;text-align:left;cursor:pointer;transition:all .2s}
 .g6-skill-btn:hover:not(.disabled){background:rgba(255,255,255,.1);transform:translateX(4px)}
 .g6-skill-btn.disabled{opacity:.4;cursor:not-allowed}
-.g6-skill-name{font-size:14px;font-weight:bold;display:block}
-.g6-skill-desc{font-size:11px;color:var(--text-dim);display:block;margin-top:2px}
-.g6-skill-lock{font-size:10px;color:#ff4444;display:block;margin-top:2px}
+.g6-skill-name{font-size:12px;font-weight:bold;display:block}
+.g6-skill-desc{font-size:10px;color:var(--text-dim);display:block;margin-top:1px}
+.g6-skill-lock{font-size:9px;color:#ff4444;display:block;margin-top:1px}
 /* G6三叶草事件 */
 .g6-clover-event{background:linear-gradient(135deg,#1a3a1a,#0f2a0f);border:2px solid #228b22;border-radius:12px;padding:16px;margin:12px 0;text-align:center}
 .g6-clover-title{color:#32cd32;font-size:20px;font-weight:bold;margin-bottom:8px}
@@ -596,6 +598,15 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 /* G6人物面板 */
 .g6-panels{margin-top:12px}
 .g6-panel-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.g6-panels-compact .g6-char-panel{padding:6px;border-radius:8px}
+.g6-panels-compact .g6-panel-hpbar{margin-bottom:4px}
+.g6-panels-compact .g6-panel-hpbar .hp-tick{width:14px;height:16px;font-size:9px}
+.g6-panels-compact .g6-panel-body{gap:6px}
+.g6-panels-compact .g6-panel-avatar img{width:40px!important;height:40px!important}
+.g6-panels-compact .g6-panel-equips{gap:3px}
+.g6-panels-compact .g6-panel-slot{min-height:32px;padding:2px 4px;font-size:10px}
+.g6-panels-compact .g6-panel-skills{gap:3px}
+.g6-panels-compact .g6-panel-skill{padding:3px 6px;font-size:10px}
 .g6-panel-tab{padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;background:rgba(0,0,0,.3);border:1px solid #4a3520;color:var(--text-dim)}
 .g6-panel-tab.active{background:rgba(201,162,39,.2);border-color:var(--gold);color:var(--gold-light)}
 .g6-char-panel{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid #5c4033;border-radius:12px;padding:12px;position:relative}
@@ -1320,12 +1331,15 @@ function hostSkipPreGame(){
 }
 
 function hostStartActualGame(){
-  state.phase='playing';
   state.preGame=null;
   const gameId=GAMES[state.currentGame-1].id;
-  // G6最终机制播放震撼特效
+  // G6最终机制播放震撼特效（所有人可见）
   if(gameId===6){
+    state.finalBattleIntro=true;
+    broadcastState();
     playFinalBattleIntro(()=>{
+      state.finalBattleIntro=false;
+      state.phase='playing';
       if(window.G && window.G.init)window.G.init(gameId);
       broadcastState();
       document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
@@ -1334,6 +1348,7 @@ function hostStartActualGame(){
     });
     return;
   }
+  state.phase='playing';
   if(window.G && window.G.init)window.G.init(gameId);
   broadcastState();
   document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
@@ -1651,6 +1666,24 @@ function handlePlayerMsg(msg){
       renderProgress('gameProgress');
       document.getElementById('gameTitle').textContent='🎲 猜大小 — '+GAMES[state.currentGame-1].name;
       if(isHost)renderHostReconnectPanel();
+    }
+    if(state.finalBattleIntro){
+      // G5→G6最终决战特效（所有人可见）
+      if(!window._fbIntroPlaying){
+        window._fbIntroPlaying=true;
+        playFinalBattleIntro(()=>{
+          window._fbIntroPlaying=false;
+          // 特效结束后如果state已更新，立即渲染
+          if(!state.finalBattleIntro&&(state.phase==='playing'||state.phase==='coinflip'||state.phase==='skillselect')){
+            window.G.gameId=GAMES[state.currentGame-1].id;
+            if(window.G.render)window.G.render();
+            renderProgress('gameProgress');
+            document.getElementById('gameTitle').textContent=GAMES[state.currentGame-1].icon+' '+GAMES[state.currentGame-1].name;
+            if(isHost)renderHostReconnectPanel();
+          }
+        });
+      }
+      return;
     }
     if(state.phase==='playing'||state.phase==='coinflip'||state.phase==='skillselect'){
       window.G.gameId=GAMES[state.currentGame-1].id;
@@ -3978,7 +4011,8 @@ window.G.renderG6=function(){
   html+='<div class="g6-message">'+state.message+'</div>';
 
   // 人物面板（仅同队伍和主持人可见技能详情）
-  html+='<div class="g6-panels">';
+  const panelCompact=g.phase==='combat'?'g6-panels-compact':'';
+  html+='<div class="g6-panels '+panelCompact+'">';
   html+='<div class="g6-panel-tabs">';
   const visiblePlayers=Object.entries(state.players).filter(([id,p])=>{
     if(p.dead)return false;
