@@ -84,6 +84,7 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .game-topbar .info b{color:var(--gold-light)}
 .host-controls{margin-bottom:8px;text-align:center;position:relative;z-index:1000}
 #gameArea{min-height:300px}
+#gameArea.g6-active{padding-bottom:80px}
 
 /* 游戏进度条 */
 .game-progress{display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:12px;flex-wrap:wrap}
@@ -1206,7 +1207,7 @@ function hostStartNextGame(){
     if(GAMES[nextGame-1].id===6){
       const g5Winner=state.winner?state.players[state.winner]:null;
       state.firstTeam=g5Winner?g5Winner.team:'blue';
-      state.phase='playing';
+      state.finalBattleIntro=true;
       broadcastState();
       showScreen('gameScreen');
       document.getElementById('myRoleLabel').textContent='🎩 主持人';
@@ -1214,13 +1215,19 @@ function hostStartNextGame(){
       document.getElementById('hostSkipBar').classList.remove('hidden');
       setConn('online','已连接');
       document.getElementById('gameTitle').textContent=GAMES[nextGame-1].icon+' '+GAMES[nextGame-1].name;
-      // 播放G6震撼特效后初始化
-      playFinalBattleIntro(()=>{
-        if(window.G && window.G.init)window.G.init(GAMES[nextGame-1].id);
-        broadcastState();
-        if(window.G && window.G.render)window.G.render();
-        if(isHost)renderHostReconnectPanel();
-      });
+      // 播放G6震撼特效后初始化（所有人可见）
+      if(!window._fbIntroPlaying){
+        window._fbIntroPlaying=true;
+        playFinalBattleIntro(()=>{
+          window._fbIntroPlaying=false;
+          state.finalBattleIntro=false;
+          state.phase='playing';
+          if(window.G && window.G.init)window.G.init(GAMES[nextGame-1].id);
+          broadcastState();
+          if(window.G && window.G.render)window.G.render();
+          if(isHost)renderHostReconnectPanel();
+        });
+      }
       return;
     }
     // G1-G5：猜大小决定先手
@@ -2707,7 +2714,7 @@ window.G.g5CheckModals=function(){
   }catch(e){console.error('g5CheckModals error:',e);this.g5RemoveModal()}
 };
 window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
-window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');const clearBtn=isHost?'<div style="margin-top:12px;text-align:center"><button class="btn btn-small btn-purple" onclick="G.g5ClearPending()">🧹 清除卡住状态</button></div>':'';const fullHtml='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+clearBtn+'</div>';if(m&&m.dataset.title===title&&m.dataset.bodyLen===String(bodyHtml.length)&&m.style.display==='flex'){return}if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}m.innerHTML=fullHtml;m.dataset.title=title;m.dataset.bodyLen=String(bodyHtml.length);m.style.display='flex';m.style.zIndex='950'};
+window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');const clearBtn=isHost?'<div style="margin-top:12px;text-align:center"><button class="btn btn-small btn-purple" onclick="G.g5ClearPending()">🧹 清除卡住状态</button></div>':'';const fullHtml='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+clearBtn+'</div>';if(m&&m.dataset.title===title&&m.dataset.bodyLen===String(bodyHtml.length)&&m.style.display==='flex'){return}if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.body.appendChild(m)}m.innerHTML=fullHtml;m.dataset.title=title;m.dataset.bodyLen=String(bodyHtml.length);m.style.display='flex';m.style.zIndex='950'};
 window.G.g5ShowSkillSelect=function(poolKey){
   const pool=state.game.skillPools[poolKey]||[];
   let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">选择一张技能：</p>';
@@ -2725,7 +2732,7 @@ window.G.g5SelectSkill=function(sid){
   state.messageType='';
   if(window.G&&window.G.renderG5)this.renderG5();
   sendAction({type:'selectSkill',skillId:sid});
-  setTimeout(()=>{window._g5Selecting=false},2000);
+  setTimeout(()=>{window._g5Selecting=false},1000);
 };
 // 主持人看技能选择（只读）
 window.G.g5ShowSkillSelectHost=function(playerId,poolKey){
@@ -2745,7 +2752,7 @@ window.G.g5ShowDiscardSelect=function(){
   html+='</tbody></table>';
   this.g5ShowModal('📜 回收者神酿',html);
 };
-window.G.g5SelectDiscard=function(sid){if(window._g5Selecting)return;window._g5Selecting=true;this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid});setTimeout(()=>{window._g5Selecting=false},2000)};
+window.G.g5SelectDiscard=function(sid){if(window._g5Selecting)return;window._g5Selecting=true;this.g5RemoveModal();window._g5JustSelected=Date.now();sendAction({type:'selectSkill',skillId:sid});setTimeout(()=>{window._g5Selecting=false},1000)};
 // 主持人看弃牌选择（只读）
 window.G.g5ShowDiscardSelectHost=function(playerId){
   const p=state.players[playerId];
@@ -3280,6 +3287,7 @@ window.G.g5CheckDeathObj=function(p){
 };
 
 window.G.g5EndGame=function(winnerId){
+  if(!winnerId||!state.players[winnerId])return;
   state.phase='ended';state.winner=winnerId;
   let rankings=Object.entries(state.players).filter(([_,p])=>!p.dead).sort((a,b)=>b[1].pos-a[1].pos);
   // 次席预言酒：预测获胜者正确则直接成为第二名
@@ -3751,7 +3759,7 @@ window.G.renderG6=function(){
     ['red','blue'].forEach(team=>{
       html+='<div class="g6-position-team g6-team-'+team+'">';
       html+='<span>'+(team==='red'?'🔴红队':'🔵蓝队')+'</span>';
-      const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+      const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead&&p.id!==state.hostId);
       [1,2,3].forEach(pos=>{
         const posPlayer=teamMembers.find(p=>p.position===pos);
         html+='<div class="g6-position-slot">';
@@ -3770,7 +3778,7 @@ window.G.renderG6=function(){
     if(myP&&!myP.dead&&!myP.position){
       html+='<div class="g6-position-my">';
       html+='<h4>选择你的号位：</h4>';
-      const teamMembers=Object.values(state.players).filter(p=>p.team===myP.team&&!p.dead);
+      const teamMembers=Object.values(state.players).filter(p=>p.team===myP.team&&!p.dead&&p.id!==state.hostId);
       [1,2,3].forEach(pos=>{
         const taken=teamMembers.some(p=>p.position===pos);
         html+='<button class="btn '+(taken?'btn-gray':'btn-yellow')+'" '+(taken?'disabled':'onclick="sendAction({type:\'g6position\',position:'+pos+'})"')+'>'+pos+'号位'+(taken?'（已选）':'')+'</button>';
@@ -3826,7 +3834,7 @@ window.G.renderG6=function(){
   }else if(g.phase==='combat'&&g.combat){
     // 自动修复：如果attacker为null，自动选择队伍中position最小的存活玩家
     if(!g.combat.attacker||!state.players[g.combat.attacker]||state.players[g.combat.attacker].dead){
-      const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===g.combat.team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
+      const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===g.combat.team&&!p.dead&&pid!==state.hostId).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
       if(teamEntries.length>0){
         g.combat.attacker=teamEntries[0][0];
         g.combat.attackerIndex=0;
@@ -3897,7 +3905,7 @@ window.G.renderG6=function(){
     // 宝箱选择阶段
     html+='<div class="g6-chest-select">';
     html+='<h3>📦 宝箱！选择一件装备</h3>';
-    const chestMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.chestSelect.team&&!p.dead);
+    const chestMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.chestSelect.team&&!p.dead&&pid!==state.hostId);
     html+='<div class="g6-chest-status">';
     chestMembers.forEach(([pid,p])=>{
       const chosen=g.chestSelect.chosen[pid];
@@ -3959,7 +3967,7 @@ window.G.renderG6=function(){
       });
       html+='</div></div>';
     }
-    const shopMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead);
+    const shopMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead&&pid!==state.hostId);
     html+='<div class="g6-shop-status">';
     shopMembers.forEach(([pid,p])=>{
       const done=g.shop.done[pid];
@@ -4032,7 +4040,7 @@ window.G.renderG6=function(){
     html+='<div class="g6-item-drop-desc">'+dropItem.desc+'</div>';
     html+='</div>';
     html+='<div class="g6-item-drop-select"><h4>选择队员分配道具：</h4>';
-    const dropMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.itemDrop.team&&!p.dead);
+    const dropMembers=Object.entries(state.players).filter(([pid,p])=>p.team===g.itemDrop.team&&!p.dead&&pid!==state.hostId);
     dropMembers.forEach(([pid,p])=>{
       const hasSlot=!p.equipment?.some(e=>e.slot==='道具');
       html+='<button class="btn btn-small '+(hasSlot?'btn-blue':'')+'" '+(hasSlot?'onclick="sendAction({type:\'g6itemassign\',targetId:\''+pid+'\'})"':'disabled')+'>';
@@ -4051,7 +4059,7 @@ window.G.renderG6=function(){
     html+='<div class="g6-item-target-desc">'+itsItem.desc+'</div>';
     html+='<div class="g6-item-target-select"><h4>选择目标：</h4>';
     const targetPlayers=its.needAlly?
-      Object.entries(state.players).filter(([pid,p])=>p.team===state.players[its.playerId].team&&!p.dead):
+      Object.entries(state.players).filter(([pid,p])=>p.team===state.players[its.playerId].team&&!p.dead&&pid!==state.hostId):
       Object.entries(state.players).filter(([pid,p])=>!p.dead);
     targetPlayers.forEach(([pid,p])=>{
       html+='<button class="btn btn-small btn-blue" onclick="G.g6UseItem(\''+its.playerId+'\',\''+pid+'\')">';
@@ -4185,7 +4193,9 @@ window.G.renderG6=function(){
     const fxColor=fx.type==='damage'?'#ff4444':fx.type==='gold'?'#ffd700':fx.type==='heal'?'#44ff44':fx.type==='crit'?'#ff0000':fx.type==='skill'?'#a855f7':fx.type==='clover'?'#22c55e':fx.type==='debuff'?'#ef4444':'#e8c86a';
     html+='<div class="g5-fx-overlay"><div class="g5-fx-box g5-fx-'+(fx.type||'normal')+'" style="--fx-color:'+fxColor+'"><div class="g5-fx-icon" style="color:'+fxColor+'">'+fxIcon+'</div><div class="g5-fx-text" style="color:'+fxColor+'">'+fx.text+'</div><div class="g5-fx-sub">'+fx.sub+'</div></div></div>';
   }
-  document.getElementById('gameArea').innerHTML=html;
+  const ga=document.getElementById('gameArea');
+  ga.className='g6-active';
+  ga.innerHTML=html;
   this.g6RenderButtons();
   if(g.lastEffect&&isHost){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();if(window.G&&window.G.renderG6)this.renderG6()}},3500)}
 };
@@ -4356,8 +4366,8 @@ window.G.g6PositionDone=function(peerId){
   const g=state.game;
   if(g.phase!=='positionselect')return;
   if(!isHost&&peerId!==state.hostId)return;
-  // 检查所有在线存活玩家是否都选择了号位
-  const allSelected=Object.values(state.players).filter(p=>!p.dead&&p.online).every(p=>p.position);
+  // 检查所有在线存活玩家是否都选择了号位（排除主持人）
+  const allSelected=Object.values(state.players).filter(p=>!p.dead&&p.online&&p.id!==state.hostId).every(p=>p.position);
   if(!allSelected){
     state.message='还有在线玩家未选择号位';
     broadcastState();this.renderG6();
@@ -4411,7 +4421,7 @@ window.G.g6GetTurnInfo=function(){
 window.G.g6GetCurrentPlayer=function(){
   const g=state.game;
   const info=this.g6GetTurnInfo();
-  const entries=Object.entries(state.players).filter(([pid,p])=>p.team===info.team&&!p.dead);
+  const entries=Object.entries(state.players).filter(([pid,p])=>p.team===info.team&&!p.dead&&pid!==state.hostId);
   let entry=entries.find(([pid,p])=>p.position===info.position);
   if(!entry&&entries.length>0)entry=entries[0];
   return entry?{peerId:entry[0],player:entry[1]}:null;
@@ -4501,7 +4511,7 @@ window.G.g6Move=function(peerId){
 // 触发格子效果
 window.G.g6TriggerCell=function(team,route,pos,cell){
   const g=state.game;
-  const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+  const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead&&p.id!==state.hostId);
   const cellKey=route+'-'+pos;
   // 如果没有传入cell，自动获取
   if(!cell){
@@ -4649,7 +4659,7 @@ window.G.g6TriggerBoss=function(team){
   const curPlayer=G.g6GetCurrentPlayer();
   let attackerId=curPlayer&&curPlayer.player.team===team?curPlayer.peerId:null;
   if(!attackerId){
-    const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
+    const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead&&pid!==state.hostId);
     attackerId=teamEntries.length>0?teamEntries[0][0]:null;
   }
   g.combat={
@@ -4752,7 +4762,7 @@ window.G.g6ResolveCombat=function(peerId,action){
     // 角色技能：群体治疗（上靶伤害转为全体回血）
     if(c.groupHealPending&&damage>0){
       const healAmount=Math.min(damage,2);
-      const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead);
+      const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead&&p.id!==state.hostId);
       teamMembers.forEach(p=>{p.hp=Math.min(9,(p.hp||0)+healAmount)});
       log.push('💚 群体治疗：全体友方回复'+healAmount+'血');
       g.lastEffect={type:'heal',text:'群体治疗！全体+'+healAmount+'血',sub:'💚群体治疗'};
@@ -4769,7 +4779,7 @@ window.G.g6ResolveCombat=function(peerId,action){
     
     // 角色技能：植物精华（放弃伤害，回友方3血）
     if(c.plantHealPending){
-      const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead);
+      const teamMembers=Object.values(state.players).filter(p=>p.team===attacker.team&&!p.dead&&p.id!==state.hostId);
       // 选择血量最低的友方回复
       const target=teamMembers.sort((a,b)=>(a.hp||0)-(b.hp||0))[0];
       if(target){
@@ -4902,7 +4912,7 @@ window.G.g6ResolveCombat=function(peerId,action){
     log.push('🎉 '+monster.name+' 被击败！');
     // 给金币
     const team=c.team;
-    const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+    const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead&&p.id!==state.hostId);
     const goldPer=Math.ceil(monster.gold/members.length);
     members.forEach(p=>{p.gold=(p.gold||0)+goldPer});
     log.push('每人 +'+goldPer+' 金币');
@@ -4968,7 +4978,7 @@ window.G.g6ResolveCombat=function(peerId,action){
 // 简化版自动战斗（BOSS用）
 window.G.g6AutoCombat=function(team,cellKey,isDragon){
   const g=state.game;
-  const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+  const members=Object.values(state.players).filter(p=>p.team===team&&!p.dead&&p.id!==state.hostId);
   const dmg=isDragon?3:2;
   members.forEach(p=>{
     p.hp=(p.hp||0)-dmg;
@@ -5099,7 +5109,7 @@ window.G.g6ShopDone=function(peerId){
   if(!g.shop)return;
   g.shop.done[peerId]=true;
   // 检查是否当前队伍所有存活玩家都完成
-  const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead);
+  const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead&&pid!==state.hostId);
   const allDone=members.every(([pid])=>g.shop.done[pid]);
   if(allDone){
     // 雕像区起点商店：第一队买完后切换到第二队
@@ -5213,7 +5223,7 @@ window.G.g6CloverResolve=function(success){
   const g=state.game;
   if(!g.cloverEvent)return;
   const ce=g.cloverEvent;
-  const teamMembers=Object.values(state.players).filter(p=>p.team===ce.team&&!p.dead);
+  const teamMembers=Object.values(state.players).filter(p=>p.team===ce.team&&!p.dead&&p.id!==state.hostId);
   if(success){
     teamMembers.forEach(p=>{
       if(ce.reward==='gold2'){p.gold=(p.gold||0)+2}
@@ -5717,7 +5727,7 @@ window.G.g6SelectChestItem=function(peerId,itemType,itemId){
 window.G.g6CheckChestDone=function(){
   const g=state.game;
   if(!g.chestSelect)return;
-  const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.chestSelect.team&&!p.dead);
+  const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.chestSelect.team&&!p.dead&&pid!==state.hostId);
   const allDone=members.every(([pid])=>g.chestSelect.chosen[pid]);
   if(allDone){
     const chosenList=Object.entries(g.chestSelect.chosen).map(([id,name])=>state.players[id]?.name+':'+name);
@@ -5735,7 +5745,7 @@ window.G.g6EndRound=function(){
   const g=state.game;
   // 回合结束宝物效果：绷带回复血量最低的队友1点血量
   const prevTeam=g.currentTeam==='red'?'blue':'red'; // 刚结束回合的队伍
-  const prevMembers=Object.entries(state.players).filter(([pid,p])=>p.team===prevTeam&&!p.dead);
+  const prevMembers=Object.entries(state.players).filter(([pid,p])=>p.team===prevTeam&&!p.dead&&pid!==state.hostId);
   const treasureEffects=[];
   prevMembers.forEach(([pid,p])=>{
     if(!p.treasures)return;
@@ -5802,7 +5812,7 @@ window.G.g6EndRound=function(){
         const ruleTypeMap={noRedSkill:'noRedSkill',noCounter:'noCounter',missGold:'loseGold',ring1Miss:'ring1Miss',missHeal:'monsterHeal',missTeamDmg:'teamCounter'};
         if(ruleTypeMap[monster.ruleType])monster.effect=ruleTypeMap[monster.ruleType];
       }
-      const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead);
+      const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead&&p.id!==state.hostId);
       teamMembers.forEach(p=>{
         // 角色技能：隐秘身形（抵消下一次怪物攻击）
         if(p.stealthActive){
@@ -5848,7 +5858,7 @@ window.G.g6EndRound=function(){
     });
   }
   // 回合开始宝物效果
-  const currentMembers=Object.values(state.players).filter(p=>p.team===g.currentTeam&&!p.dead);
+  const currentMembers=Object.values(state.players).filter(p=>p.team===g.currentTeam&&!p.dead&&p.id!==state.hostId);
   currentMembers.forEach(p=>{
     if(!p.treasures)return;
     p.treasures.forEach(t=>{
