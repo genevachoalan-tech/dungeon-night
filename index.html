@@ -3573,7 +3573,12 @@ window.G.g6Lock=function(){
   // 计算环数：指针位置决定
   const p=this.g6Pointer;
   let ring=0;
-  if(p>=85)ring=5;
+  // 四个黑洞（上下左右），指针落在黑洞区域算脱靶
+  const holePositions=[0,25,50,75,100];
+  const inHole=holePositions.some(hp=>Math.abs(p-hp)<=2);
+  if(inHole){
+    ring=0; // 黑洞=脱靶
+  }else if(p>=85)ring=5;
   else if(p>=70)ring=4;
   else if(p>=52)ring=3;
   else if(p>=34)ring=2;
@@ -4540,56 +4545,57 @@ window.G.g6TriggerBoss=function(team){
   if(floorData.boss.type==='exit'){
     this.g6EndGame(team);return;
   }
-  // 龙BOSS
-  if(g.bossDefeated){
-    // 已击败，直接通过
+  const bossKey=g.floor===1?'dragonEgg':'redDragon';
+  const cellKey='boss-'+g.floor;
+  // 初始化全局共享BOSS血量
+  if(g.bossHp===undefined||g.bossHp===null){
+    g.bossHp=G6_MONSTERS[bossKey].hp;
+    g.bossMaxHp=G6_MONSTERS[bossKey].hp;
+    g.bossMonster={...G6_MONSTERS[bossKey],isBoss:true};
+    if(g.bossMonster.ruleType){
+      const ruleTypeMap={noRedSkill:'noRedSkill',noCounter:'noCounter',missGold:'loseGold',ring1Miss:'ring1Miss',missHeal:'monsterHeal',missTeamDmg:'teamCounter'};
+      if(ruleTypeMap[g.bossMonster.ruleType])g.bossMonster.effect=ruleTypeMap[g.bossMonster.ruleType];
+    }
+  }
+  // BOSS已被击杀
+  if(g.bossHp<=0){
     if(g.floor===1){
-      // 记录先通关的队伍（用于二层路线优先选择）
-      if(!g.firstFloorDone){
-        g.firstFloorDone=team;
-        g.secondPickTeam=team; // 先通关的队伍优先选择二层路线
-      }
+      if(!g.firstFloorDone){g.firstFloorDone=team;g.secondPickTeam=team;}
       g.floor=2;
       g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
-      g.phase='routeselect';
-      g.bossDefeated=false;
+      g.bossHp=null;g.bossMaxHp=null;g.bossMonster=null;
+      g.cellMonsters={};g.monstersDefeated={red:[],blue:[]};
       Object.values(state.players).forEach(p=>{p.floor=2});
-      state.message='🎉 进入第二层！'+(g.secondPickTeam==='red'?'红队':'蓝队')+'行动更快，优先选择路线';
+      g.phase='shop';
+      g.shop={cellKey:'start2',team:g.secondPickTeam||'red',bought:{},done:{},isStart:true};
+      state.message='🎉 第一层龙被击败！所有怪物消失，传送到二楼雕像商店！';
+      g.lastEffect={type:'dragon',text:'🐉 第一层通关！传送二楼',sub:'二楼商店开启'};
+      broadcastState();this.renderG6();
+      return;
+    }else{
+      g.combat=null;
+      state.message='🎉🎉 最终龙BOSS击败！游戏结束！';
+      g.lastEffect={type:'dragon',text:'🐉 最终龙BOSS击败！',sub:'游戏胜利'};
+      broadcastState();this.renderG6();
+      setTimeout(()=>this.g6EndGame(team),2000);
+      return;
     }
-    this.g6NextTurn();
-    return;
   }
+  // 挑战BOSS
   g.phase='combat';
-  // BOSS使用真正的战斗系统：第一层灰色龙（龙蛋），第二层红龙
-  const bossKey=g.floor===1?'dragonEgg':'redDragon';
-  const bossMonster={...G6_MONSTERS[bossKey]};
-  bossMonster.isBoss=true;
-  if(bossMonster.ruleType){
-    const ruleTypeMap={noRedSkill:'noRedSkill',noCounter:'noCounter',missGold:'loseGold',ring1Miss:'ring1Miss',missHeal:'monsterHeal',missTeamDmg:'teamCounter'};
-    if(ruleTypeMap[bossMonster.ruleType])bossMonster.effect=ruleTypeMap[bossMonster.ruleType];
-  }
-  const cellKey='boss-'+g.floor;
-  if(!g.cellMonsters)g.cellMonsters={};
-  if(!g.cellMonsters[team])g.cellMonsters[team]={};
-  g.cellMonsters[team][cellKey]=bossMonster;
-  // 当前回合玩家作为攻击者
   const curPlayer=G.g6GetCurrentPlayer();
   let attackerId=curPlayer&&curPlayer.player.team===team?curPlayer.peerId:null;
   if(!attackerId){
     const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
     attackerId=teamEntries.length>0?teamEntries[0][0]:null;
   }
-  if(!attackerId){
-    const anyAlive=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
-    if(anyAlive.length>0)attackerId=anyAlive[0][0];
-  }
   g.combat={
-    monster:bossMonster,monsterHp:bossMonster.hp,cellKey,team,
+    monster:g.bossMonster,monsterHp:g.bossHp,cellKey,team,
     attacker:attackerId,attackerIndex:0,rolling:false,resolved:false,
     ring:0,dice:0,pointer:0,crit:false,round:1,log:[],locked:false,isBoss:true
   };
-  state.message=(team==='red'?'红队':'蓝队')+'挑战🐉'+bossMonster.name+'！';
-  g.lastEffect={type:'dragon',text:'🐉 '+bossMonster.name+'出现！',sub:g.floor===1?'第一层守关BOSS':'最终BOSS'};
+  state.message=(team==='red'?'红队':'蓝队')+'挑战🐉'+g.bossMonster.name+'（剩余'+g.bossHp+'/'+g.bossMaxHp+'血）！';
+  g.lastEffect={type:'dragon',text:'🐉 '+g.bossMonster.name+'（'+g.bossHp+'/'+g.bossMaxHp+'）',sub:g.floor===1?'第一层守关BOSS':'最终BOSS'};
   broadcastState();this.renderG6();
 };
 
@@ -4854,29 +4860,24 @@ window.G.g6ResolveCombat=function(peerId,action){
       c.tamePending=false;
     }
     
-    // BOSS处理（使用isBoss标志，龙蛋isDragon=false但也是BOSS）
+    // BOSS处理：更新公共血量
     if(c.isBoss||monster.isDragon){
-      g.bossDefeated=true;
-      if(g.floor===1){
-        g.floor=2;
-        g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
-        g.phase='routeselect';
-        g.bossDefeated=false;
-        if(!g.firstFloorDone){g.firstFloorDone=c.team;g.secondPickTeam=c.team;}
-        Object.values(state.players).forEach(p=>{p.floor=2});
-        state.message='🎉 第一层通关！传送到第二层起点，'+(g.secondPickTeam==='red'?'红队':'蓝队')+'优先选择路线';
-        g.lastEffect={type:'dragon',text:'🐉 第一层龙击败！进入第二层！',sub:'第一层通关'};
+      g.bossHp=c.monsterHp;
+      if(g.bossHp<=0){
+        // BOSS被击杀，触发g6TriggerBoss处理传送
         g.combat=null;
         broadcastState();this.renderG6();
-        return; // 进入第二层路线选择，不调用g6NextTurn
-      }else{
-        state.message='🎉🎉 最终龙BOSS击败！游戏结束！';
-        g.lastEffect={type:'dragon',text:'🐉 最终龙BOSS击败！',sub:'游戏胜利'};
-        g.combat=null;
-        broadcastState();this.renderG6();
-        setTimeout(()=>this.g6EndGame(c.team),2000);
+        this.g6TriggerBoss(c.team);
         return;
+      }else{
+        // BOSS未死，当前玩家行动结束
+        state.message='🐉 '+monster.name+' 剩余'+g.bossHp+'/'+g.bossMaxHp+'血';
+        g.combat=null;
+        this.g6NextTurn();
       }
+      c.log=log;
+      broadcastState();this.renderG6();
+      return;
     }else{
       g.phase='moving';
       state.message=(c.team==='red'?'红队':'蓝队')+'击败'+monster.name+'！继续前进';
@@ -5035,24 +5036,33 @@ window.G.g6ShopDone=function(peerId){
   if(allDone){
     // 雕像区起点商店：第一队买完后切换到第二队
     if(g.shop.isStart){
-      const firstTeam=g.firstPickTeam||'red';
+      const firstTeam=g.shop.cellKey==='start2'?(g.secondPickTeam||'red'):(g.firstPickTeam||'red');
       const secondTeam=firstTeam==='red'?'blue':'red';
       if(g.shop.team===firstTeam){
         // 切换到第二队
-        g.shop={cellKey:'start', team:secondTeam, bought:{}, done:{}, isStart:true};
+        g.shop={cellKey:g.shop.cellKey, team:secondTeam, bought:{}, done:{}, isStart:true};
         state.message=(secondTeam==='red'?'红队':'蓝队')+'在雕像区购买装备';
         broadcastState();this.renderG6();
         return;
       }
-      // 第二队也买完了，开始移动
+      // 第二队也买完了
+      const isFloor2Shop=g.shop.cellKey==='start2';
       g.shop=null;
-      g.turnIndex=0;
-      g.currentTeam=firstTeam;
-      g.round=1;
-      g.phase='moving';
-      G.g6CheckTurnAction();
-      state.message='雕像区购买完成，开始探索！'+(firstTeam==='red'?'红队':'蓝队')+'先手';
-      g.lastEffect={type:'gold',text:'雕像区商店',sub:'🏛️购买完成，开始探索'};
+      if(isFloor2Shop||g.floor===2){
+        // 二楼商店完成后进入路线选择
+        g.phase='routeselect';
+        g.teamPos={red:{route:null,pos:0},blue:{route:null,pos:0}};
+        state.message='二楼雕像区购买完成，请选择路线（'+(g.secondPickTeam==='red'?'红队':'蓝队')+'优先）';
+      }else{
+        // 一楼商店完成后开始移动
+        g.turnIndex=0;
+        g.currentTeam=firstTeam;
+        g.round=1;
+        g.phase='moving';
+        G.g6CheckTurnAction();
+        state.message='雕像区购买完成，开始探索！'+(firstTeam==='red'?'红队':'蓝队')+'先手';
+      }
+      g.lastEffect={type:'gold',text:'雕像区商店',sub:'🏛️购买完成'};
       broadcastState();this.renderG6();
       return;
     }
@@ -5161,7 +5171,7 @@ window.G.g6UseSkill=function(peerId,skillIndex){
   const player=state.players[peerId];
   if(!player||c.attacker!==peerId)return;
   const skill=player.skills?.[skillIndex];
-  if(!skill||skill.used)return;
+  if(!skill||skill.used||skill.sealed)return;
   
   // 技能发动条件：必须已锁定（有环数和骰子结果）
   if(c.ring===undefined||c.dice===undefined||!c.locked){
@@ -5539,14 +5549,21 @@ window.G.g6UseItem=function(peerId,targetId){
 window.G.g6CheckDeath=function(p){
   if(p.hp<=0){
     p.life=(p.life||1)-1;
-    p.skillSlots=Math.max(1,(p.skillSlots||3)-1); // 损失一条命封印一个技能槽
+    p.skillSlots=Math.max(0,(p.skillSlots||3)-1);
     if(p.life<=0){
       p.dead=true;
       p.hp=0;p.life=0;
       state.message+=' | '+p.name+'生命耗尽，被淘汰！';
     }else{
-      p.hp=9; // 新的一条命满血
-      state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能槽-1';
+      p.hp=9;
+      // 封印一个技能槽：禁用最后一个技能
+      if(p.skills&&p.skills.length>p.skillSlots){
+        const sealed=p.skills[p.skills.length-1];
+        sealed.sealed=true;
+        state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能【'+sealed.name+'】被封印';
+      }else{
+        state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能槽-1';
+      }
     }
   }
 };
