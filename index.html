@@ -494,7 +494,7 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-combat-log{background:rgba(0,0,0,.4);border-radius:6px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-dim);max-height:55px;overflow-y:auto}
 .g6-combat-log div{margin:1px 0}
 .g6-combat-info{font-size:13px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.g6-buttons{margin-top:8px;text-align:center;position:sticky;bottom:0;background:rgba(20,12,8,.95);padding:8px;border-radius:8px;z-index:50}
+.g6-buttons{margin-top:8px;text-align:center;position:fixed;bottom:0;left:0;right:0;background:rgba(20,12,8,.95);padding:10px;border-radius:8px 8px 0 0;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.5)}
 /* G6宝箱选择 */
 .g6-chest-select{background:linear-gradient(135deg,#3a2515,#2a1810);border:2px solid #c9a227;border-radius:12px;padding:16px;margin:12px 0}
 .g6-chest-select h3{text-align:center;color:#ffd700;margin:0 0 12px 0;font-size:18px}
@@ -734,6 +734,24 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .rules-panel .rule-section:last-child{border-bottom:none}
 .game-topbar{flex-wrap:wrap}
 .host-skip-bar{text-align:center;margin:6px 0}
+/* G6手机端适配 */
+@media(max-width:768px){
+  .g6-panel-avatar{width:60px!important;height:72px!important}
+  .g6-panel-body{gap:6px!important}
+  .g6-panel-equips{grid-template-columns:repeat(2,1fr)!important;gap:4px!important}
+  .g6-panel-slot{min-height:50px!important;padding:4px!important;font-size:14px!important}
+  .g6-panel-slot .item-name{font-size:14px!important}
+  .g6-panel-skills{flex-direction:column!important}
+  .g6-panel-skill{font-size:10px!important;padding:3px 6px!important}
+  .g6-char-panel{padding:8px!important}
+  .g6-target{width:120px!important;height:120px!important}
+  .g6-combat-area{flex-direction:column!important;gap:8px!important}
+  .g6-monster-card{min-width:auto!important}
+  .fb-char img{width:40px!important;height:40px!important}
+  .fb-chars{gap:4px!important}
+  .final-battle-overlay .fb-title h1{font-size:42px!important;letter-spacing:4px!important}
+  .final-battle-overlay .fb-teams{gap:15px!important;flex-direction:column!important}
+}
 .gold-confirm-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:16px}
 .gold-confirm-box{background:linear-gradient(135deg,#2a1810,#1a0f08);border:2px solid var(--gold);border-radius:14px;padding:20px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto}
 .gold-confirm-box h3{color:var(--gold-light);text-align:center;margin-bottom:12px}
@@ -2880,6 +2898,7 @@ window.G.actionG6=function(peerId,action){
   else if(action.type==='g6shop'){this.g6ShopBuy(peerId,action.buyType,action.itemId)}
   else if(action.type==='g6shopdone'){this.g6ShopDone(peerId)}
   else if(action.type==='g6itemassign'){this.g6AssignItem(peerId,action.targetId)}
+  else if(action.type==='g6chooseitem'){this.g6ChooseItemType(peerId,action.itemType)}
   else if(action.type==='g6useitem'){this.g6UseItem(peerId,action.targetId)}
   else if(action.type==='g6skill'){this.g6UseSkill(peerId,action.skillIndex)}
   else if(action.type==='g6confirm'){this.g6ResolveCombat(peerId,{confirm:true})}
@@ -3951,10 +3970,20 @@ window.G.renderG6=function(){
     }
     html+='</div>';
   }else if(g.itemDrop){
+    // 道具掉落界面
+    if(g.itemDrop.chooseType){
+      // 选择利己/损人
+      html+='<div class="g6-item-drop">';
+      html+='<h3>🎁 怪物掉落道具！请选择类型</h3>';
+      html+='<div style="display:flex;gap:20px;justify-content:center;margin:20px 0">';
+      html+='<button class="btn btn-blue" style="font-size:18px;padding:15px 30px" onclick="sendAction({type:\'g6chooseitem\',itemType:\'self\'})">💚 利己道具</button>';
+      html+='<button class="btn btn-red" style="font-size:18px;padding:15px 30px" onclick="sendAction({type:\'g6chooseitem\',itemType:\'enemy\'})">💀 损人道具</button>';
+      html+='</div></div>';
+    }else{
     // 道具分配界面
     const dropItem=g.itemDrop.item;
     html+='<div class="g6-item-drop">';
-    html+='<h3>🎁 道具掉落！投出'+g.itemDrop.dice+'点</h3>';
+    html+='<h3>🎁 道具掉落！</h3>';
     html+='<div class="g6-item-drop-card">';
     html+='<div class="g6-item-drop-icon">'+(dropItem.icon||'📦')+'</div>';
     html+='<div class="g6-item-drop-name">'+dropItem.name+'</div>';
@@ -3971,6 +4000,7 @@ window.G.renderG6=function(){
       html+='</button>';
     });
     html+='</div></div>';
+    }
   }else if(g.itemTargetSelect){
     // 道具目标选择界面
     const its=g.itemTargetSelect;
@@ -4418,10 +4448,6 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
         broadcastState();this.renderG6();
       }
       break;
-    case 'start':
-      state.message+=' | 雕像格商店（开发中）';
-      this.g6EndTeamTurn();
-      break;
     default:
       this.g6EndTeamTurn();
   }
@@ -4455,10 +4481,33 @@ window.G.g6TriggerBoss=function(team){
     return;
   }
   g.phase='combat';
-  state.message=(team==='red'?'红队':'蓝队')+'挑战🐉龙BOSS！';
-  g.lastEffect={type:'dragon',text:'🐉 龙BOSS出现！',sub:'守关BOSS'};
+  // BOSS使用真正的战斗系统：第一层灰色龙（龙蛋），第二层红龙
+  const bossKey=g.floor===1?'dragonEgg':'redDragon';
+  const bossMonster={...G6_MONSTERS[bossKey]};
+  bossMonster.isBoss=true;
+  if(bossMonster.ruleType){
+    const ruleTypeMap={noRedSkill:'noRedSkill',noCounter:'noCounter',missGold:'loseGold',ring1Miss:'ring1Miss',missHeal:'monsterHeal',missTeamDmg:'teamCounter'};
+    if(ruleTypeMap[bossMonster.ruleType])bossMonster.effect=ruleTypeMap[bossMonster.ruleType];
+  }
+  const cellKey='boss-'+g.floor;
+  if(!g.cellMonsters)g.cellMonsters={};
+  if(!g.cellMonsters[team])g.cellMonsters[team]={};
+  g.cellMonsters[team][cellKey]=bossMonster;
+  // 选择1号位存活玩家作为攻击者
+  const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
+  let attackerId=teamEntries.length>0?teamEntries[0][0]:null;
+  if(!attackerId){
+    const anyAlive=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
+    if(anyAlive.length>0)attackerId=anyAlive[0][0];
+  }
+  g.combat={
+    monster:bossMonster,monsterHp:bossMonster.hp,cellKey,team,
+    attacker:attackerId,attackerIndex:0,rolling:false,resolved:false,
+    ring:0,dice:0,pointer:0,crit:false,round:1,log:[],locked:false,isBoss:true
+  };
+  state.message=(team==='red'?'红队':'蓝队')+'挑战🐉'+bossMonster.name+'！';
+  g.lastEffect={type:'dragon',text:'🐉 '+bossMonster.name+'出现！',sub:g.floor===1?'第一层守关BOSS':'最终BOSS'};
   broadcastState();this.renderG6();
-  setTimeout(()=>this.g6AutoCombat(team,'boss',true),2000);
 };
 
 // 战斗结算（玩家确认后）
@@ -4722,8 +4771,8 @@ window.G.g6ResolveCombat=function(peerId,action){
       c.tamePending=false;
     }
     
-    // BOSS处理
-    if(monster.isDragon){
+    // BOSS处理（使用isBoss标志，龙蛋isDragon=false但也是BOSS）
+    if(c.isBoss||monster.isDragon){
       g.bossDefeated=true;
       if(g.floor===1){
         g.floor=2;
@@ -4734,6 +4783,7 @@ window.G.g6ResolveCombat=function(peerId,action){
         Object.values(state.players).forEach(p=>{p.floor=2});
         state.message='🎉 第一层通关！传送到第二层起点，'+(g.secondPickTeam==='red'?'红队':'蓝队')+'优先选择路线';
         g.lastEffect={type:'dragon',text:'🐉 第一层龙击败！进入第二层！',sub:'第一层通关'};
+        g.combat=null;
       }else{
         state.message='🎉🎉 最终龙BOSS击败！游戏结束！';
         g.lastEffect={type:'dragon',text:'🐉 最终龙BOSS击败！',sub:'游戏胜利'};
@@ -4745,24 +4795,10 @@ window.G.g6ResolveCombat=function(peerId,action){
     }else{
       g.phase='moving';
       state.message=(c.team==='red'?'红队':'蓝队')+'击败'+monster.name+'！继续前进';
-      // 道具掉落：投骰子，单数=损人，双数=利己
-      const itemDice=1+Math.floor(Math.random()*6);
-      const isItemEven=itemDice%2===0;
-      let droppedItem=null;
-      if(isItemEven){
-        const itemKeys=Object.keys(G6_ITEMS_SELF);
-        const itemKey=itemKeys[Math.floor(Math.random()*itemKeys.length)];
-        droppedItem={...G6_ITEMS_SELF[itemKey],id:itemKey};
-      }else{
-        const itemKeys=Object.keys(G6_ITEMS_ENEMY);
-        const itemKey=itemKeys[Math.floor(Math.random()*itemKeys.length)];
-        droppedItem={...G6_ITEMS_ENEMY[itemKey],id:itemKey};
-      }
-      if(droppedItem){
-        g.itemDrop={item:droppedItem,team:c.team,dice:itemDice,assigned:null};
-        state.message+=' | 投出'+itemDice+'点，获得'+(isItemEven?'【利己】':'【损人】')+'道具：'+droppedItem.name+'（请分配给队员）';
-        log.push('道具掉落：投出'+itemDice+'点，获得'+droppedItem.name);
-      }
+      // 道具掉落：损人/利己任选其一（视频规则）
+      g.itemDrop={team:c.team,chooseType:true,assigned:null};
+      state.message+=' | 🎁 怪物掉落道具！请选择【利己】或【损人】道具';
+      log.push('道具掉落：可选择利己或损人道具');
     }
     g.combat=null;
   }else{
@@ -4946,6 +4982,22 @@ window.G.g6ShopDone=function(peerId){
     state.message=state.players[peerId].name+' 完成购买，等待其他玩家';
     broadcastState();this.renderG6();
   }
+};
+
+// 选择掉落道具类型（利己/损人）
+window.G.g6ChooseItemType=function(peerId,itemType){
+  const g=state.game;
+  if(!g.itemDrop||!g.itemDrop.chooseType)return;
+  const player=state.players[peerId];
+  if(!player||player.team!==g.itemDrop.team)return;
+  // 随机选择一个该类型的道具
+  const pool=itemType==='self'?G6_ITEMS_SELF:G6_ITEMS_ENEMY;
+  const keys=Object.keys(pool);
+  const itemKey=keys[Math.floor(Math.random()*keys.length)];
+  const item={...pool[itemKey],id:itemKey};
+  g.itemDrop={item,team:g.itemDrop.team,assigned:null};
+  state.message=(g.itemDrop.team==='red'?'红队':'蓝队')+'选择了'+(itemType==='self'?'【利己】':'【损人】')+'道具：'+item.name+'（请分配给队员）';
+  broadcastState();this.renderG6();
 };
 
 // 道具分配给队员
