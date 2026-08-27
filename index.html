@@ -3614,6 +3614,7 @@ window.G.initG6=function(){
     round:1,
     phase:'positionselect', // positionselect/routeselect/moving/combat/shop/event
     currentTeam:'red', // 当前行动队伍
+    turnIndex:0, // 0=红1,1=蓝1,2=红2,3=蓝2,4=红3,5=蓝3
     combat:null,
     shop:null,
     event:null,
@@ -3670,7 +3671,10 @@ window.G.renderG6=function(){
   html+='<div class="g6-header"><span class="g6-title">🐉 最终机制</span>';
   html+='<span class="g6-floor-badge">第'+g.floor+'层</span>';
   html+='<span class="g6-round">第'+g.round+'轮</span>';
-  if(g.phase!=='routeselect')html+='<span class="g6-team-turn g6-'+g.currentTeam+'">'+(g.currentTeam==='red'?'🔴红队行动':'🔵蓝队行动')+'</span>';
+  if(g.phase!=='routeselect'&&g.phase!=='positionselect'){
+    const _cur=G.g6GetCurrentPlayer();
+    if(_cur)html+='<span class="g6-team-turn g6-'+_cur.player.team+'">'+(_cur.player.team==='red'?'🔴':'🔵')+_cur.player.name+'('+_cur.player.position+'号位)行动</span>';
+  }
   html+='</div>';
   // 我的状态
   if(myP&&!myP.dead){
@@ -4231,9 +4235,14 @@ window.G.g6RenderButtons=function(){
   const myP=state.players[myPeerId];
   if(!myP||myP.dead){btns.innerHTML='';return}
   if(g.phase==='positionselect'||g.phase==='routeselect'){btns.innerHTML='';return}
-  if(myP.team!==g.currentTeam){btns.innerHTML='<span style="color:var(--text-dim)">等待'+(g.currentTeam==='red'?'红队':'蓝队')+'行动...</span>';return}
+  const curPlayer=G.g6GetCurrentPlayer();
+  const curName=curPlayer?curPlayer.player.name:'';
   if(g.phase==='moving'){
-    btns.innerHTML='<button class="btn" onclick="sendAction({type:\'g6move\'})">🚶 队伍前进1格</button>';
+    if(curPlayer&&curPlayer.peerId===myPeerId){
+      btns.innerHTML='<button class="btn" onclick="sendAction({type:\'g6move\'})">🚶 全队前进1格</button>';
+    }else{
+      btns.innerHTML='<span style="color:var(--text-dim)">等待 '+curName+' 移动...</span>';
+    }
   }else if(g.phase==='combat'){
     const c=g.combat;
     if(c.attacker===myPeerId&&!c.resolved){
@@ -4250,6 +4259,8 @@ window.G.g6RenderButtons=function(){
       const attacker=state.players[c.attacker];
       btns.innerHTML='<span style="color:var(--text-dim)">等待'+(attacker?attacker.name:'')+(c.locked?'确认结算':'投骰')+'...</span>';
     }
+  }else if(g.phase==='shop'||g.phase==='chest'||g.phase==='clover'||g.phase==='itemDrop'){
+    btns.innerHTML='';
   }else{
     btns.innerHTML='';
   }
@@ -4322,13 +4333,84 @@ window.G.g6SelectRoute=function(peerId,route){
   broadcastState();this.renderG6();
 };
 
+// 获取当前turnIndex对应的队伍和号位
+window.G.g6GetTurnInfo=function(){
+  const g=state.game;
+  const idx=g.turnIndex||0;
+  const team=idx%2===0?'red':'blue';
+  const position=Math.floor(idx/2)+1;
+  return {team,position,idx};
+};
+
+window.G.g6GetCurrentPlayer=function(){
+  const g=state.game;
+  const info=this.g6GetTurnInfo();
+  const entries=Object.entries(state.players).filter(([pid,p])=>p.team===info.team&&!p.dead);
+  let entry=entries.find(([pid,p])=>p.position===info.position);
+  if(!entry&&entries.length>0)entry=entries[0];
+  return entry?{peerId:entry[0],player:entry[1]}:null;
+};
+
+window.G.g6NextTurn=function(){
+  const g=state.game;
+  g.turnIndex=(g.turnIndex||0)+1;
+  if(g.turnIndex>=6){
+    g.turnIndex=0;
+    g.round=(g.round||1)+1;
+  }
+  const info=this.g6GetTurnInfo();
+  g.currentTeam=info.team;
+  if(g.turnIndex===0)this.g6EndRound();
+  this.g6CheckTurnAction();
+  broadcastState();this.renderG6();
+};
+
+window.G.g6CheckTurnAction=function(){
+  const g=state.game;
+  if(g.phase==='shop'||g.phase==='chest'||g.phase==='clover'||g.phase==='itemDrop'||g.itemDrop||g.cloverEvent||g.chestSelect)return;
+  const current=this.g6GetCurrentPlayer();
+  if(!current){this.g6NextTurn();return;}
+  const team=current.player.team;
+  const tp=g.teamPos[team];
+  if(!tp||!tp.route)return;
+  const floorData=g.floor===1?G6_FLOOR1:G6_FLOOR2;
+  const routeData=tp.route==='top'?floorData.top:floorData.bottom;
+  const cell=routeData[tp.pos];
+  if(cell&&cell.type==='monster'){
+    const cellKey=tp.route+'-'+tp.pos;
+    if(!g.monstersDefeated[team]?.includes(cellKey)){
+      let monster=g.cellMonsters?.[team]?.[cellKey];
+      if(monster&&monster.hp>0){
+        g.phase='combat';
+        g.combat={monster,monsterHp:monster.hp,cellKey,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false};
+        state.message='⚔️ '+current.player.name+'（'+current.player.position+'号位）攻击'+monster.name+'（剩余'+monster.hp+'血）';
+        return;
+      }
+    }
+  }
+  if(tp.pos>=routeData.length){
+    if(!g.bossDefeated){
+      let bossMonster=g.cellMonsters?.[team]?.['boss-'+g.floor];
+      if(bossMonster&&bossMonster.hp>0){
+        g.phase='combat';
+        g.combat={monster:bossMonster,monsterHp:bossMonster.hp,cellKey:'boss-'+g.floor,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false,isBoss:true};
+        state.message='⚔️ '+current.player.name+' 攻击'+bossMonster.name;
+        return;
+      }
+    }
+  }
+  g.phase='moving';
+  state.message='🎲 '+current.player.name+'（'+current.player.position+'号位）的回合，点击前进';
+};
+
 // 队伍移动
 window.G.g6Move=function(peerId){
   const p=state.players[peerId];const g=state.game;
-  if(p.team!==g.currentTeam||g.phase!=='moving')return;
-  // 防重复点击：1秒内只能移动一次
-  if(g._lastMoveTime&&Date.now()-g._lastMoveTime<1000)return;
-  g._lastMoveTime=Date.now();
+  const current=this.g6GetCurrentPlayer();
+  if(!current||current.peerId!==peerId||g.phase!=='moving')return;
+  if(!g._moveCooldown)g._moveCooldown={};
+  if(g._moveCooldown[peerId]&&Date.now()-g._moveCooldown[peerId]<1000)return;
+  g._moveCooldown[peerId]=Date.now();
   const team=p.team;
   const tp=g.teamPos[team];
   if(!tp.route)return;
@@ -4370,11 +4452,12 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
       members.forEach(p=>{p.hp=Math.min(9,(p.hp||0)+(g.floor===1?2:3))});
       g.lastEffect={type:'heal',text:(team==='red'?'红队':'蓝队')+'每人+'+(g.floor===1?2:3)+'血',sub:'💧泉水'};
       state.message+=' | 泉水回复'+(g.floor===1?2:3)+'血';
-      this.g6EndTeamTurn();
+      this.g6NextTurn();
       break;
     case 'chest':
       // 宝箱：每人获得一件装备，玩家任选一件（必须是面板上能装备的）
       g.chestSelect={cellKey, team, chosen:{}};
+      g.phase='chest';
       state.message+=' | 📦 宝箱！请每人选择一件装备';
       // 检查是否所有存活玩家都已选择
       this.g6CheckChestDone();
@@ -4390,6 +4473,7 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
           const randomPlayer=randomEntry[1];
           const event=G6_CLOVER_EVENTS[randomPlayer.character];
           g.cloverEvent={...event,playerId:randomPlayerId,cellKey,team,resolved:false,teamEvent:true};
+          g.phase='clover';
           state.message+=' | 🍀 三叶草事件！'+(team==='red'?'红队':'蓝队')+'三人一起表演，等待主持人判定';
           g.lastEffect={type:'clover',text:(team==='red'?'红队':'蓝队')+'触发三叶草事件！',sub:'🍀'+event.name};
           broadcastState();this.renderG6();
@@ -4398,12 +4482,12 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
       }else{
         state.message+=' | 三叶草事件已触发过';
       }
-      this.g6EndTeamTurn();
+      this.g6NextTurn();
       break;
     case 'monster':
       if(g.monstersDefeated[team].includes(cellKey)){
         state.message+=' | 怪兽已被击败，可通过';
-        this.g6EndTeamTurn();
+        this.g6NextTurn();
       }else{
         g.phase='combat';
         // 随机选择怪物
@@ -4417,15 +4501,10 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
         if(!g.cellMonsters)g.cellMonsters={};
         if(!g.cellMonsters[team])g.cellMonsters[team]={};
         g.cellMonsters[team][cellKey]=monster;
-        // 选择当前队伍1号位存活玩家作为攻击者（按position顺序）
-        const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
-        let attackerId=teamEntries.length>0?teamEntries[0][0]:null;
-        let attacker=attackerId?state.players[attackerId]:null;
-        // 容错：如果没有找到攻击者，选择任意存活玩家
-        if(!attackerId){
-          const anyAlive=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
-          if(anyAlive.length>0){attackerId=anyAlive[0][0];attacker=state.players[attackerId];}
-        }
+        // 当前回合玩家作为攻击者
+        const current=this.g6GetCurrentPlayer();
+        const attackerId=current?current.peerId:null;
+        const attacker=current?current.player:null;
         g.combat={
           monster:monster,
           monsterHp:monster.hp,
@@ -4449,7 +4528,7 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
       }
       break;
     default:
-      this.g6EndTeamTurn();
+      this.g6NextTurn();
   }
   broadcastState();this.renderG6();
 };
@@ -4477,7 +4556,7 @@ window.G.g6TriggerBoss=function(team){
       Object.values(state.players).forEach(p=>{p.floor=2});
       state.message='🎉 进入第二层！'+(g.secondPickTeam==='red'?'红队':'蓝队')+'行动更快，优先选择路线';
     }
-    this.g6EndTeamTurn();
+    this.g6NextTurn();
     return;
   }
   g.phase='combat';
@@ -4493,9 +4572,13 @@ window.G.g6TriggerBoss=function(team){
   if(!g.cellMonsters)g.cellMonsters={};
   if(!g.cellMonsters[team])g.cellMonsters[team]={};
   g.cellMonsters[team][cellKey]=bossMonster;
-  // 选择1号位存活玩家作为攻击者
-  const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
-  let attackerId=teamEntries.length>0?teamEntries[0][0]:null;
+  // 当前回合玩家作为攻击者
+  const curPlayer=G.g6GetCurrentPlayer();
+  let attackerId=curPlayer&&curPlayer.player.team===team?curPlayer.peerId:null;
+  if(!attackerId){
+    const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
+    attackerId=teamEntries.length>0?teamEntries[0][0]:null;
+  }
   if(!attackerId){
     const anyAlive=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead);
     if(anyAlive.length>0)attackerId=anyAlive[0][0];
@@ -4784,6 +4867,8 @@ window.G.g6ResolveCombat=function(peerId,action){
         state.message='🎉 第一层通关！传送到第二层起点，'+(g.secondPickTeam==='red'?'红队':'蓝队')+'优先选择路线';
         g.lastEffect={type:'dragon',text:'🐉 第一层龙击败！进入第二层！',sub:'第一层通关'};
         g.combat=null;
+        broadcastState();this.renderG6();
+        return; // 进入第二层路线选择，不调用g6NextTurn
       }else{
         state.message='🎉🎉 最终龙BOSS击败！游戏结束！';
         g.lastEffect={type:'dragon',text:'🐉 最终龙BOSS击败！',sub:'游戏胜利'};
@@ -4795,23 +4880,16 @@ window.G.g6ResolveCombat=function(peerId,action){
     }else{
       g.phase='moving';
       state.message=(c.team==='red'?'红队':'蓝队')+'击败'+monster.name+'！继续前进';
-      // 道具掉落：损人/利己任选其一（视频规则）
       g.itemDrop={team:c.team,chooseType:true,assigned:null};
+      g.phase='itemDrop';
       state.message+=' | 🎁 怪物掉落道具！请选择【利己】或【损人】道具';
       log.push('道具掉落：可选择利己或损人道具');
     }
     g.combat=null;
+    this.g6NextTurn();
   }else{
-    // 怪物未死，切换到下一个攻击者（按1/2/3号位顺序）
-    const teamEntries=Object.entries(state.players).filter(([pid,p])=>p.team===c.team&&!p.dead).sort((a,b)=>(a[1].position||99)-(b[1].position||99));
-    const currentIdx=teamEntries.findIndex(([pid])=>pid===c.attacker);
-    const nextIdx=currentIdx<0?0:(currentIdx+1)%teamEntries.length;
-    c.attackerIndex=nextIdx;
-    c.attacker=teamEntries[nextIdx][0];
-    c.resolved=false;c.rolling=false;c.locked=false;
-    c.ring=0;c.dice=0;c.pointer=0;c.crit=false;
-    log.push('轮到 '+teamEntries[nextIdx][1].name+'（'+(teamEntries[nextIdx][1].position||'?')+'号位）攻击');
-    state.message='⚔️ '+monster.name+' 剩余'+c.monsterHp+'血，'+teamEntries[nextIdx][1].name+'（'+(teamEntries[nextIdx][1].position||'?')+'号位）投骰';
+    g.combat=null;
+    this.g6NextTurn();
   }
   
   c.log=log;
@@ -4852,7 +4930,7 @@ window.G.g6AutoCombat=function(team,cellKey,isDragon){
     }
   }
   g.phase=g.phase==='routeselect'?'routeselect':'moving';
-  this.g6EndTeamTurn();
+  this.g6NextTurn();
 };
 
 // 商店购买
@@ -4968,8 +5046,11 @@ window.G.g6ShopDone=function(peerId){
       }
       // 第二队也买完了，开始移动
       g.shop=null;
-      g.phase='moving';
+      g.turnIndex=0;
       g.currentTeam=firstTeam;
+      g.round=1;
+      g.phase='moving';
+      G.g6CheckTurnAction();
       state.message='雕像区购买完成，开始探索！'+(firstTeam==='red'?'红队':'蓝队')+'先手';
       g.lastEffect={type:'gold',text:'雕像区商店',sub:'🏛️购买完成，开始探索'};
       broadcastState();this.renderG6();
@@ -4977,7 +5058,7 @@ window.G.g6ShopDone=function(peerId){
     }
     g.lastEffect={type:'gold',text:(g.shop.team==='red'?'红队':'蓝队')+'商店购买完成',sub:'🏛️商店'};
     g.shop=null;
-    this.g6EndTeamTurn();
+    this.g6NextTurn();
   }else{
     state.message=state.players[peerId].name+' 完成购买，等待其他玩家';
     broadcastState();this.renderG6();
@@ -4996,6 +5077,7 @@ window.G.g6ChooseItemType=function(peerId,itemType){
   const itemKey=keys[Math.floor(Math.random()*keys.length)];
   const item={...pool[itemKey],id:itemKey};
   g.itemDrop={item,team:g.itemDrop.team,assigned:null};
+  g.phase='itemDrop';
   state.message=(g.itemDrop.team==='red'?'红队':'蓝队')+'选择了'+(itemType==='self'?'【利己】':'【损人】')+'道具：'+item.name+'（请分配给队员）';
   broadcastState();this.renderG6();
 };
@@ -5016,7 +5098,8 @@ window.G.g6AssignItem=function(peerId,targetId){
   state.message=target.name+' 获得道具：'+g.itemDrop.item.name;
   g.lastEffect={type:'item',text:target.name+'获得'+g.itemDrop.item.name,sub:'🎁道具'};
   g.itemDrop=null;
-  this.g6EndTeamTurn();
+  g.phase='moving';
+  this.g6NextTurn();
 };
 
 // 道具使用提示（选择目标）
@@ -5066,7 +5149,8 @@ window.G.g6CloverResolve=function(success){
     g.lastEffect={type:'info',text:(ce.team==='red'?'红队':'蓝队')+'三叶草表演未通过',sub:'🍀失败'};
   }
   g.cloverEvent=null;
-  this.g6EndTeamTurn();
+  g.phase='moving';
+  this.g6NextTurn();
 };
 
 // 使用技能
@@ -5546,17 +5630,18 @@ window.G.g6CheckChestDone=function(){
     const chosenList=Object.entries(g.chestSelect.chosen).map(([id,name])=>state.players[id]?.name+':'+name);
     g.lastEffect={type:'treasure',text:(g.chestSelect.team==='red'?'红队':'蓝队')+'宝箱选择完成！',sub:'📦 '+chosenList.join('、')};
     g.chestSelect=null;
-    this.g6EndTeamTurn();
+    g.phase='moving';
+    this.g6NextTurn();
   }else{
     broadcastState();this.renderG6();
   }
 };
 
-// 结束队伍回合，切换到另一队
-window.G.g6EndTeamTurn=function(){
+// 大回合结束：宝物效果、灼烧、怪物主动攻击
+window.G.g6EndRound=function(){
   const g=state.game;
   // 回合结束宝物效果：绷带回复血量最低的队友1点血量
-  const prevTeam=g.currentTeam;
+  const prevTeam=g.currentTeam==='red'?'blue':'red'; // 刚结束回合的队伍
   const prevMembers=Object.entries(state.players).filter(([pid,p])=>p.team===prevTeam&&!p.dead);
   const treasureEffects=[];
   prevMembers.forEach(([pid,p])=>{
@@ -5573,9 +5658,8 @@ window.G.g6EndTeamTurn=function(){
       }
     });
   });
-  g.currentTeam=g.currentTeam==='red'?'blue':'red';
-  if(g.currentTeam==='red'){
-    g.round++;
+  // 大回合结束效果
+  {
     // 大回合结束：火球术灼烧伤害
     const burnEffects=[];
     ['red','blue'].forEach(team=>{
@@ -5692,7 +5776,7 @@ window.G.g6EndTeamTurn=function(){
   const blueAlive=Object.values(state.players).some(p=>p.team==='blue'&&!p.dead);
   if(!redAlive){this.g6EndGame('blue');return}
   if(!blueAlive){this.g6EndGame('red');return}
-  state.message+=' | '+(g.currentTeam==='red'?'红队':'蓝队')+'回合';
+  state.message='第'+g.round+'大回合开始，'+(g.currentTeam==='red'?'红队':'蓝队')+'先行动';
   if(treasureEffects.length>0)state.message+=' | '+treasureEffects.join('、');
   broadcastState();this.renderG6();
 };
