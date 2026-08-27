@@ -2638,34 +2638,47 @@ window.G.g5CheckModals=function(){
   const g=state.game;
   // 防重复弹窗：仅在pending状态（非初始技能选择）时检查，玩家刚点击选择后1秒内不重复弹出
   if(state.phase!=='skillselect'&&window._g5JustSelected&&Date.now()-window._g5JustSelected<1000)return;
+  // 优先处理需要当前玩家操作的pending状态（即使在技能选择阶段）
+  if(g.pendingWinnerPrediction&&g.pendingWinnerPrediction.playerId===myPeerId&&!isHost){
+    this.g5ShowWinnerPrediction();return;
+  }
+  if(g.pendingLeaderCopy&&g.pendingLeaderCopy.playerId===myPeerId&&!isHost){
+    this.g5ShowLeaderCopy();return;
+  }
+  if(g.pendingTargetChoice&&g.pendingTargetChoice.playerId===myPeerId&&!isHost){
+    this.g5ShowTargetChoice();return;
+  }
+  if(g.pendingPrediction&&g.pendingPrediction.playerId===myPeerId&&!isHost){
+    this.g5ShowPrediction();return;
+  }
+  if(g.pendingSkillChoice&&g.pendingSkillChoice.playerId===myPeerId&&!isHost){
+    this.g5ShowDiscardSelect();return;
+  }
+  if(g.pendingSkillChange&&g.pendingSkillChange.playerId===myPeerId&&!isHost){
+    this.g5ShowSkillSelect(g.pendingSkillChange.poolKey);return;
+  }
   if(state.phase==='skillselect'){
     const selector=state.turnOrder[state.skillSelectIndex||0];
     if(selector===myPeerId&&!isHost)this.g5ShowSkillSelect(g.skillPoolKey||0);
     else if(isHost)this.g5ShowSkillSelectHost(selector,g.skillPoolKey||0);
     else this.g5RemoveModal();
   }else if(g.pendingSkillChange){
-    if(g.pendingSkillChange.playerId===myPeerId&&!isHost)this.g5ShowSkillSelect(g.pendingSkillChange.poolKey);
-    else if(isHost)this.g5ShowSkillSelectHost(g.pendingSkillChange.playerId,g.pendingSkillChange.poolKey);
+    if(isHost)this.g5ShowSkillSelectHost(g.pendingSkillChange.playerId,g.pendingSkillChange.poolKey);
     else this.g5RemoveModal();
   }else if(g.pendingSkillChoice){
-    if(g.pendingSkillChoice.playerId===myPeerId&&!isHost)this.g5ShowDiscardSelect();
-    else if(isHost)this.g5ShowDiscardSelectHost(g.pendingSkillChoice.playerId);
+    if(isHost)this.g5ShowDiscardSelectHost(g.pendingSkillChoice.playerId);
     else this.g5RemoveModal();
   }else if(g.pendingTargetChoice){
-    if(g.pendingTargetChoice.playerId===myPeerId&&!isHost)this.g5ShowTargetChoice();
-    else if(isHost)this.g5ShowTargetChoiceHost(g.pendingTargetChoice.playerId,g.pendingTargetChoice.skillId);
+    if(isHost)this.g5ShowTargetChoiceHost(g.pendingTargetChoice.playerId,g.pendingTargetChoice.skillId);
     else this.g5RemoveModal();
   }else if(g.pendingPrediction){
-    if(g.pendingPrediction.playerId===myPeerId&&!isHost)this.g5ShowPrediction();
-    else if(isHost)this.g5ShowPredictionHost(g.pendingPrediction.playerId);
+    if(isHost)this.g5ShowPredictionHost(g.pendingPrediction.playerId);
     else this.g5RemoveModal();
   }else if(g.pendingWinnerPrediction){
-    if(g.pendingWinnerPrediction.playerId===myPeerId&&!isHost)this.g5ShowWinnerPrediction();
-    else if(isHost)this.g5ShowWinnerPredictionHost(g.pendingWinnerPrediction.playerId);
+    if(isHost)this.g5ShowWinnerPredictionHost(g.pendingWinnerPrediction.playerId);
     else this.g5RemoveModal();
   }else if(g.pendingLeaderCopy){
-    if(g.pendingLeaderCopy.playerId===myPeerId&&!isHost)this.g5ShowLeaderCopy();
-    else if(isHost)this.g5ShowLeaderCopyHost(g.pendingLeaderCopy.playerId);
+    if(isHost)this.g5ShowLeaderCopyHost(g.pendingLeaderCopy.playerId);
     else this.g5RemoveModal();
   }else this.g5RemoveModal();
 };
