@@ -489,6 +489,8 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-dice-display{font-size:28px;margin-top:6px;animation:g6DiceSpin .5s ease-out}
 @keyframes g6DiceSpin{0%{transform:rotate(0) scale(1.5)}100%{transform:rotate(360deg) scale(1)}}
 .g6-result-text{font-size:16px;font-weight:bold;margin-top:4px;min-height:20px}
+.g6-aim-ring{font-size:14px;font-weight:bold;margin-top:4px;animation:pulse 0.5s ease-in-out infinite alternate}
+@keyframes pulse{0%{opacity:.7}100%{opacity:1}}
 .g6-combat-log{background:rgba(0,0,0,.4);border-radius:6px;padding:6px 10px;margin:6px 0;font-size:11px;color:var(--text-dim);max-height:55px;overflow-y:auto}
 .g6-combat-log div{margin:1px 0}
 .g6-combat-info{font-size:13px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -3429,21 +3431,35 @@ window.G.g6Rolling=false;window.G.g6Pointer=0;window.G.g6Dir=1;window.G.g6Timer=
 window.G.g6TargetHTML=function(combat){
   if(!combat)return '';
   const c=combat;
-  let pointerStyle='';
+  // 指针角度：0-360度旋转
+  let pointerAngle=0;
   let diceContent='🎲';
   let resultText='';
-  if(c.rolling){
-    pointerStyle=`left:${c.pointer||0}%`;
-  }else if(c.resolved){
-    pointerStyle=`left:${c.pointer||0}%`;
+  let currentRing=-1;
+  if(c.rolling||c.resolved){
+    // 将pointer(0-100)映射到角度(0-360)
+    pointerAngle=(c.pointer||0)*3.6;
+    // 计算当前环数（和锁定逻辑一致）
+    const p=c.pointer||0;
+    if(p>=85)currentRing=5;
+    else if(p>=70)currentRing=4;
+    else if(p>=52)currentRing=3;
+    else if(p>=34)currentRing=2;
+    else if(p>=16)currentRing=1;
+    else currentRing=0;
+  }
+  if(c.resolved){
     diceContent=['⚀','⚁','⚂','⚃','⚄','⚅'][c.dice-1];
     if(c.ring===0){
-      resultText='<span style="color:#ff4444">脱靶！</span>';
+      resultText='<span style="color:#ff4444;font-size:20px">脱靶！</span>';
     }else{
-      resultText=`<span style="color:#ffd700">${c.ring}环</span>`;
-      if(c.crit)resultText+=' <span style="color:#ff0000">💥暴击！</span>';
+      resultText=`<span style="color:#ffd700;font-size:20px">${c.ring}环</span>`;
+      if(c.crit)resultText+=' <span style="color:#ff0000;font-size:18px">💥暴击！</span>';
     }
   }
+  // 环数高亮颜色
+  const ringColors=['','rgba(255,100,100,0.3)','rgba(255,180,100,0.3)','rgba(255,220,80,0.3)','rgba(180,255,100,0.3)','rgba(255,215,0,0.5)'];
+  const ringStroke=['','#ff6666','#ffb464','#ffdc50','#b4ff64','#ffd700'];
   return `<div class="g6-combat-area">
     <div class="g6-monster-card">
       <div class="g6-monster-icon">${c.monster.icon}</div>
@@ -3455,23 +3471,38 @@ window.G.g6TargetHTML=function(combat){
       ${c.attackerWeapon ? `<div class="g6-weapon-req">⚔️ ${c.attackerWeapon.name} +${c.attackerWeapon.bonus}<br><span style="font-size:11px;color:#ffd700">${c.attackerWeapon.desc}</span></div>` : ''}
       <div class="g6-target">
         <svg viewBox="0 0 200 200" class="g6-tsvg">
-          <circle cx="100" cy="100" r="95" fill="#1a0a0a" stroke="#8b0000" stroke-width="2"/>
-          <circle cx="100" cy="100" r="80" fill="#2a1515" stroke="#a00" stroke-width="1"/>
-          <circle cx="100" cy="100" r="65" fill="#3a1a1a" stroke="#c00" stroke-width="1"/>
-          <circle cx="100" cy="100" r="50" fill="#4a2020" stroke="#e00" stroke-width="1"/>
-          <circle cx="100" cy="100" r="35" fill="#5a2525" stroke="#ff3333" stroke-width="1"/>
-          <circle cx="100" cy="100" r="20" fill="#6a2a2a" stroke="#ff5555" stroke-width="1"/>
-          <circle cx="100" cy="100" r="8" fill="#ffd700" stroke="#ffaa00" stroke-width="2"/>
-          <text x="100" y="104" text-anchor="middle" fill="#000" font-size="10" font-weight="bold">5</text>
-          <text x="100" y="75" text-anchor="middle" fill="#aaa" font-size="9">4</text>
-          <text x="100" y="55" text-anchor="middle" fill="#999" font-size="9">3</text>
-          <text x="100" y="38" text-anchor="middle" fill="#888" font-size="9">2</text>
-          <text x="100" y="22" text-anchor="middle" fill="#777" font-size="9">1</text>
+          <!-- 外圈圆形 1环 -->
+          <circle cx="100" cy="100" r="95" fill="${currentRing===1?ringColors[1]:'#8b4513'}" stroke="${currentRing===1?ringStroke[1]:'#5c2a0a'}" stroke-width="2"/>
+          <!-- 方形 2环 -->
+          <rect x="30" y="30" width="140" height="140" fill="${currentRing===2?ringColors[2]:'#d4c5a0'}" stroke="${currentRing===2?ringStroke[2]:'#8b7355'}" stroke-width="1.5" transform="rotate(0,100,100)"/>
+          <!-- 菱形 3环 -->
+          <polygon points="100,20 180,100 100,180 20,100" fill="${currentRing===3?ringColors[3]:'#5c3a1e'}" stroke="${currentRing===3?ringStroke[3]:'#3a2010'}" stroke-width="1.5"/>
+          <!-- 方形 4环 -->
+          <rect x="55" y="55" width="90" height="90" fill="${currentRing===4?ringColors[4]:'#e8dcc0'}" stroke="${currentRing===4?ringStroke[4]:'#a08060'}" stroke-width="1.5" transform="rotate(45,100,100)"/>
+          <!-- 中心圆 5环 -->
+          <circle cx="100" cy="100" r="22" fill="${currentRing===5?ringColors[5]:'#c9a227'}" stroke="${currentRing===5?ringStroke[5]:'#8b6914'}" stroke-width="2"/>
+          <!-- 数字标注 -->
+          <text x="100" y="106" text-anchor="middle" fill="#000" font-size="16" font-weight="bold">5</text>
+          <text x="100" y="72" text-anchor="middle" fill="#3a2010" font-size="14" font-weight="bold">4</text>
+          <text x="100" y="40" text-anchor="middle" fill="#d4c5a0" font-size="13" font-weight="bold">3</text>
+          <text x="100" y="18" text-anchor="middle" fill="#d4c5a0" font-size="12" font-weight="bold">2</text>
+          <text x="100" y="8" text-anchor="middle" fill="#ffd700" font-size="10" font-weight="bold">1</text>
+          <!-- 四个固定黑点 -->
+          <circle cx="100" cy="8" r="5" fill="#1a0a0a"/>
+          <circle cx="100" cy="192" r="5" fill="#1a0a0a"/>
+          <circle cx="8" cy="100" r="5" fill="#1a0a0a"/>
+          <circle cx="192" cy="100" r="5" fill="#1a0a0a"/>
+          <!-- 旋转指针 -->
+          <g transform="rotate(${pointerAngle},100,100)" style="transition:${c.rolling?'none':'transform .1s'}">
+            <line x1="100" y1="100" x2="100" y2="12" stroke="#ffd700" stroke-width="3" stroke-linecap="round" filter="drop-shadow(0 0 4px #ffd700)"/>
+            <circle cx="100" cy="100" r="6" fill="#ffd700" stroke="#8b6914" stroke-width="2"/>
+            <polygon points="100,8 95,18 105,18" fill="#ff4444" stroke="#aa0000" stroke-width="1"/>
+          </g>
         </svg>
-        <div class="g6-pointer" style="${pointerStyle}"></div>
       </div>
       <div class="g6-dice-display">${diceContent}</div>
       <div class="g6-result-text">${resultText}</div>
+      ${c.rolling?'<div class="g6-aim-ring" style="color:'+(currentRing>0?ringStroke[currentRing]:'#ff4444')+'">瞄准：'+(currentRing>0?currentRing+'环':'脱靶区')+'</div>':''}
     </div>
   </div>`;
 };
@@ -3486,14 +3517,30 @@ window.G.g6StartRoll=function(){
   this.g6Pointer=0;this.g6Dir=1;this.g6Locked=false;
   c.rolling=true;c.pointer=0;
   broadcastState();this.renderG6();
-  // 快速移动指针（比G4难）
+  // 快速旋转指针（比G4难）
   this.g6Timer=setInterval(()=>{
-    this.g6Pointer+=this.g6Dir*3;
+    this.g6Pointer+=this.g6Dir*2.5;
     if(this.g6Pointer>=100){this.g6Pointer=100;this.g6Dir=-1}
     if(this.g6Pointer<=0){this.g6Pointer=0;this.g6Dir=1}
     c.pointer=this.g6Pointer;
-    const p=document.querySelector('.g6-pointer');
-    if(p)p.style.left=this.g6Pointer+'%';
+    // 只更新SVG指针和瞄准环数，不重新渲染整个G6
+    const svg=document.querySelector('.g6-tsvg');
+    if(svg){
+      const g=svg.querySelector('g[transform]');
+      if(g)g.setAttribute('transform','rotate('+(this.g6Pointer*3.6)+',100,100)');
+    }
+    const aimEl=document.querySelector('.g6-aim-ring');
+    if(aimEl){
+      let ring=0;
+      if(this.g6Pointer>=85)ring=5;
+      else if(this.g6Pointer>=70)ring=4;
+      else if(this.g6Pointer>=52)ring=3;
+      else if(this.g6Pointer>=34)ring=2;
+      else if(this.g6Pointer>=16)ring=1;
+      const colors=['#ff4444','#ff6666','#ffb464','#ffdc50','#b4ff64','#ffd700'];
+      aimEl.textContent='瞄准：'+(ring>0?ring+'环':'脱靶区');
+      aimEl.style.color=colors[ring];
+    }
   },20);
 };
 
@@ -4237,8 +4284,10 @@ window.G.g6SelectRoute=function(peerId,route){
   state.message=(p.team==='red'?'红队':'蓝队')+'选择了'+(route==='top'?'上路':'下路');
   // 检查两队是否都选好了
   if(g.teamPos.red.route&&g.teamPos.blue.route){
-    g.phase='moving';
-    state.message+=' | 两队路线已确定，开始探索！';
+    // 两队都选好路线后，先在雕像区（起点）购买装备
+    g.phase='shop';
+    g.shop={cellKey:'start', team:g.firstPickTeam||'red', bought:{}, done:{}, isStart:true};
+    state.message+=' | 两队路线已确定，在雕像区购买装备（'+(g.firstPickTeam==='red'?'红队':'蓝队')+'先）';
   }
   broadcastState();this.renderG6();
 };
@@ -4866,10 +4915,30 @@ window.G.g6ShopDone=function(peerId){
   const g=state.game;
   if(!g.shop)return;
   g.shop.done[peerId]=true;
-  // 检查是否所有存活玩家都完成
+  // 检查是否当前队伍所有存活玩家都完成
   const members=Object.entries(state.players).filter(([pid,p])=>p.team===g.shop.team&&!p.dead);
   const allDone=members.every(([pid])=>g.shop.done[pid]);
   if(allDone){
+    // 雕像区起点商店：第一队买完后切换到第二队
+    if(g.shop.isStart){
+      const firstTeam=g.firstPickTeam||'red';
+      const secondTeam=firstTeam==='red'?'blue':'red';
+      if(g.shop.team===firstTeam){
+        // 切换到第二队
+        g.shop={cellKey:'start', team:secondTeam, bought:{}, done:{}, isStart:true};
+        state.message=(secondTeam==='red'?'红队':'蓝队')+'在雕像区购买装备';
+        broadcastState();this.renderG6();
+        return;
+      }
+      // 第二队也买完了，开始移动
+      g.shop=null;
+      g.phase='moving';
+      g.currentTeam=firstTeam;
+      state.message='雕像区购买完成，开始探索！'+(firstTeam==='red'?'红队':'蓝队')+'先手';
+      g.lastEffect={type:'gold',text:'雕像区商店',sub:'🏛️购买完成，开始探索'};
+      broadcastState();this.renderG6();
+      return;
+    }
     g.lastEffect={type:'gold',text:(g.shop.team==='red'?'红队':'蓝队')+'商店购买完成',sub:'🏛️商店'};
     g.shop=null;
     this.g6EndTeamTurn();
