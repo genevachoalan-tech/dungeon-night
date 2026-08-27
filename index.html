@@ -2583,8 +2583,9 @@ window.G.renderG5=function(){
   if(g.duel)this.g5RenderDuel();else{let m=document.getElementById('g5DuelModal');if(m)m.remove()}
   if(g.roundSummary)this.g5RenderSummary();else{let m=document.getElementById('g5SumModal');if(m)m.remove()}
   this.g5CheckModals();
-  // 特效2秒后自动清除
-  if(g.lastEffect){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG5()}},2000)}
+  // 特效2秒后自动清除（技能选择阶段不重新渲染，避免弹窗刷新导致点击丢失）
+  if(g.lastEffect&&state.phase!=='skillselect'){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;broadcastState();this.renderG5()}},2000)}
+  else if(g.lastEffect&&state.phase==='skillselect'){const fx=g.lastEffect;setTimeout(()=>{if(state.game&&state.game.lastEffect===fx){state.game.lastEffect=null;if(isHost)broadcastState()}},2000)}
 };
 
 window.G.g5RenderButtons=function(){
@@ -2683,7 +2684,7 @@ window.G.g5CheckModals=function(){
   }else this.g5RemoveModal();
 };
 window.G.g5RemoveModal=function(){let m=document.getElementById('g5SkillModal');if(m)m.remove()};
-window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}const clearBtn=isHost?'<div style="margin-top:12px;text-align:center"><button class="btn btn-small btn-purple" onclick="G.g5ClearPending()">🧹 清除卡住状态</button></div>':'';m.innerHTML='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+clearBtn+'</div>';m.style.display='flex';m.style.zIndex='950'};
+window.G.g5ShowModal=function(title,bodyHtml){let m=document.getElementById('g5SkillModal');const clearBtn=isHost?'<div style="margin-top:12px;text-align:center"><button class="btn btn-small btn-purple" onclick="G.g5ClearPending()">🧹 清除卡住状态</button></div>':'';const fullHtml='<div class="g3-guardian-box"><h3>'+title+'</h3>'+bodyHtml+clearBtn+'</div>';if(m&&m.dataset.title===title&&m.dataset.bodyLen===String(bodyHtml.length)&&m.style.display==='flex'){return}if(!m){m=document.createElement('div');m.id='g5SkillModal';m.className='g3-guardian-modal';document.getElementById('gameArea').appendChild(m)}m.innerHTML=fullHtml;m.dataset.title=title;m.dataset.bodyLen=String(bodyHtml.length);m.style.display='flex';m.style.zIndex='950'};
 window.G.g5ShowSkillSelect=function(poolKey){
   const pool=state.game.skillPools[poolKey]||[];
   let html='<p style="font-size:12px;color:#ffcc80;margin-bottom:8px">选择一张技能：</p>';
@@ -3012,9 +3013,12 @@ window.G.g5OnSkillAcquire=function(playerId,skillId){
   if(skillId==='次席预言酒'){g.pendingWinnerPrediction={playerId};state.message=playerName(playerId)+' 请预测获胜者';g.lastEffect={skillId:'次席预言酒',text:'请预测获胜者',sub:p.name+' 获得次席预言酒'}}
   if(skillId==='魁首仿酿酒'){
     const alive=Object.values(state.players).filter(pl=>!pl.dead&&pl.skill&&pl!==p);
-    if(alive.length){const maxPos=Math.max(...alive.map(pl=>pl.pos));const leaders=alive.filter(pl=>pl.pos===maxPos);
-      if(leaders.length===1){p.skill=leaders[0].skill;state.message+=' | 魁首仿酿酒复制了'+leaders[0].name+'的技能';g.lastEffect={skillId:'魁首仿酿酒',text:'复制领先者技能：'+leaders[0].skill,sub:p.name+' 魁首仿酿酒生效'}}
-      else{g.pendingLeaderCopy={playerId,candidates:leaders.map(pl=>({id:state.turnOrder.find(tid=>state.players[tid]===pl),name:pl.name,skill:pl.skill}))};state.message=playerName(playerId)+' 魁首仿酿酒：选择复制谁的技能';g.lastEffect={skillId:'魁首仿酿酒',text:'选择复制谁的技能',sub:p.name+' 魁首仿酿酒生效'}}
+    if(alive.length){const maxPos=Math.max(...alive.map(pl=>pl.pos));
+      // 游戏未开始（所有人在起点）时不立即复制，等第一次移动后生效
+      if(maxPos>0){const leaders=alive.filter(pl=>pl.pos===maxPos);
+        if(leaders.length===1){p.skill=leaders[0].skill;state.message+=' | 魁首仿酿酒复制了'+leaders[0].name+'的技能';g.lastEffect={skillId:'魁首仿酿酒',text:'复制领先者技能：'+leaders[0].skill,sub:p.name+' 魁首仿酿酒生效'}}
+        else{g.pendingLeaderCopy={playerId,candidates:leaders.map(pl=>({id:state.turnOrder.find(tid=>state.players[tid]===pl),name:pl.name,skill:pl.skill}))};state.message=playerName(playerId)+' 魁首仿酿酒：选择复制谁的技能';g.lastEffect={skillId:'魁首仿酿酒',text:'选择复制谁的技能',sub:p.name+' 魁首仿酿酒生效'}}
+      }
     }
   }
 };
