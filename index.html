@@ -3413,10 +3413,10 @@ const G6_MONSTERS={
 
 // G6宝物/道具
 const G6_TREASURES={
-  bandage:{name:'绷带',icon:'🩹',img:'https://aka.doubaocdn.com/s/ejpB2Fx9rK',type:'passive',desc:'被动技能：回复一名队友1点血量。',trigger:'每回合结束时，可选择一名队友回复1点血量',effect:'healAlly'},
-  healingPotion:{name:'治疗药剂',icon:'🧪',img:'https://aka.doubaocdn.com/s/RNB7brl4dJ',type:'passive',desc:'每回合自动回复1点血量',trigger:'每回合开始时自动回复1点血量',effect:'autoHeal'},
-  goldPouch:{name:'金币钱袋',icon:'💰',img:'https://aka.doubaocdn.com/s/JoAXsBeDOD',type:'passive',desc:'每回合开始时，可以投掷一颗骰子，投掷结果4~6可获得1枚金币。',trigger:'每回合开始时投骰，4~6获得1金币',effect:'goldDice'},
-  emptyBottle:{name:'空酒瓶',icon:'🍾',img:'https://aka.doubaocdn.com/s/lSlP5WVbXK',type:'passive',desc:'进攻前不知道哪里飞来一个酒瓶，砸向敌人，造成1点额外伤害。',trigger:'每次进攻前额外造成1点伤害',effect:'extraDamage'}
+  bandage:{name:'绷带',icon:'🩹',img:'https://aka.doubaocdn.com/s/ejpB2Fx9rK',slot:'宝物',type:'passive',desc:'被动技能：回复一名队友1点血量。',trigger:'每回合结束时，可选择一名队友回复1点血量',effect:'healAlly'},
+  healingPotion:{name:'治疗药剂',icon:'🧪',img:'https://aka.doubaocdn.com/s/RNB7brl4dJ',slot:'宝物',type:'passive',desc:'每回合自动回复1点血量',trigger:'每回合开始时自动回复1点血量',effect:'autoHeal'},
+  goldPouch:{name:'金币钱袋',icon:'💰',img:'https://aka.doubaocdn.com/s/JoAXsBeDOD',slot:'宝物',type:'passive',desc:'每回合开始时，可以投掷一颗骰子，投掷结果4~6可获得1枚金币。',trigger:'每回合开始时投骰，4~6获得1金币',effect:'goldDice'},
+  emptyBottle:{name:'空酒瓶',icon:'🍾',img:'https://aka.doubaocdn.com/s/lSlP5WVbXK',slot:'宝物',type:'passive',desc:'进攻前不知道哪里飞来一个酒瓶，砸向敌人，造成1点额外伤害。',trigger:'每次进攻前额外造成1点伤害',effect:'extraDamage'}
 };
 
 // G6护盾/护甲
@@ -3689,7 +3689,7 @@ window.G.initG6=function(){
     p.equipment=[]; // 已装备的物品
     p.backpack=[]; // 背包（最多2件）
     p.treasures=[]; // 宝物栏（被动宝物）
-    p.skillSlots=3;
+    p.skillSlots=4;
     // 自动装备专属武器到专属武器槽
     if(charData&&charData.weapon){
       p.equipment.push({slot:'专属武器',...charData.weapon,exclusive:true});
@@ -3984,7 +3984,7 @@ window.G.renderG6=function(){
     if(myP&&!myP.dead&&myP.team===g.shop.team&&!g.shop.done[myPeerId]){
       const myBought=g.shop.bought[myPeerId]||0;
       html+='<div class="g6-shop-my">';
-      html+='<div class="g6-shop-info">💰 我的金币：'+(myP.gold||0)+' | 已购装备：'+myBought+'/3 | 装备总数：'+((myP.equipment?.length||0)+(myP.treasures?.length||0))+'/5</div>';
+      html+='<div class="g6-shop-info">💰 我的金币：'+(myP.gold||0)+' | 已购装备：'+myBought+'/3 | 装备总数：'+(myP.equipment?.length||0)+'/5 | 宝物：'+(myP.treasures?.length||0)+'/3</div>';
       // 购买血量
       html+='<div class="g6-shop-section"><h4>❤️ 购买血量（1金币/1血）</h4>';
       html+='<button class="btn btn-small btn-green" onclick="sendAction({type:\'g6shop\',buyType:\'hp\'})" '+(myP.gold<1||myP.hp>=9?'disabled':'')+'>+1血 (1金)</button>';
@@ -4000,7 +4000,8 @@ window.G.renderG6=function(){
         html+='<div class="g6-shop-section"><h4>⚔️ 购买装备（3金币/件）</h4>';
         html+='<div class="g6-shop-items">';
         availableItems.forEach(item=>{
-          const canBuy=myP.gold>=3&&myBought<3&&((myP.equipment?.length||0)+(myP.treasures?.length||0))<5;
+          const hasItem=item.slot==='道具'&&(myP.equipment?.filter(e=>e.slot==='道具').length||0)>=1;
+          const canBuy=myP.gold>=3&&myBought<3&&(myP.equipment?.length||0)<5&&!hasItem;
           html+='<div class="g6-shop-item'+(canBuy?'':' disabled')+'" '+(canBuy?'onclick="sendAction({type:\'g6shop\',buyType:\''+item.type+'\',itemId:\''+item.id+'\'})"':'')+'>';
           html+='<div class="g6-shop-item-icon">'+(item.icon||'📦')+'</div>';
           html+='<div class="g6-shop-item-name">'+item.name+'</div>';
@@ -4220,15 +4221,26 @@ window.G.g6RenderCharPanel=function(p){
   // 装备槽
   html+='<div class="g6-panel-equips">';
   (p.equipSlots||charData.equip).forEach((slotName,i)=>{
-    const item=p.equipment?.find(e=>e.slot===slotName);
-    const isUsableItem=slotName==='道具'&&item&&item.effect!=='reflectHalf';
-    const canUse=isUsableItem&&p.id===myPeerId&&!p.dead;
-    html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+(canUse?' usable':'')+'"'+(canUse?' onclick="G.g6PromptUseItem(\''+p.id+'\')"':'')+'><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>':'')+(canUse?'<div class="use-hint">点击使用</div>':'')+'</div>';
+    if(slotName==='道具'){
+      // 道具槽可以显示多个道具
+      const items=p.equipment?.filter(e=>e.slot==='道具')||[];
+      if(items.length===0){
+        html+='<div class="g6-panel-slot empty"><div class="slot-name">道具</div></div>';
+      }else{
+        items.forEach((item,ii)=>{
+          const canUse=p.id===myPeerId&&!p.dead&&item.effect!=='reflectHalf';
+          html+='<div class="g6-panel-slot'+(canUse?' usable':'')+'"'+(canUse?' onclick="G.g6PromptUseItem(\''+p.id+'\',\''+item.id+'\')"':'')+'><div class="slot-name">道具'+(items.length>1?(ii+1):'')+'</div><div class="item-name">'+(item.icon||'')+' '+item.name+'</div>'+(canUse?'<div class="use-hint">点击使用</div>':'')+'</div>';
+        });
+      }
+    }else{
+      const item=p.equipment?.find(e=>e.slot===slotName);
+      html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+'"><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>':'')+'</div>';
+    }
   });
   html+='</div>';
-  // 技能槽
+  // 技能槽（2自带+最多2购买=4）
   html+='<div class="g6-panel-skills">';
-  for(let i=0;i<3;i++){
+  for(let i=0;i<4;i++){
     const skill=p.skills?.[i];
     if(skill){
       const skillColorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[skill.color]||skill.color;
@@ -5020,8 +5032,8 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
   if(!player||player.dead)return;
   if(g.shop.done[peerId])return; // 已完成购买
   const boughtCount=g.shop.bought[peerId]||0;
-  // 检查装备总数（最多5件）
-  const equipCount=(player.equipment?.length||0)+(player.treasures?.length||0);
+  // 检查装备总数（最多5件，不含宝物）
+  const equipCount=player.equipment?.length||0;
   
   if(buyType==='hp'){
     // 购买血量：1金币回1血，不可超上限
@@ -5053,6 +5065,7 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
     // 购买装备：3金币/件，每人每雕像格最多3件
     if(boughtCount>=3){state.message=player.name+'本雕像格已购3件装备';broadcastState();this.renderG6();return;}
     if(player.gold<3){state.message=player.name+'金币不足';broadcastState();this.renderG6();return;}
+    if(equipCount>=5){state.message=player.name+'装备已满（5件）';broadcastState();this.renderG6();return;}
     // 获取装备数据
     let item=null;
     let isDiscarded=false;
@@ -5061,6 +5074,9 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
     else if(buyType==='secondaryWeapon')item={...G6_SECONDARY_WEAPONS[itemId],id:itemId};
     else if(buyType==='shield')item={...G6_SHIELDS[itemId],id:itemId};
     else if(buyType==='treasure')item={...G6_TREASURES[itemId],id:itemId};
+    else if(buyType==='item'){
+      item=G6_ITEMS_SELF[itemId]?{...G6_ITEMS_SELF[itemId],id:itemId}:G6_ITEMS_ENEMY[itemId]?{...G6_ITEMS_ENEMY[itemId],id:itemId}:null;
+    }
     // 检查是否是弃置堆中的装备
     if(itemId&&itemId.startsWith('discarded_')){
       const idx=parseInt(itemId.replace('discarded_',''));
@@ -5076,6 +5092,8 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
     if(!charConfig?.equip?.includes(item.slot)){state.message=player.name+'没有'+item.slot+'槽位';broadcastState();this.renderG6();return;}
     // 宝物槽位检查（最多3件）
     if(item.slot==='宝物'&&(player.treasures?.length||0)>=3){state.message=player.name+'宝物已满';broadcastState();this.renderG6();return;}
+    // 道具最多1个
+    if(item.slot==='道具'&&(player.equipment?.filter(e=>e.slot==='道具').length||0)>=1){state.message=player.name+'已有道具，最多持有1个';broadcastState();this.renderG6();return;}
     // 购买
     player.gold-=3;
     if(!player.equipment)player.equipment=[];
@@ -5083,8 +5101,11 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
     if(item.slot==='宝物'){
       if(!player.treasures)player.treasures=[];
       player.treasures.push(item);
+    }else if(item.slot==='道具'){
+      // 道具可以持有多个，不替换
+      player.equipment.push(item);
     }else{
-      // 旧装备进入弃置堆
+      // 旧装备进入弃置堆（武器/副武器/护盾只能装备一件）
       oldEquip=player.equipment.find(e=>e.slot===item.slot);
       if(oldEquip){
         if(!g.discardedEquip)g.discardedEquip=[];
@@ -5176,10 +5197,8 @@ window.G.g6AssignItem=function(peerId,targetId){
   if(!g.itemDrop)return;
   const target=state.players[targetId];
   if(!target||target.dead||target.team!==g.itemDrop.team)return;
-  // 检查道具槽
+  // 检查道具槽（怪物掉落可以持有多个道具）
   if(!target.equipment)target.equipment=[];
-  const itemSlot=target.equipment.find(e=>e.slot==='道具');
-  if(itemSlot){state.message=target.name+'道具槽已满';broadcastState();this.renderG6();return;}
   // 分配道具
   target.equipment.push(g.itemDrop.item);
   g.itemDrop.assigned=targetId;
@@ -5191,10 +5210,15 @@ window.G.g6AssignItem=function(peerId,targetId){
 };
 
 // 道具使用提示（选择目标）
-window.G.g6PromptUseItem=function(playerId){
+window.G.g6PromptUseItem=function(playerId,itemId){
   const player=state.players[playerId];
   if(!player||player.dead)return;
-  const item=player.equipment?.find(e=>e.slot==='道具');
+  let item=null;
+  if(itemId){
+    item=player.equipment?.find(e=>e.id===itemId&&e.slot==='道具');
+  }else{
+    item=player.equipment?.find(e=>e.slot==='道具');
+  }
   if(!item)return;
   
   // 判断是否需要目标
@@ -5521,11 +5545,19 @@ window.G.g6UseSkill=function(peerId,skillIndex){
 };
 
 // 使用道具
-window.G.g6UseItem=function(peerId,targetId){
+window.G.g6UseItem=function(peerId,targetId,itemId){
   const g=state.game;
   const player=state.players[peerId];
   if(!player||player.dead)return;
-  const item=player.equipment?.find(e=>e.slot==='道具');
+  // 从目标选择状态中获取道具
+  let item=null;
+  if(g.itemTargetSelect&&g.itemTargetSelect.playerId===peerId){
+    item=g.itemTargetSelect.item;
+  }else if(itemId){
+    item=player.equipment?.find(e=>e.id===itemId&&e.slot==='道具');
+  }else{
+    item=player.equipment?.find(e=>e.slot==='道具');
+  }
   if(!item)return;
   
   // 根据道具效果处理
@@ -5628,6 +5660,7 @@ window.G.g6UseItem=function(peerId,targetId){
   
   // 消耗道具
   player.equipment=player.equipment.filter(e=>e!==item);
+  g.itemTargetSelect=null;
   broadcastState();this.renderG6();
 };
 
@@ -5676,6 +5709,11 @@ window.G.g6GetAvailableItems=function(player){
   // 宝物
   if(slots.includes('宝物')){
     Object.entries(G6_TREASURES).forEach(([id,t])=>items.push({type:'treasure',id,...t}));
+  }
+  // 道具（利己+损人）
+  if(slots.includes('道具')){
+    Object.entries(G6_ITEMS_SELF).forEach(([id,it])=>items.push({type:'item',id,...it}));
+    Object.entries(G6_ITEMS_ENEMY).forEach(([id,it])=>items.push({type:'item',id,...it}));
   }
   // 弃置堆中的装备（刷回商店）
   if(g.discardedEquip&&g.discardedEquip.length>0){
