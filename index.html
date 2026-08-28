@@ -3674,7 +3674,8 @@ window.G.initG6=function(){
     p.floor=1;
     // G6初始血量 = G5继承escapedHP + G6给的3条命(27血)
     const totalHp=(p.escapedHP||0)+27;
-    p.life=Math.ceil(totalHp/9);
+    p.maxLife=Math.ceil(totalHp/9);
+    p.life=p.maxLife;
     p.hp=totalHp%9;
     if(p.hp===0)p.hp=9;
     p.gold=p.gold||0;
@@ -3722,7 +3723,7 @@ window.G.renderG6=function(){
     html+='<div class="g6-my-status">';
     html+='<img src="'+CHARACTERS.find(c=>c.id===myP.character).img+'" class="g6-avatar">';
     html+='<span class="g6-name">'+myP.name+'</span>';
-    html+='<span class="g6-life">❤️命'+(myP.life||1)+'/3</span>';
+    html+='<span class="g6-life">❤️命'+(myP.life||1)+'/'+(myP.maxLife||3)+'</span>';
     html+='<span class="g6-hp-bar">'+('█'.repeat(myP.hp||0))+('░'.repeat(9-(myP.hp||0)))+' '+(myP.hp||0)+'/9</span>';
     html+='<span class="g6-gold">💰'+(myP.gold||0)+'</span>';
     html+='<span class="g6-score">分数:'+g6HpScore(myP)+'</span>';
@@ -4231,7 +4232,7 @@ window.G.g6RenderCharPanel=function(p){
     const filled=i<=p.hp?'filled':'';
     html+='<div class="hp-tick '+filled+'">'+i+'</div>';
   }
-  html+='</div><span style="color:#ff6666;font-size:12px;margin-left:8px">命'+(p.life||1)+' 血'+(p.hp||0)+'</span></div>';
+  html+='</div><span style="color:#ff6666;font-size:12px;margin-left:8px">命'+(p.life||1)+'/'+(p.maxLife||3)+' 血'+(p.hp||0)+'</span></div>';
   // 面板主体
   html+='<div class="g6-panel-body">';
   // 头像
@@ -4278,7 +4279,12 @@ window.G.g6RenderCharPanel=function(p){
   html+='<div class="g6-panel-backpack"><div class="bp-title">🎒 背包（最多2件装备/技能）</div><div class="bp-slots">';
   for(let i=0;i<2;i++){
     const item=p.backpack?.[i];
-    html+='<div class="bp-slot">'+(item?item.name:'空')+'</div>';
+    if(item){
+      const canEquip=p.id===myPeerId&&!p.dead&&item.slot&&item.slot!=='宝物'&&item.slot!=='道具';
+      html+='<div class="bp-slot'+(canEquip?' usable':'')+'"'+(canEquip?' onclick="G.g6EquipFromBackpack(\''+p.id+'\','+i+')"':'')+' style="cursor:'+(canEquip?'pointer':'default')+'" title="'+(item.desc||'')+'">'+(item.icon||'')+' '+item.name+(canEquip?'<div style="font-size:9px;color:#ffd700">点击装备</div>':'')+'</div>';
+    }else{
+      html+='<div class="bp-slot">空</div>';
+    }
   }
   html+='</div></div>';
   // 宝物栏
@@ -5116,23 +5122,30 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
     // 宝物槽位检查（最多3件）
     if(item.slot==='宝物'&&(player.treasures?.length||0)>=3){state.message=player.name+'宝物已满';broadcastState();this.renderG6();return;}
     // 道具最多1个
-    if(item.slot==='道具'&&(player.equipment?.filter(e=>e.slot==='道具').length||0)>=1){state.message=player.name+'已有道具，最多持有1个';broadcastState();this.renderG6();return;}
+    if(item.slot==='道具'&&(player.equipment?.filter(e=>e.slot==='道具').length||0)>=1){state.message=player.name+'已有道具，商店最多购买1个';broadcastState();this.renderG6();return;}
     // 购买
     player.gold-=3;
     if(!player.equipment)player.equipment=[];
+    if(!player.backpack)player.backpack=[];
     let oldEquip=null;
+    let toBackpack=false;
     if(item.slot==='宝物'){
       if(!player.treasures)player.treasures=[];
       player.treasures.push(item);
     }else if(item.slot==='道具'){
-      // 道具可以持有多个，不替换
+      // 商店道具最多1个，直接装备
       player.equipment.push(item);
     }else{
-      // 旧装备进入弃置堆（武器/副武器/护盾只能装备一件）
+      // 武器/副武器/护盾只能装备一件，旧装备放入背包
       oldEquip=player.equipment.find(e=>e.slot===item.slot);
-      if(oldEquip){
-        if(!g.discardedEquip)g.discardedEquip=[];
-        g.discardedEquip.push({...oldEquip,type:buyType});
+      if(oldEquip&&!oldEquip.exclusive){
+        if(player.backpack.length<2){
+          player.backpack.push({...oldEquip});
+          toBackpack=true;
+        }else{
+          if(!g.discardedEquip)g.discardedEquip=[];
+          g.discardedEquip.push({...oldEquip,type:buyType});
+        }
       }
       player.equipment=player.equipment.filter(e=>e.slot!==item.slot);
       player.equipment.push(item);
@@ -5142,7 +5155,7 @@ window.G.g6ShopBuy=function(peerId,buyType,itemId){
       g.discardedEquip.splice(discardedIdx,1);
     }
     g.shop.bought[peerId]=boughtCount+1;
-    state.message=player.name+' 购买 '+item.name+(oldEquip?'（替换'+oldEquip.name+'）':'');
+    state.message=player.name+' 购买 '+item.name+(oldEquip?'（替换'+oldEquip.name+(toBackpack?'，旧装备放入背包':'，旧装备被回收')+'）':'');
   }
   broadcastState();this.renderG6();
 };
@@ -5233,6 +5246,28 @@ window.G.g6AssignItem=function(peerId,targetId){
 };
 
 // 道具使用提示（选择目标）
+// 从背包装备物品
+window.G.g6EquipFromBackpack=function(playerId,backpackIndex){
+  if(!isHost)return;
+  const g=state.game;
+  const player=state.players[playerId];
+  if(!player||player.dead||!player.backpack||!player.backpack[backpackIndex])return;
+  const item=player.backpack[backpackIndex];
+  const charConfig=G6_CHAR_SKILLS[player.character];
+  if(!charConfig?.equip?.includes(item.slot)){state.message=player.name+'没有'+item.slot+'槽位';broadcastState();this.renderG6();return;}
+  // 旧装备放回背包
+  const oldEquip=player.equipment.find(e=>e.slot===item.slot);
+  if(oldEquip&&!oldEquip.exclusive){
+    player.backpack[backpackIndex]={...oldEquip};
+  }else{
+    player.backpack.splice(backpackIndex,1);
+  }
+  player.equipment=player.equipment.filter(e=>e.slot!==item.slot);
+  player.equipment.push({...item});
+  state.message=player.name+' 从背包装备了 '+item.name;
+  broadcastState();this.renderG6();
+};
+
 window.G.g6PromptUseItem=function(playerId,itemId){
   const player=state.players[playerId];
   if(!player||player.dead)return;
@@ -5827,22 +5862,23 @@ window.G.g6CheckChestDone=function(){
 // 大回合结束：宝物效果、灼烧、怪物主动攻击
 window.G.g6EndRound=function(){
   const g=state.game;
-  // 回合结束宝物效果：绷带回复血量最低的队友1点血量
-  const prevTeam=g.currentTeam==='red'?'blue':'red'; // 刚结束回合的队伍
-  const prevMembers=Object.entries(state.players).filter(([pid,p])=>p.team===prevTeam&&!p.dead&&pid!==state.hostId);
+  // 回合结束宝物效果：绷带回复血量最低的队友1点血量（两队都处理）
   const treasureEffects=[];
-  prevMembers.forEach(([pid,p])=>{
-    if(!p.treasures)return;
-    p.treasures.forEach(t=>{
-      if(t.effect==='healAlly'){ // 绷带：回复一名队友1点血量
-        const allies=prevMembers.filter(([aid,a])=>aid!==pid&&a.hp<9).map(([aid,a])=>a);
-        if(allies.length>0){
-          allies.sort((a,b)=>a.hp-b.hp);
-          const target=allies[0];
-          target.hp=Math.min(9,target.hp+1);
-          treasureEffects.push(p.name+'绷带回复'+target.name+'1血');
+  ['red','blue'].forEach(team=>{
+    const teamMembers=Object.entries(state.players).filter(([pid,p])=>p.team===team&&!p.dead&&pid!==state.hostId);
+    teamMembers.forEach(([pid,p])=>{
+      if(!p.treasures)return;
+      p.treasures.forEach(t=>{
+        if(t.effect==='healAlly'){
+          const allies=teamMembers.filter(([aid,a])=>aid!==pid&&a.hp<9).map(([aid,a])=>a);
+          if(allies.length>0){
+            allies.sort((a,b)=>a.hp-b.hp);
+            const target=allies[0];
+            target.hp=Math.min(9,target.hp+1);
+            treasureEffects.push(p.name+'绷带回复'+target.name+'1血');
+          }
         }
-      }
+      });
     });
   });
   // 大回合结束效果
@@ -5922,15 +5958,10 @@ window.G.g6EndRound=function(){
           }
           this.g6CheckDeath(p);
         }
-        // 角色技能：反击（怪物主动攻击回合额外进攻一次）
+        // 角色技能：反击（怪物主动攻击回合额外进攻一次，造成2点伤害）
         if(p.counterAttackPending&&!p.dead){
           p.counterAttackPending=false;
-          monsterAttackEffects.push(p.name+'反击！');
-        }
-        // 角色技能：反击（怪物主动攻击回合额外进攻一次）
-        if(p.counterAttackPending&&!p.dead){
-          p.counterAttackPending=false;
-          const counterDmg=2; // 固定2点反击伤害
+          const counterDmg=2;
           monster.hp=Math.max(0,monster.hp-counterDmg);
           monsterAttackEffects.push(p.name+'反击'+monster.name+'-'+counterDmg+'血');
           g.lastEffect={type:'damage',text:p.name+' 反击！'+monster.name+'-'+counterDmg+'血',sub:'↩️反击'};
@@ -5942,17 +5973,20 @@ window.G.g6EndRound=function(){
     });
   }
   // 回合开始宝物效果
-  const currentMembers=Object.values(state.players).filter(p=>p.team===g.currentTeam&&!p.dead&&p.id!==state.hostId);
-  currentMembers.forEach(p=>{
-    if(!p.treasures)return;
-    p.treasures.forEach(t=>{
-      if(t.effect==='autoHeal'){ // 治疗药剂：每回合自动回复1点血量
-        if(p.hp<9){p.hp=Math.min(9,p.hp+1);treasureEffects.push(p.name+'治疗药剂+1血')}
-      }
-      if(t.effect==='goldDice'){ // 金币钱袋：投骰4~6获得1金币
-        const roll=Math.floor(Math.random()*6)+1;
-        if(roll>=4){p.gold=(p.gold||0)+1;treasureEffects.push(p.name+'金币钱袋投出'+roll+'，+1金币')}
-      }
+  // 回合开始宝物效果（两队都处理）
+  ['red','blue'].forEach(team=>{
+    const teamMembers=Object.values(state.players).filter(p=>p.team===team&&!p.dead&&p.id!==state.hostId);
+    teamMembers.forEach(p=>{
+      if(!p.treasures)return;
+      p.treasures.forEach(t=>{
+        if(t.effect==='autoHeal'){
+          if(p.hp<9){p.hp=Math.min(9,p.hp+1);treasureEffects.push(p.name+'治疗药剂+1血')}
+        }
+        if(t.effect==='goldDice'){
+          const roll=Math.floor(Math.random()*6)+1;
+          if(roll>=4){p.gold=(p.gold||0)+1;treasureEffects.push(p.name+'金币钱袋投出'+roll+'，+1金币')}
+        }
+      });
     });
   });
   if(treasureEffects.length>0){
