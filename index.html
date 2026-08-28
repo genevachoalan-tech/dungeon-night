@@ -3340,28 +3340,28 @@ const G6_CLOVER_EVENTS={
 // G6商店购买的专属技能卡（红色技能，12个，每角色2个）
 const G6_SHOP_SKILLS={
   adou:[
-    {id:'zhandoushige',name:'战斗诗歌',desc:'技能发动后，每消耗2枚金币额外增加1点伤害。（上限3点伤害）',color:'red',evenMiss:false,effect:'goldDamage'},
-    {id:'cuimianqu',name:'催眠曲',desc:'技能发动后，跳过怪物的下一次行动回合。（反击或主动攻击二选一）',color:'red',evenMiss:true,effect:'skipMonster'}
+    {id:'zhandoushige',name:'战斗诗歌',desc:'技能发动后，每消耗2枚金币额外增加1点伤害。（上限3点伤害）',color:'green',evenMiss:false,effect:'goldDamage'},
+    {id:'cuimianqu',name:'催眠曲',desc:'技能发动后，跳过怪物的下一次行动回合。（反击或主动攻击二选一）',color:'green',evenMiss:true,effect:'skipMonster'}
   ],
   yuanyuan:[
-    {id:'lianmin',name:'怜悯',desc:'此次战斗的目标怪物伤害-1（包括反击与主动攻击）',color:'red',evenMiss:false,effect:'monsterAtkDown'},
-    {id:'qidao',name:'祈祷',desc:'造成上靶伤害后，额外造成2点伤害。并且获得1枚金币。',color:'red',evenMiss:false,effect:'extraDamageGold'}
+    {id:'lianmin',name:'怜悯',desc:'此次战斗的目标怪物伤害-1（包括反击与主动攻击）',color:'green',evenMiss:false,effect:'monsterAtkDown'},
+    {id:'qidao',name:'祈祷',desc:'造成上靶伤害后，额外造成2点伤害。并且获得1枚金币。',color:'green',evenMiss:false,effect:'extraDamageGold'}
   ],
   xiupa:[
-    {id:'qiweibuzhuo',name:'气味捕捉',desc:'技能发动后，造成3点伤害。（即使未上靶）',color:'red',evenMiss:true,effect:'fixedDamage3'},
-    {id:'ruodianbiaoji',name:'弱点标记',desc:'技能发动后，如果命中3环视为4环，命中4环视为5环（享受暴击效果）',color:'red',evenMiss:false,effect:'ringUpgrade'}
+    {id:'qiweibuzhuo',name:'气味捕捉',desc:'技能发动后，造成3点伤害。（即使未上靶）',color:'green',evenMiss:true,effect:'fixedDamage3'},
+    {id:'ruodianbiaoji',name:'弱点标记',desc:'技能发动后，如果命中3环视为4环，命中4环视为5环（享受暴击效果）',color:'green',evenMiss:false,effect:'ringUpgrade'}
   ],
   muen:[
-    {id:'shunshizhan',name:'顺势斩',desc:'造成上靶伤害后可进行二次攻击。（每回合限一次）',color:'red',evenMiss:false,effect:'secondAttack'},
-    {id:'wulai',name:'无赖',desc:'可以用手指再弹一次进攻骰子（即使未上靶）',color:'red',evenMiss:true,effect:'reroll'}
+    {id:'shunshizhan',name:'顺势斩',desc:'造成上靶伤害后可进行二次攻击。（每回合限一次）',color:'green',evenMiss:false,effect:'secondAttack'},
+    {id:'wulai',name:'无赖',desc:'可以用手指再弹一次进攻骰子（即使未上靶）',color:'green',evenMiss:true,effect:'reroll'}
   ],
   duolin:[
-    {id:'xuruo',name:'虚弱',desc:'虚弱当前目标怪物，使其之后受到的所有伤害+1。',color:'red',evenMiss:false,effect:'monsterDefDown'},
-    {id:'ziranzhili',name:'自然之力',desc:'技能发动后，选择一名友方（可自己），本次战斗伤害+2。',color:'red',evenMiss:false,effect:'allyDamageUp'}
+    {id:'xuruo',name:'虚弱',desc:'虚弱当前目标怪物，使其之后受到的所有伤害+1。',color:'green',evenMiss:false,effect:'monsterDefDown'},
+    {id:'ziranzhili',name:'自然之力',desc:'技能发动后，选择一名友方（可自己），本次战斗伤害+2。',color:'green',evenMiss:false,effect:'allyDamageUp'}
   ],
   lier:[
-    {id:'huoqianshu',name:'火球术',desc:'技能发动后，当前目标怪物承受持续灼烧伤害，每大回合血量-2。',color:'red',evenMiss:true,effect:'burn'},
-    {id:'mofayaoshui',name:'魔法药水',desc:'技能发动后，放弃上靶伤害，可获得一个道具（损人或利己道具任选一个）',color:'red',evenMiss:true,effect:'getItem'}
+    {id:'huoqianshu',name:'火球术',desc:'技能发动后，当前目标怪物承受持续灼烧伤害，每大回合血量-2。',color:'green',evenMiss:true,effect:'burn'},
+    {id:'mofayaoshui',name:'魔法药水',desc:'技能发动后，放弃上靶伤害，可获得一个道具（损人或利己道具任选一个）',color:'green',evenMiss:true,effect:'getItem'}
   ]
 };
 
@@ -3373,7 +3373,7 @@ const G6_CHAR_SKILLS={
   ]},
   duolin:{name:'多琳',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'木质法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/vSOQ9520fU',bonus:1,exclusive:true},skills:[
     {id:'xunfu',name:'驯服',desc:'怪物被击杀后，可驯服成为一次性伤害道具，伤害为怪物伤害',color:'red',evenMiss:false,effect:'tameMonster'},
-    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'green',evenMiss:true,effect:'plantHeal'}
+    {id:'zhiwujinghua',name:'植物精华',desc:'放弃上靶伤害，回复一位友方3点血量（包括自己）',color:'blue',evenMiss:true,effect:'plantHeal'}
   ]},
   lier:{name:'莉尔',equip:['专属武器','主武器','宝物','道具'],weapon:{name:'短小的法杖',icon:'🪄',img:'https://aka.doubaocdn.com/s/rA7ewqqiMT',bonus:1,exclusive:true},skills:[
     {id:'fashufeidan',name:'法术飞弹',desc:'造成2点伤害（即使未上靶）',color:'red',evenMiss:true,effect:'magicMissile'},
@@ -3381,14 +3381,14 @@ const G6_CHAR_SKILLS={
   ]},
   muen:{name:'沐恩',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'巨型双手斧',icon:'🪓',img:'https://aka.doubaocdn.com/s/tI6h5YxosE',bonus:1,exclusive:true},skills:[
     {id:'niutijianta',name:'牛蹄践踏',desc:'上靶成功后，命中1环/2环皆视为3环',color:'red',evenMiss:false,effect:'hoofStomp'},
-    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'green',evenMiss:true,effect:'upDownStrike'}
+    {id:'zhishangdaxia',name:'指上打下',desc:'技能发动后造成3点伤害（即使未上靶）',color:'blue',evenMiss:true,effect:'upDownStrike'}
   ]},
   xiupa:{name:'休帕',equip:['专属武器','主武器','副武器','道具'],weapon:{name:'长弓',icon:'🏹',img:'https://aka.doubaocdn.com/s/f7QArSVwTj',bonus:1,exclusive:true},skills:[
     {id:'yinmishenxing',name:'隐秘身形',desc:'抵消下一次怪物的主动攻击（即使未上靶）',color:'blue',evenMiss:true,effect:'stealth'},
-    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'green',evenMiss:true,effect:'counterAttack'}
+    {id:'fanji',name:'反击',desc:'怪物主动攻击回合，你额外进攻一次（即使未上靶）',color:'red',evenMiss:true,effect:'counterAttack'}
   ]},
   yuanyuan:{name:'圆圆',equip:['专属武器','主武器','护盾','道具'],weapon:{name:'竹竿战锤',icon:'🔨',img:'https://aka.doubaocdn.com/s/qZoID6Dodt',bonus:1,exclusive:true},skills:[
-    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'green',evenMiss:false,effect:'groupHeal'},
+    {id:'quntizhiliao',name:'群体治疗',desc:'上靶伤害对所有友方回复2点血量（包括自己）',color:'blue',evenMiss:false,effect:'groupHeal'},
     {id:'chengjie',name:'惩戒',desc:'造成上靶伤害后，回复自身2点血量',color:'red',evenMiss:false,effect:'smite'}
   ]}
 };
@@ -3568,7 +3568,7 @@ window.G.g6StartRoll=function(diceColor){
   this.g6Pointer=0;this.g6Dir=1;this.g6Locked=false;
   c.rolling=true;c.pointer=0;
   broadcastState();this.renderG6();
-  // 快速旋转指针（比G4难）
+  // 快速旋转指针（反弹+黑洞）
   this.g6Timer=setInterval(()=>{
     this.g6Pointer+=this.g6Dir*2.5;
     if(this.g6Pointer>=100){this.g6Pointer=100;this.g6Dir=-1}
