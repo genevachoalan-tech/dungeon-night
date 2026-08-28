@@ -4313,7 +4313,7 @@ window.G.g6RenderButtons=function(){
         // 锁定后：显示可用技能（匹配骰子颜色+双数）和确认结算按钮
         let skillBtns='';
         const attacker=state.players[myPeerId];
-        if(attacker.skills){
+        if(attacker.skills&&!c.skillUsed){
           attacker.skills.forEach((s,idx)=>{
             if(s.used||s.sealed)return;
             if(s.color!==c.diceColor)return;
@@ -4322,10 +4322,10 @@ window.G.g6RenderButtons=function(){
             // 魅魔禁用红色技能
             if(c.monster&&c.monster.effect==='noRedSkill'&&s.color==='red')return;
             const colorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[s.color]||'#ffd700';
-            skillBtns+='<button class="btn" style="border-color:'+colorHex+';color:'+colorHex+';margin:2px" onclick="G.g6UseSkill(\''+myPeerId+'\','+idx+')">✨ '+s.name+'</button>';
+            skillBtns+='<button class="btn" style="border-color:'+colorHex+';color:'+colorHex+';margin:2px" onclick="sendAction({type:\'g6skill\',skillIndex:'+idx+'})">✨ '+s.name+'</button>';
           });
         }
-        btns.innerHTML=skillBtns+'<button class="btn btn-gold" style="margin:2px" onclick="G.g6ResolveCombat(\''+myPeerId+'\',{type:\'confirm\'})">✅ 确认结算</button>';
+        btns.innerHTML=skillBtns+'<button class="btn btn-gold" style="margin:2px" onclick="sendAction({type:\'g6confirm\'})">✅ 确认结算</button>';
       }else{
         // 投骰前：选择骰子颜色（只显示有对应颜色技能的颜色）
         const attacker=state.players[myPeerId];
@@ -4470,7 +4470,7 @@ window.G.g6CheckTurnAction=function(){
       let monster=g.cellMonsters?.[team]?.[cellKey];
       if(monster&&monster.hp>0){
         g.phase='combat';
-        g.combat={monster,monsterHp:monster.hp,cellKey,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false};
+        g.combat={monster,monsterHp:monster.hp,cellKey,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false,skillUsed:false};
         state.message='⚔️ '+current.player.name+'（'+current.player.position+'号位）攻击'+monster.name+'（剩余'+monster.hp+'血）';
         return;
       }
@@ -4484,7 +4484,7 @@ window.G.g6CheckTurnAction=function(){
     }
     if(g.bossHp>0){
       g.phase='combat';
-      g.combat={monster:g.bossMonster,monsterHp:g.bossHp,cellKey:'boss-'+g.floor,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false,isBoss:true};
+      g.combat={monster:g.bossMonster,monsterHp:g.bossHp,cellKey:'boss-'+g.floor,team,attacker:current.peerId,attackerIndex:0,rolling:false,resolved:false,ring:0,dice:0,pointer:0,crit:false,round:g.round||1,log:[],locked:false,isBoss:true,skillUsed:false};
       state.message='⚔️ '+current.player.name+' 攻击'+g.bossMonster.name+'（'+g.bossHp+'/'+g.bossMaxHp+'血）';
       return;
     }
@@ -4610,7 +4610,8 @@ window.G.g6TriggerCell=function(team,route,pos,cell){
           crit:false,
           round:1,
           log:[],
-          locked:false
+          locked:false,
+          skillUsed:false
         };
         state.message+=' | ⚔️ 遭遇'+monster.name+'！'+(attacker?attacker.name+'（'+(attacker.position||'?')+'号位）':'')+'投骰攻击';
         g.lastEffect={type:'combat',text:'遭遇'+monster.name+'！',sub:'💀怪兽格'};
@@ -4677,7 +4678,7 @@ window.G.g6TriggerBoss=function(team){
   g.combat={
     monster:g.bossMonster,monsterHp:g.bossHp,cellKey,team,
     attacker:attackerId,attackerIndex:0,rolling:false,resolved:false,
-    ring:0,dice:0,pointer:0,crit:false,round:1,log:[],locked:false,isBoss:true
+    ring:0,dice:0,pointer:0,crit:false,round:1,log:[],locked:false,isBoss:true,skillUsed:false
   };
   state.message=(team==='red'?'红队':'蓝队')+'挑战🐉'+g.bossMonster.name+'（剩余'+g.bossHp+'/'+g.bossMaxHp+'血）！';
   g.lastEffect={type:'dragon',text:'🐉 '+g.bossMonster.name+'（'+g.bossHp+'/'+g.bossMaxHp+'）',sub:g.floor===1?'第一层守关BOSS':'最终BOSS'};
@@ -4896,6 +4897,7 @@ window.G.g6ResolveCombat=function(peerId,action){
     c.dice=0;
     c.pointer=0;
     c.crit=false;
+    c.skillUsed=false; // 二次攻击可再用技能
     log.push('⚔️ 顺势斩：可进行二次攻击！');
     c.log=log;
     state.message=attacker.name+' 顺势斩！二次攻击';
@@ -4912,6 +4914,7 @@ window.G.g6ResolveCombat=function(peerId,action){
     c.dice=0;
     c.pointer=0;
     c.crit=false;
+    c.skillUsed=false; // 重投可再用技能
     log.push('🎲 无赖：可重投一次！');
     c.log=log;
     state.message=attacker.name+' 无赖！重投骰子';
@@ -5272,6 +5275,10 @@ window.G.g6UseSkill=function(peerId,skillIndex){
   if(!c||c.resolved)return;
   const player=state.players[peerId];
   if(!player||c.attacker!==peerId)return;
+  if(c.skillUsed){
+    state.message='本次投掷已使用过技能';
+    broadcastState();this.renderG6();return;
+  }
   const skill=player.skills?.[skillIndex];
   if(!skill||skill.used||skill.sealed)return;
   
@@ -5456,6 +5463,11 @@ window.G.g6UseSkill=function(peerId,skillIndex){
       c.ring=undefined;
       c.dice=undefined;
       c.isEven=undefined;
+      c.skillUsed=false; // 重置投掷后可再次使用技能
+      // 重置客户端投掷状态
+      this.g6Rolling=false;
+      this.g6Locked=false;
+      if(this.g6Timer){clearInterval(this.g6Timer);this.g6Timer=null;}
       log.push(player.name+' 使用时间回溯，重置本次投掷');
       skill.used=true;
       break;
@@ -5541,6 +5553,8 @@ window.G.g6UseSkill=function(peerId,skillIndex){
       g.lastEffect={type:'skill',text:fx.text,sub:fx.icon+' '+fx.sub,skillId:skill.effect};
     }
   }
+  // 标记本次投掷已使用技能（时间回溯已重置为false）
+  if(skill.effect!=='timeRewind')c.skillUsed=true;
   broadcastState();this.renderG6();
 };
 
