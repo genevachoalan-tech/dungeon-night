@@ -2921,6 +2921,7 @@ window.G.actionG6=function(peerId,action){
   else if(action.type==='g6chooseitem'){this.g6ChooseItemType(peerId,action.itemType)}
   else if(action.type==='g6useitem'){this.g6UseItem(peerId,action.targetId)}
   else if(action.type==='g6skill'){this.g6UseSkill(peerId,action.skillIndex)}
+  else if(action.type==='g6seal'){this.g6SealSkill(peerId,action.skillIndex)}
   else if(action.type==='g6confirm'){this.g6ResolveCombat(peerId,{confirm:true})}
 };
 
@@ -3650,6 +3651,7 @@ window.G.initG6=function(){
     floor:1,
     teamPos:{red:{route:null,pos:0},blue:{route:null,pos:0}}, // 两队位置和路线
     lastEffect:null,
+    pendingSeal:null, // 等待玩家选择封印技能
     round:1,
     phase:'positionselect', // positionselect/routeselect/moving/combat/shop/event
     currentTeam:'red', // 当前行动队伍
@@ -4050,6 +4052,24 @@ window.G.renderG6=function(){
       html+='</button>';
     });
     html+='</div></div>';
+    }
+  }else if(g.pendingSeal){
+    // 封印技能选择界面
+    const sp=state.players[g.pendingSeal];
+    if(sp){
+      html+='<div class="g6-seal-select" style="text-align:center;padding:20px">';
+      html+='<h3 style="color:#ff4444">💀 '+sp.name+' 失去一条命！请选择要封印的技能</h3>';
+      html+='<div style="color:#aaa;margin:8px 0">封印后该技能在后续战斗中无法使用</div>';
+      html+='<div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto">';
+      sp.skills.forEach((s,idx)=>{
+        if(s.sealed)return;
+        const colorHex={red:'#ff4444',blue:'#4488ff',green:'#44cc44'}[s.color]||'#ffd700';
+        const canSeal = g.pendingSeal===myPeerId || isHost;
+        html+='<button class="btn" style="border-color:'+colorHex+';color:'+colorHex+';text-align:left;padding:10px" '+(canSeal?'onclick="sendAction({type:\'g6seal\',skillIndex:'+idx+'})"':'disabled')+'>';
+        html+='<div style="font-weight:bold">'+s.name+'</div><div style="font-size:11px;opacity:0.8">'+s.desc+'</div>';
+        html+='</button>';
+      });
+      html+='</div></div>';
     }
   }else if(g.itemTargetSelect){
     // 道具目标选择界面
@@ -5682,23 +5702,35 @@ window.G.g6UseItem=function(peerId,targetId,itemId){
 window.G.g6CheckDeath=function(p){
   if(p.hp<=0){
     p.life=(p.life||1)-1;
-    p.skillSlots=Math.max(0,(p.skillSlots||3)-1);
+    p.skillSlots=Math.max(0,(p.skillSlots||4)-1);
     if(p.life<=0){
       p.dead=true;
       p.hp=0;p.life=0;
       state.message+=' | '+p.name+'生命耗尽，被淘汰！';
     }else{
       p.hp=9;
-      // 封印一个技能槽：禁用最后一个技能
-      if(p.skills&&p.skills.length>p.skillSlots){
-        const sealed=p.skills[p.skills.length-1];
-        sealed.sealed=true;
-        state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能【'+sealed.name+'】被封印';
+      // 需要封印一个技能：让玩家自己选择
+      if(p.skills&&p.skills.filter(s=>!s.sealed).length>p.skillSlots){
+        state.game.pendingSeal=p.id;
+        state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），请选择要封印的技能';
       }else{
-        state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命），技能槽-1';
+        state.message+=' | '+p.name+'失去一条命（剩'+p.life+'命）';
       }
     }
   }
+};
+
+// 玩家选择封印技能
+window.G.g6SealSkill=function(peerId,skillIndex){
+  const g=state.game;
+  if(g.pendingSeal!==peerId)return;
+  const p=state.players[peerId];
+  if(!p||!p.skills||!p.skills[skillIndex])return;
+  if(p.skills[skillIndex].sealed)return;
+  p.skills[skillIndex].sealed=true;
+  g.pendingSeal=null;
+  state.message=p.name+' 封印了技能【'+p.skills[skillIndex].name+'】';
+  broadcastState();this.renderG6();
 };
 
 // 获取玩家可装备的装备列表（根据角色槽位）
