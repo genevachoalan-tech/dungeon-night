@@ -628,8 +628,9 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backgr
 .g6-panel-slot.empty{background:rgba(0,0,0,.2);border-color:#4a3520;color:#666}
 .g6-panel-slot.exclusive{border-color:#ffd700;background:linear-gradient(135deg,#d4a574,#e8c87a);box-shadow:0 0 8px rgba(255,215,0,.4);animation:exclusiveGlow 2s ease-in-out infinite}
 @keyframes exclusiveGlow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.4)}50%{box-shadow:0 0 16px rgba(255,215,0,.7)}}
-.g6-panel-slot .item-name{font-size:20px;text-align:center;line-height:1.3;font-weight:bold}
-.g6-panel-slot .slot-name{font-size:14px;margin-bottom:6px;opacity:.8}
+.g6-panel-slot .item-name{font-size:16px;text-align:center;line-height:1.3;font-weight:bold}
+.g6-panel-slot .item-desc{font-size:9px;color:#5c4033;text-align:center;line-height:1.2;margin-top:2px;font-weight:normal;opacity:.85}
+.g6-panel-slot .slot-name{font-size:12px;margin-bottom:4px;opacity:.8}
 .g6-panel-skills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .g6-panel-skill{border:2px solid;border-radius:6px;padding:6px;font-size:10px;background:rgba(0,0,0,.3);min-height:70px;display:flex;flex-direction:column}
 .g6-panel-skill .skill-name{font-weight:bold;font-size:11px;margin-bottom:3px}
@@ -4253,12 +4254,16 @@ window.G.g6RenderCharPanel=function(p){
       }else{
         items.forEach((item,ii)=>{
           const canUse=p.id===myPeerId&&!p.dead&&item.effect!=='reflectHalf';
-          html+='<div class="g6-panel-slot'+(canUse?' usable':'')+'"'+(canUse?' onclick="G.g6PromptUseItem(\''+p.id+'\',\''+item.id+'\')"':'')+'><div class="slot-name">道具'+(items.length>1?(ii+1):'')+'</div><div class="item-name">'+(item.icon||'')+' '+item.name+'</div>'+(canUse?'<div class="use-hint">点击使用</div>':'')+'</div>';
+          html+='<div class="g6-panel-slot'+(canUse?' usable':'')+'"'+(canUse?' onclick="G.g6PromptUseItem(\''+p.id+'\',\''+item.id+'\')"':'')+'><div class="slot-name">道具'+(items.length>1?(ii+1):'')+'</div><div class="item-name">'+(item.icon||'')+' '+item.name+'</div>'+(item.desc?'<div class="item-desc">'+item.desc+'</div>':'')+(canUse?'<div class="use-hint">点击使用</div>':'')+'</div>';
         });
       }
+    }else if(slotName==='宝物'){
+      // 宝物槽：从p.treasures查找
+      const treasure=p.treasures?.[0];
+      html+='<div class="g6-panel-slot'+(treasure?'':' empty')+'"><div class="slot-name">宝物</div>'+(treasure?'<div class="item-name">'+(treasure.icon||'💎')+' '+treasure.name+'</div><div class="item-desc">'+treasure.desc+'</div>':'')+'</div>';
     }else{
       const item=p.equipment?.find(e=>e.slot===slotName);
-      html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+'"><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>':'')+'</div>';
+      html+='<div class="g6-panel-slot'+(item?'':' empty')+(item?.exclusive?' exclusive':'')+'"><div class="slot-name">'+slotName+'</div>'+(item?'<div class="item-name">'+(item.icon||'')+' '+item.name+(item.bonus?' <span style="color:#ffd700">+'+item.bonus+'</span>':'')+'</div>'+(item.desc?'<div class="item-desc">'+item.desc+'</div>':''):'')+'</div>';
     }
   });
   html+='</div>';
@@ -4283,8 +4288,8 @@ window.G.g6RenderCharPanel=function(p){
   for(let i=0;i<2;i++){
     const item=p.backpack?.[i];
     if(item){
-      const canEquip=p.id===myPeerId&&!p.dead&&item.slot&&item.slot!=='宝物'&&item.slot!=='道具';
-      html+='<div class="bp-slot'+(canEquip?' usable':'')+'"'+(canEquip?' onclick="G.g6EquipFromBackpack(\''+p.id+'\','+i+')"':'')+' style="cursor:'+(canEquip?'pointer':'default')+'" title="'+(item.desc||'')+'">'+(item.icon||'')+' '+item.name+(canEquip?'<div style="font-size:9px;color:#ffd700">点击装备</div>':'')+'</div>';
+      const canEquip=p.id===myPeerId&&!p.dead&&item.slot&&item.slot!=='宝物';
+      html+='<div class="bp-slot'+(canEquip?' usable':'')+'"'+(canEquip?' onclick="G.g6EquipFromBackpack(\''+p.id+'\','+i+')"':'')+' style="cursor:'+(canEquip?'pointer':'default')+'" title="'+(item.desc||'')+'">'+(item.icon||'')+' '+item.name+(item.desc?'<div style="font-size:9px;color:#aaa;margin-top:2px">'+item.desc.substring(0,20)+(item.desc.length>20?'...':'')+'</div>':'')+(canEquip?'<div style="font-size:9px;color:#ffd700">点击装备</div>':'')+'</div>';
     }else{
       html+='<div class="bp-slot">空</div>';
     }
@@ -5236,15 +5241,32 @@ window.G.g6AssignItem=function(peerId,targetId){
   if(!g.itemDrop)return;
   const target=state.players[targetId];
   if(!target||target.dead||target.team!==g.itemDrop.team)return;
-  // 检查道具槽（怪物掉落可以持有多个道具）
   if(!target.equipment)target.equipment=[];
-  // 分配道具
-  target.equipment.push(g.itemDrop.item);
+  if(!target.backpack)target.backpack=[];
+  const item=g.itemDrop.item;
+  // 如果已有道具，新道具放入背包
+  const existingItem=target.equipment.find(e=>e.slot==='道具');
+  if(existingItem){
+    if(target.backpack.length<2){
+      target.backpack.push({...item});
+      state.message=target.name+' 获得道具：'+item.name+'（背包）';
+    }else{
+      // 背包满了，直接装备（替换旧道具，旧道具进弃置堆）
+      if(!g.discardedEquip)g.discardedEquip=[];
+      g.discardedEquip.push({...existingItem});
+      target.equipment=target.equipment.filter(e=>e.slot!=='道具');
+      target.equipment.push({...item});
+      state.message=target.name+' 获得道具：'+item.name+'（背包已满，旧道具回收）';
+    }
+  }else{
+    target.equipment.push({...item});
+    state.message=target.name+' 获得道具：'+item.name;
+  }
   g.itemDrop.assigned=targetId;
-  state.message=target.name+' 获得道具：'+g.itemDrop.item.name;
-  g.lastEffect={type:'item',text:target.name+'获得'+g.itemDrop.item.name,sub:'🎁道具'};
+  g.lastEffect={type:'item',text:target.name+'获得'+item.name,sub:'🎁道具'};
   g.itemDrop=null;
   g.phase='moving';
+  broadcastState();this.renderG6();
   this.g6NextTurn();
 };
 
@@ -5257,17 +5279,35 @@ window.G.g6EquipFromBackpack=function(playerId,backpackIndex){
   if(!player||player.dead||!player.backpack||!player.backpack[backpackIndex])return;
   const item=player.backpack[backpackIndex];
   const charConfig=G6_CHAR_SKILLS[player.character];
-  if(!charConfig?.equip?.includes(item.slot)){state.message=player.name+'没有'+item.slot+'槽位';broadcastState();this.renderG6();return;}
-  // 旧装备放回背包
-  const oldEquip=player.equipment.find(e=>e.slot===item.slot);
-  if(oldEquip&&!oldEquip.exclusive){
-    player.backpack[backpackIndex]={...oldEquip};
+  if(item.slot==='宝物'){
+    // 宝物：替换当前宝物
+    if(!player.treasures)player.treasures=[];
+    const oldTreasure=player.treasures[0];
+    player.treasures[0]={...item};
+    if(oldTreasure){player.backpack[backpackIndex]={...oldTreasure};}
+    else{player.backpack.splice(backpackIndex,1);}
+    state.message=player.name+' 从背包装备了 '+item.name;
+  }else if(item.slot==='道具'){
+    // 道具：替换当前道具
+    if(!player.equipment)player.equipment=[];
+    const oldItem=player.equipment.find(e=>e.slot==='道具');
+    if(oldItem){player.backpack[backpackIndex]={...oldItem};}
+    else{player.backpack.splice(backpackIndex,1);}
+    player.equipment=player.equipment.filter(e=>e.slot!=='道具');
+    player.equipment.push({...item});
+    state.message=player.name+' 从背包装备了 '+item.name;
   }else{
-    player.backpack.splice(backpackIndex,1);
+    if(!charConfig?.equip?.includes(item.slot)){state.message=player.name+'没有'+item.slot+'槽位';broadcastState();this.renderG6();return;}
+    const oldEquip=player.equipment.find(e=>e.slot===item.slot);
+    if(oldEquip&&!oldEquip.exclusive){
+      player.backpack[backpackIndex]={...oldEquip};
+    }else{
+      player.backpack.splice(backpackIndex,1);
+    }
+    player.equipment=player.equipment.filter(e=>e.slot!==item.slot);
+    player.equipment.push({...item});
+    state.message=player.name+' 从背包装备了 '+item.name;
   }
-  player.equipment=player.equipment.filter(e=>e.slot!==item.slot);
-  player.equipment.push({...item});
-  state.message=player.name+' 从背包装备了 '+item.name;
   broadcastState();this.renderG6();
 };
 
