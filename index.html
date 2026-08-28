@@ -2922,6 +2922,7 @@ window.G.actionG6=function(peerId,action){
   else if(action.type==='g6useitem'){this.g6UseItem(peerId,action.targetId)}
   else if(action.type==='g6skill'){this.g6UseSkill(peerId,action.skillIndex)}
   else if(action.type==='g6seal'){this.g6SealSkill(peerId,action.skillIndex)}
+  else if(action.type==='g6equipbackpack'){this.g6EquipFromBackpack(action.playerId,action.backpackIndex)}
   else if(action.type==='g6confirm'){this.g6ResolveCombat(peerId,{confirm:true})}
 };
 
@@ -3733,7 +3734,7 @@ window.G.renderG6=function(){
   // 队伍状态
   html+='<div class="g6-teams">';
   ['red','blue'].forEach(team=>{
-    const members=Object.values(state.players).filter(p=>p.team===team);
+    const members=Object.values(state.players).filter(p=>p.team===team&&p.character);
     const totalScore=members.reduce((s,p)=>s+g6HpScore(p),0);
     const totalGold=members.reduce((s,p)=>(s+(p.gold||0)),0);
     const tp=g.teamPos[team];
@@ -3744,8 +3745,10 @@ window.G.renderG6=function(){
     html+='<div class="g6-team-stats">总分:'+(totalScore+totalGold)+' (血'+totalScore+'+金'+totalGold+')</div>';
     html+='<div class="g6-team-members">';
     members.forEach(p=>{
+      const charData=CHARACTERS.find(c=>c.id===p.character);
+      if(!charData)return;
       html+='<div class="g6-member'+(p.dead?' dead':'')+'">';
-      html+='<img src="'+CHARACTERS.find(c=>c.id===p.character).img+'" class="g6-member-avatar">';
+      html+='<img src="'+charData.img+'" class="g6-member-avatar">';
       html+='<span>'+p.name+'</span>';
       html+='<span>命'+(p.life||1)+' 血'+(p.hp||0)+'</span>';
       html+='</div>';
@@ -5248,7 +5251,7 @@ window.G.g6AssignItem=function(peerId,targetId){
 // 道具使用提示（选择目标）
 // 从背包装备物品
 window.G.g6EquipFromBackpack=function(playerId,backpackIndex){
-  if(!isHost)return;
+  if(!isHost){sendAction({type:'g6equipbackpack',playerId:playerId,backpackIndex:backpackIndex});return;}
   const g=state.game;
   const player=state.players[playerId];
   if(!player||player.dead||!player.backpack||!player.backpack[backpackIndex])return;
