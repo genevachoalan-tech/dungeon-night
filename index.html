@@ -5780,24 +5780,24 @@ window.G.g6GetAvailableItems=function(player){
   const items=[];
   // 主武器
   if(slots.includes('主武器')){
-    Object.entries(G6_MAIN_WEAPONS).forEach(([id,w])=>items.push({type:'mainWeapon',id,...w}));
+    Object.entries(G6_MAIN_WEAPONS).forEach(([id,w])=>items.push({...w,type:'mainWeapon',id:id}));
   }
   // 副武器
   if(slots.includes('副武器')){
-    Object.entries(G6_SECONDARY_WEAPONS).forEach(([id,w])=>items.push({type:'secondaryWeapon',id,...w}));
+    Object.entries(G6_SECONDARY_WEAPONS).forEach(([id,w])=>items.push({...w,type:'secondaryWeapon',id:id}));
   }
   // 护盾
   if(slots.includes('护盾')){
-    Object.entries(G6_SHIELDS).forEach(([id,s])=>items.push({type:'shield',id,...s}));
+    Object.entries(G6_SHIELDS).forEach(([id,s])=>items.push({...s,type:'shield',id:id}));
   }
   // 宝物
   if(slots.includes('宝物')){
-    Object.entries(G6_TREASURES).forEach(([id,t])=>items.push({type:'treasure',id,...t}));
+    Object.entries(G6_TREASURES).forEach(([id,t])=>items.push({...t,type:'treasure',id:id}));
   }
   // 道具（利己+损人）
   if(slots.includes('道具')){
-    Object.entries(G6_ITEMS_SELF).forEach(([id,it])=>items.push({type:'item',id,...it}));
-    Object.entries(G6_ITEMS_ENEMY).forEach(([id,it])=>items.push({type:'item',id,...it}));
+    Object.entries(G6_ITEMS_SELF).forEach(([id,it])=>items.push({...it,type:'item',id:id}));
+    Object.entries(G6_ITEMS_ENEMY).forEach(([id,it])=>items.push({...it,type:'item',id:id}));
   }
   // 弃置堆中的装备（刷回商店）
   if(g.discardedEquip&&g.discardedEquip.length>0){
